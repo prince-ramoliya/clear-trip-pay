@@ -455,6 +455,98 @@ export function useTrips(userId: string | undefined) {
     }
   }, [currentTripId, fetchTripDetails, toast]);
 
+  // Remove member from trip
+  const removeMember = useCallback(async (memberId: string) => {
+    if (!currentTripId) return false;
+
+    try {
+      // Check if member has any expenses
+      const { data: memberExpenses } = await supabase
+        .from('expenses')
+        .select('id')
+        .eq('trip_id', currentTripId)
+        .eq('paid_by', memberId)
+        .limit(1);
+
+      if (memberExpenses && memberExpenses.length > 0) {
+        toast({
+          title: "Cannot remove member",
+          description: "This member has paid for expenses. Reassign or delete those expenses first.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Check if member is a participant in any expenses
+      const { data: participations } = await supabase
+        .from('expense_participants')
+        .select('id, expense_id')
+        .eq('member_id', memberId);
+
+      if (participations && participations.length > 0) {
+        // Remove from all expense participations
+        const { error: removeParticipationError } = await supabase
+          .from('expense_participants')
+          .delete()
+          .eq('member_id', memberId);
+
+        if (removeParticipationError) throw removeParticipationError;
+      }
+
+      // Delete member
+      const { error } = await supabase
+        .from('trip_members')
+        .delete()
+        .eq('id', memberId);
+
+      if (error) throw error;
+
+      await fetchTripDetails();
+      
+      toast({
+        title: "Member removed",
+        description: "The member has been removed from the trip.",
+      });
+
+      return true;
+    } catch (error: any) {
+      toast({
+        title: "Error removing member",
+        description: error.message,
+        variant: "destructive",
+      });
+      return false;
+    }
+  }, [currentTripId, fetchTripDetails, toast]);
+
+  // Update member name
+  const updateMemberName = useCallback(async (memberId: string, newName: string) => {
+    try {
+      const { error } = await supabase
+        .from('trip_members')
+        .update({ display_name: newName })
+        .eq('id', memberId);
+
+      if (error) throw error;
+
+      await fetchTripDetails();
+      
+      toast({
+        title: "Member updated",
+        description: "Member name has been updated.",
+      });
+
+      return true;
+    } catch (error: any) {
+      toast({
+        title: "Error updating member",
+        description: error.message,
+        variant: "destructive",
+      });
+      return false;
+    }
+  }, [fetchTripDetails, toast]);
+
   // Set up realtime subscriptions
   useEffect(() => {
     if (!userId) return;
@@ -517,6 +609,8 @@ export function useTrips(userId: string | undefined) {
     removeExpense,
     joinTripByCode,
     addMember,
+    removeMember,
+    updateMemberName,
     refreshTrips: fetchTrips,
     refreshTripDetails: fetchTripDetails,
   };
