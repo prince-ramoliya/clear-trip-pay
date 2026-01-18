@@ -81,7 +81,12 @@ export default function Index() {
     }
 
     const tripForView = {
-      ...currentTripData.trip,
+      id: currentTripData.trip.id,
+      name: currentTripData.trip.name,
+      destination: currentTripData.trip.destination,
+      startDate: currentTripData.trip.start_date,
+      endDate: currentTripData.trip.end_date,
+      createdAt: currentTripData.trip.created_at,
       members: currentTripData.members.map(m => ({ id: m.id, name: m.display_name })),
       expenses: currentTripData.expenses.map(e => ({
         id: e.id, title: e.title, amount: Number(e.amount), paidBy: e.paid_by,
