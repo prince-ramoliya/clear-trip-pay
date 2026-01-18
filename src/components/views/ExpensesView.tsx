@@ -1,30 +1,27 @@
-import { Trip, ExpenseCategory } from "@/types/trip";
+import { useState } from "react";
+import { DbTripMember, DbExpense, DbExpenseParticipant } from "@/types/database";
 import { ExpenseCard } from "@/components/trip/ExpenseCard";
 import { TripStats } from "@/components/trip/TripStats";
 import { AddExpenseDialog } from "@/components/trip/AddExpenseDialog";
+import { EditExpenseDialog } from "@/components/trip/EditExpenseDialog";
 import { Button } from "@/components/ui/button";
 import { Plus, Receipt } from "lucide-react";
-import { useState } from "react";
+import { Trip } from "@/types/trip";
 
 interface ExpensesViewProps {
   trip: Trip;
-  onAddExpense: (expense: {
-    title: string;
-    amount: number;
-    paidBy: string;
-    participants: string[];
-    category: ExpenseCategory;
-    date: string;
-  }) => void;
-  onRemoveExpense: (expenseId: string) => void;
+  members: DbTripMember[];
+  expenses: (DbExpense & { participants: DbExpenseParticipant[] })[];
+  onAddExpense: (expense: { title: string; amount: number; paidBy: string; participants: string[]; category: string; date: string; }) => Promise<any>;
+  onUpdateExpense: (expenseId: string, expense: { title: string; amount: number; paidBy: string; participants: string[]; category: string; date: string; }) => Promise<boolean>;
+  onRemoveExpense: (expenseId: string) => Promise<boolean>;
 }
 
-export function ExpensesView({ trip, onAddExpense, onRemoveExpense }: ExpensesViewProps) {
+export function ExpensesView({ trip, members, expenses, onAddExpense, onUpdateExpense, onRemoveExpense }: ExpensesViewProps) {
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<(DbExpense & { participants: DbExpenseParticipant[] }) | null>(null);
 
-  const sortedExpenses = [...trip.expenses].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  const sortedExpenses = [...expenses].sort((a, b) => new Date(b.expense_date).getTime() - new Date(a.expense_date).getTime());
 
   return (
     <div className="space-y-6">
@@ -33,11 +30,10 @@ export function ExpensesView({ trip, onAddExpense, onRemoveExpense }: ExpensesVi
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold text-foreground">Expenses</h2>
-          <p className="text-sm text-muted-foreground">{trip.expenses.length} transactions</p>
+          <p className="text-sm text-muted-foreground">{expenses.length} transactions</p>
         </div>
         <Button onClick={() => setIsAddExpenseOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Expense
+          <Plus className="h-4 w-4 mr-2" /> Add Expense
         </Button>
       </div>
 
@@ -46,8 +42,9 @@ export function ExpensesView({ trip, onAddExpense, onRemoveExpense }: ExpensesVi
           {sortedExpenses.map(expense => (
             <ExpenseCard
               key={expense.id}
-              expense={expense}
-              members={trip.members}
+              expense={{ id: expense.id, title: expense.title, amount: Number(expense.amount), paidBy: expense.paid_by, participants: expense.participants.map(p => p.member_id), category: expense.category as any, date: expense.expense_date, createdAt: expense.created_at }}
+              members={members.map(m => ({ id: m.id, name: m.display_name }))}
+              onEdit={() => setEditingExpense(expense)}
               onDelete={() => onRemoveExpense(expense.id)}
             />
           ))}
@@ -58,22 +55,15 @@ export function ExpensesView({ trip, onAddExpense, onRemoveExpense }: ExpensesVi
             <Receipt className="h-8 w-8 text-muted-foreground" />
           </div>
           <h3 className="text-lg font-medium text-foreground mb-2">No expenses yet</h3>
-          <p className="text-sm text-muted-foreground mb-4 max-w-sm">
-            Start tracking your trip expenses by adding your first transaction.
-          </p>
-          <Button onClick={() => setIsAddExpenseOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add First Expense
-          </Button>
+          <p className="text-sm text-muted-foreground mb-4">Start tracking by adding your first expense.</p>
+          <Button onClick={() => setIsAddExpenseOpen(true)}><Plus className="h-4 w-4 mr-2" /> Add First Expense</Button>
         </div>
       )}
 
-      <AddExpenseDialog
-        open={isAddExpenseOpen}
-        onOpenChange={setIsAddExpenseOpen}
-        members={trip.members}
-        onAddExpense={onAddExpense}
-      />
+      <AddExpenseDialog open={isAddExpenseOpen} onOpenChange={setIsAddExpenseOpen} members={members} onAddExpense={onAddExpense} />
+      {editingExpense && (
+        <EditExpenseDialog open={!!editingExpense} onOpenChange={(open) => !open && setEditingExpense(null)} expense={editingExpense} members={members} onUpdateExpense={onUpdateExpense} />
+      )}
     </div>
   );
 }

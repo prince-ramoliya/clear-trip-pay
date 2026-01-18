@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Member, ExpenseCategory } from "@/types/trip";
+import { DbTripMember } from "@/types/database";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,32 +23,34 @@ import { getCategoryIcon, getCategoryLabel } from "@/lib/calculations";
 interface AddExpenseDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  members: Member[];
+  members: DbTripMember[];
   onAddExpense: (expense: {
     title: string;
     amount: number;
     paidBy: string;
     participants: string[];
-    category: ExpenseCategory;
+    category: string;
     date: string;
-  }) => void;
+  }) => Promise<any>;
 }
 
-const categories: ExpenseCategory[] = ['food', 'stay', 'travel', 'shopping', 'activities', 'other'];
+const categories = ['food', 'stay', 'travel', 'shopping', 'activities', 'other'];
 
 export function AddExpenseDialog({ open, onOpenChange, members, onAddExpense }: AddExpenseDialogProps) {
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [paidBy, setPaidBy] = useState('');
-  const [category, setCategory] = useState<ExpenseCategory>('food');
+  const [category, setCategory] = useState('food');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [participants, setParticipants] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title || !amount || !paidBy || participants.length === 0) return;
 
-    onAddExpense({
+    setLoading(true);
+    await onAddExpense({
       title,
       amount: parseFloat(amount),
       paidBy,
@@ -56,8 +58,8 @@ export function AddExpenseDialog({ open, onOpenChange, members, onAddExpense }: 
       category,
       date,
     });
+    setLoading(false);
 
-    // Reset form
     setTitle('');
     setAmount('');
     setPaidBy('');
@@ -69,14 +71,8 @@ export function AddExpenseDialog({ open, onOpenChange, members, onAddExpense }: 
 
   const toggleParticipant = (memberId: string) => {
     setParticipants(prev =>
-      prev.includes(memberId)
-        ? prev.filter(id => id !== memberId)
-        : [...prev, memberId]
+      prev.includes(memberId) ? prev.filter(id => id !== memberId) : [...prev, memberId]
     );
-  };
-
-  const selectAllParticipants = () => {
-    setParticipants(members.map(m => m.id));
   };
 
   return (
@@ -84,126 +80,62 @@ export function AddExpenseDialog({ open, onOpenChange, members, onAddExpense }: 
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Add Expense</DialogTitle>
-          <DialogDescription>
-            Add a new expense to split among group members.
-          </DialogDescription>
+          <DialogDescription>Add a new expense to split among group members.</DialogDescription>
         </DialogHeader>
-
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
             <Label htmlFor="title">Description</Label>
-            <Input
-              id="title"
-              placeholder="e.g., Dinner at restaurant"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
+            <Input id="title" placeholder="e.g., Dinner" value={title} onChange={(e) => setTitle(e.target.value)} required />
           </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="amount">Amount (₹)</Label>
-              <Input
-                id="amount"
-                type="number"
-                placeholder="0.00"
-                min="0"
-                step="0.01"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                required
-              />
+              <Label>Amount (₹)</Label>
+              <Input type="number" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required />
             </div>
-
             <div className="space-y-2">
-              <Label htmlFor="date">Date</Label>
-              <Input
-                id="date"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
-              />
+              <Label>Date</Label>
+              <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
             </div>
           </div>
-
           <div className="space-y-2">
             <Label>Category</Label>
-            <Select value={category} onValueChange={(value) => setCategory(value as ExpenseCategory)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {categories.map(cat => (
                   <SelectItem key={cat} value={cat}>
-                    <span className="flex items-center gap-2">
-                      <span>{getCategoryIcon(cat)}</span>
-                      <span>{getCategoryLabel(cat)}</span>
-                    </span>
+                    <span className="flex items-center gap-2"><span>{getCategoryIcon(cat)}</span><span>{getCategoryLabel(cat)}</span></span>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
-
           <div className="space-y-2">
             <Label>Paid by</Label>
             <Select value={paidBy} onValueChange={setPaidBy}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select who paid" />
-              </SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="Select who paid" /></SelectTrigger>
               <SelectContent>
-                {members.map(member => (
-                  <SelectItem key={member.id} value={member.id}>
-                    {member.name}
-                  </SelectItem>
-                ))}
+                {members.map(m => <SelectItem key={m.id} value={m.id}>{m.display_name}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
-
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label>Split between</Label>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={selectAllParticipants}
-                className="text-xs text-primary"
-              >
-                Select all
-              </Button>
+              <Button type="button" variant="ghost" size="sm" onClick={() => setParticipants(members.map(m => m.id))} className="text-xs text-primary">Select all</Button>
             </div>
             <div className="grid grid-cols-2 gap-2 p-3 rounded-lg border bg-muted/30">
-              {members.map(member => (
-                <label
-                  key={member.id}
-                  className="flex items-center gap-2 cursor-pointer p-2 rounded-md hover:bg-accent transition-colors"
-                >
-                  <Checkbox
-                    checked={participants.includes(member.id)}
-                    onCheckedChange={() => toggleParticipant(member.id)}
-                  />
-                  <span className="text-sm">{member.name}</span>
+              {members.map(m => (
+                <label key={m.id} className="flex items-center gap-2 cursor-pointer p-2 rounded-md hover:bg-accent">
+                  <Checkbox checked={participants.includes(m.id)} onCheckedChange={() => toggleParticipant(m.id)} />
+                  <span className="text-sm">{m.display_name}</span>
                 </label>
               ))}
             </div>
           </div>
-
           <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              className="flex-1"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" className="flex-1">
-              Add Expense
-            </Button>
+            <Button type="button" variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>Cancel</Button>
+            <Button type="submit" className="flex-1" disabled={loading}>{loading ? 'Adding...' : 'Add Expense'}</Button>
           </div>
         </form>
       </DialogContent>
