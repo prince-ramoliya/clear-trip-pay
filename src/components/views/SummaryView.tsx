@@ -37,12 +37,12 @@ export function SummaryView({ trip }: SummaryViewProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <TripStats trip={trip} />
 
       <div>
-        <h2 className="text-xl font-semibold text-foreground mb-4">Individual Balances</h2>
-        <div className="grid gap-4 md:grid-cols-2">
+        <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-3 sm:mb-4">Individual Balances</h2>
+        <div className="grid gap-3 sm:gap-4 sm:grid-cols-2">
           {balances.map(balance => (
             <BalanceCard
               key={balance.memberId}
@@ -56,37 +56,37 @@ export function SummaryView({ trip }: SummaryViewProps) {
       </div>
 
       {categoryData.length > 0 && (
-        <div className="rounded-xl bg-card p-6 card-shadow">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-              <PieChartIcon className="h-5 w-5 text-primary" />
+        <div className="rounded-xl bg-card p-4 sm:p-6 card-shadow">
+          <div className="flex items-center gap-3 mb-4 sm:mb-6">
+            <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
+              <PieChartIcon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
             </div>
-            <div>
-              <h2 className="text-lg font-semibold text-foreground">Spending by Category</h2>
-              <p className="text-sm text-muted-foreground">Where did the money go?</p>
+            <div className="min-w-0">
+              <h2 className="text-base sm:text-lg font-semibold text-foreground">Spending by Category</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground truncate">Where did the money go?</p>
             </div>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {categoryData.map(({ category, amount, percentage }) => (
-              <div key={category} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{getCategoryIcon(category)}</span>
-                    <span className="text-sm font-medium text-foreground">
+              <div key={category} className="space-y-1.5 sm:space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-base sm:text-lg shrink-0">{getCategoryIcon(category)}</span>
+                    <span className="text-xs sm:text-sm font-medium text-foreground truncate">
                       {getCategoryLabel(category)}
                     </span>
                   </div>
-                  <div className="text-right">
-                    <span className="text-sm font-semibold text-foreground">
+                  <div className="text-right shrink-0">
+                    <span className="text-xs sm:text-sm font-semibold text-foreground">
                       {formatCurrency(amount)}
                     </span>
-                    <span className="text-xs text-muted-foreground ml-2">
+                    <span className="text-[10px] sm:text-xs text-muted-foreground ml-1 sm:ml-2">
                       ({percentage.toFixed(0)}%)
                     </span>
                   </div>
                 </div>
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <div className="h-1.5 sm:h-2 bg-muted rounded-full overflow-hidden">
                   <div
                     className={`h-full ${categoryColors[category]} rounded-full transition-all duration-500`}
                     style={{ width: `${percentage}%` }}

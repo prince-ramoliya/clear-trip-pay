@@ -4,14 +4,16 @@ import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useTrips } from "@/hooks/useTrips";
 import { AppSidebar } from "@/components/layout/AppSidebar";
+import { BottomNavigation } from "@/components/layout/BottomNavigation";
 import { ExpensesView } from "@/components/views/ExpensesView";
 import { SummaryView } from "@/components/views/SummaryView";
 import { SettlementsView } from "@/components/views/SettlementsView";
 import { CreateTripDialog } from "@/components/trip/CreateTripDialog";
 import { JoinTripDialog } from "@/components/trip/JoinTripDialog";
 import { InviteDialog } from "@/components/trip/InviteDialog";
+import { AddExpenseDialog } from "@/components/trip/AddExpenseDialog";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, UserPlus, Loader2 } from "lucide-react";
+import { Menu, X, UserPlus, Loader2, Map } from "lucide-react";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -27,6 +29,7 @@ export default function Index() {
   const [isJoinTripOpen, setIsJoinTripOpen] = useState(false);
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isMobileAddExpenseOpen, setIsMobileAddExpenseOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -64,17 +67,17 @@ export default function Index() {
   const renderView = () => {
     if (!currentTripData) {
       return (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
           <div className="mb-6">
             <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 mx-auto mb-4">
               <span className="text-4xl">✈️</span>
             </div>
-            <h2 className="text-2xl font-bold text-foreground mb-2">Welcome to TripSplit</h2>
-            <p className="text-muted-foreground max-w-md">Create your first trip or join an existing one.</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Welcome to TripSplit</h2>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-md">Create your first trip or join an existing one.</p>
           </div>
-          <div className="flex gap-3">
-            <Button size="lg" onClick={() => setIsCreateTripOpen(true)}>Create Trip</Button>
-            <Button size="lg" variant="outline" onClick={() => setIsJoinTripOpen(true)}>Join Trip</Button>
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            <Button size="lg" onClick={() => setIsCreateTripOpen(true)} className="w-full sm:w-auto">Create Trip</Button>
+            <Button size="lg" variant="outline" onClick={() => setIsJoinTripOpen(true)} className="w-full sm:w-auto">Join Trip</Button>
           </div>
         </div>
       );
@@ -109,17 +112,32 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-sidebar border-b border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <span className="font-semibold text-sidebar-foreground">TripSplit</span>
+      {/* Mobile Header */}
+      <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-card border-b border-border">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <Button variant="ghost" size="icon" onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)} className="shrink-0">
+            {isMobileSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
+          {currentTripData ? (
+            <div className="min-w-0 flex-1">
+              <h1 className="font-semibold text-foreground truncate">{currentTripData.trip.name}</h1>
+              <p className="text-xs text-muted-foreground truncate">{currentTripData.trip.destination}</p>
+            </div>
+          ) : (
+            <span className="font-semibold text-foreground">TripSplit</span>
+          )}
         </div>
-        <Button variant="ghost" size="icon" onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)} className="text-sidebar-foreground">
-          {isMobileSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </Button>
+        {currentTripData && (
+          <Button variant="ghost" size="icon" onClick={() => setIsInviteOpen(true)} className="shrink-0">
+            <UserPlus className="h-5 w-5" />
+          </Button>
+        )}
       </header>
 
+      {/* Mobile Sidebar Overlay */}
       {isMobileSidebarOpen && <div className="lg:hidden fixed inset-0 z-40 bg-black/50" onClick={() => setIsMobileSidebarOpen(false)} />}
 
+      {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 lg:transform-none ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         <AppSidebar
           trips={trips}
@@ -133,10 +151,12 @@ export default function Index() {
         />
       </div>
 
-      <main className="lg:ml-64 pt-16 lg:pt-0">
-        <div className="max-w-5xl mx-auto p-6 lg:p-8">
+      {/* Main Content */}
+      <main className="lg:ml-64 pt-14 lg:pt-0 pb-20 lg:pb-0">
+        <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
+          {/* Desktop Trip Header */}
           {currentTripData && (
-            <div className="flex items-center justify-between mb-8">
+            <div className="hidden lg:flex items-center justify-between mb-8">
               <div>
                 <h1 className="text-2xl lg:text-3xl font-bold text-foreground">{currentTripData.trip.name}</h1>
                 <p className="text-muted-foreground">{currentTripData.trip.destination}</p>
@@ -150,10 +170,27 @@ export default function Index() {
         </div>
       </main>
 
+      {/* Bottom Navigation (Mobile Only) */}
+      <BottomNavigation
+        currentView={currentView}
+        onViewChange={setCurrentView}
+        onAddExpense={() => setIsMobileAddExpenseOpen(true)}
+        hasTripSelected={!!currentTripData}
+      />
+
+      {/* Dialogs */}
       <CreateTripDialog open={isCreateTripOpen} onOpenChange={setIsCreateTripOpen} onCreate={handleCreateTrip} />
       <JoinTripDialog open={isJoinTripOpen} onOpenChange={setIsJoinTripOpen} onJoinTrip={joinTripByCode} />
       {currentTripData && (
-        <InviteDialog open={isInviteOpen} onOpenChange={setIsInviteOpen} inviteCode={currentTripData.trip.invite_code} tripName={currentTripData.trip.name} />
+        <>
+          <InviteDialog open={isInviteOpen} onOpenChange={setIsInviteOpen} inviteCode={currentTripData.trip.invite_code} tripName={currentTripData.trip.name} />
+          <AddExpenseDialog 
+            open={isMobileAddExpenseOpen} 
+            onOpenChange={setIsMobileAddExpenseOpen} 
+            members={currentTripData.members} 
+            onAddExpense={addExpense} 
+          />
+        </>
       )}
     </div>
   );

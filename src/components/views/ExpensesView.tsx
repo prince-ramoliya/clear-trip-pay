@@ -24,21 +24,22 @@ export function ExpensesView({ trip, members, expenses, onAddExpense, onUpdateEx
   const sortedExpenses = [...expenses].sort((a, b) => new Date(b.expense_date).getTime() - new Date(a.expense_date).getTime());
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <TripStats trip={trip} />
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold text-foreground">Expenses</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="text-lg sm:text-xl font-semibold text-foreground">Expenses</h2>
           <p className="text-sm text-muted-foreground">{expenses.length} transactions</p>
         </div>
-        <Button onClick={() => setIsAddExpenseOpen(true)}>
+        {/* Hide on mobile - use bottom nav button instead */}
+        <Button onClick={() => setIsAddExpenseOpen(true)} className="hidden sm:flex">
           <Plus className="h-4 w-4 mr-2" /> Add Expense
         </Button>
       </div>
 
       {sortedExpenses.length > 0 ? (
-        <div className="space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {sortedExpenses.map(expense => (
             <ExpenseCard
               key={expense.id}
@@ -50,12 +51,12 @@ export function ExpensesView({ trip, members, expenses, onAddExpense, onUpdateEx
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted mb-4">
-            <Receipt className="h-8 w-8 text-muted-foreground" />
+        <div className="flex flex-col items-center justify-center py-12 sm:py-16 text-center px-4">
+          <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-muted mb-4">
+            <Receipt className="h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground" />
           </div>
-          <h3 className="text-lg font-medium text-foreground mb-2">No expenses yet</h3>
-          <p className="text-sm text-muted-foreground mb-4">Start tracking by adding your first expense.</p>
+          <h3 className="text-base sm:text-lg font-medium text-foreground mb-2">No expenses yet</h3>
+          <p className="text-xs sm:text-sm text-muted-foreground mb-4">Start tracking by adding your first expense.</p>
           <Button onClick={() => setIsAddExpenseOpen(true)}><Plus className="h-4 w-4 mr-2" /> Add First Expense</Button>
         </div>
       )}
