@@ -29,23 +29,33 @@ Deno.serve(async (req) => {
     }
 
     const authHeader = req.headers.get("Authorization") ?? "";
+    console.log("Auth header present:", !!authHeader);
 
-    const admin = createClient(supabaseUrl, serviceRoleKey, {
+    // Create admin client with service role key (bypasses RLS)
+    const adminClient = createClient(supabaseUrl, serviceRoleKey);
+
+    // Create user client to validate JWT
+    const userClient = createClient(supabaseUrl, serviceRoleKey, {
       global: { headers: { Authorization: authHeader } },
     });
 
     // Validate user
-    const { data: userData, error: userError } = await admin.auth.getUser();
+    const { data: userData, error: userError } = await userClient.auth.getUser();
     if (userError || !userData?.user) {
+      console.error("User auth error:", userError?.message);
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    console.log("Authenticated user:", userData.user.id);
+
     const { inviteCode }: JoinTripRequest = await req.json().catch(() => ({}));
 
     const normalized = (inviteCode ?? "").trim().toLowerCase();
+    console.log("Looking up invite code:", normalized);
+
     if (!normalized) {
       return new Response(JSON.stringify({ error: "Invite code is required" }), {
         status: 400,
@@ -53,12 +63,14 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Lookup trip by invite code (case-insensitive). This runs with service role.
-    const { data: trip, error: tripError } = await admin
+    // Lookup trip by invite code using admin client (bypasses RLS)
+    const { data: trip, error: tripError } = await adminClient
       .from("trips")
       .select("id,name,invite_code")
       .ilike("invite_code", normalized)
       .maybeSingle();
+
+    console.log("Trip lookup result:", { trip, error: tripError?.message });
 
     if (tripError) {
       console.error("Trip lookup error", tripError);
@@ -69,6 +81,7 @@ Deno.serve(async (req) => {
     }
 
     if (!trip) {
+      console.log("No trip found for code:", normalized);
       return new Response(JSON.stringify({ error: "INVALID_CODE" }), {
         status: 404,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -76,9 +89,10 @@ Deno.serve(async (req) => {
     }
 
     const userId = userData.user.id;
+    console.log("Found trip:", trip.id, "- checking membership for user:", userId);
 
-    // If already a member, just return trip id.
-    const { data: existingMember, error: memberLookupError } = await admin
+    // Check if already a member using admin client
+    const { data: existingMember, error: memberLookupError } = await adminClient
       .from("trip_members")
       .select("id")
       .eq("trip_id", trip.id)
@@ -93,32 +107,40 @@ Deno.serve(async (req) => {
       });
     }
 
-    if (!existingMember) {
-      // Get display name (best-effort)
-      const { data: profile } = await admin
-        .from("profiles")
-        .select("display_name")
-        .eq("id", userId)
-        .maybeSingle();
-
-      const displayName = profile?.display_name ?? "New Member";
-
-      const { error: insertError } = await admin.from("trip_members").insert({
-        trip_id: trip.id,
-        user_id: userId,
-        display_name: displayName,
-        is_registered: true,
+    if (existingMember) {
+      console.log("User already a member, returning trip id");
+      return new Response(JSON.stringify({ tripId: trip.id, alreadyMember: true }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
-
-      if (insertError) {
-        console.error("Member insert error", insertError);
-        return new Response(JSON.stringify({ error: "Failed to join trip" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
     }
 
+    // Get display name using admin client
+    const { data: profile } = await adminClient
+      .from("profiles")
+      .select("display_name")
+      .eq("id", userId)
+      .maybeSingle();
+
+    const displayName = profile?.display_name ?? "New Member";
+    console.log("Adding user as member with display name:", displayName);
+
+    const { error: insertError } = await adminClient.from("trip_members").insert({
+      trip_id: trip.id,
+      user_id: userId,
+      display_name: displayName,
+      is_registered: true,
+    });
+
+    if (insertError) {
+      console.error("Member insert error", insertError);
+      return new Response(JSON.stringify({ error: "Failed to join trip" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    console.log("Successfully joined trip:", trip.id);
     return new Response(JSON.stringify({ tripId: trip.id }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
