@@ -72,21 +72,23 @@ export function MembersDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-h-[85vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
+      <DialogContent className="sm:max-w-md max-h-[80vh] w-[calc(100%-2rem)] mx-auto overflow-hidden flex flex-col rounded-xl">
+        <DialogHeader className="pb-3 border-b">
+          <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+              <Users className="h-4 w-4 text-primary" />
+            </div>
             Trip Members
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-xs sm:text-sm">
             {isAdmin 
-              ? "Manage members of this trip. Add, edit, or remove participants."
-              : `${members.length} member${members.length !== 1 ? 's' : ''} in this trip`
+              ? "Manage trip participants"
+              : `${members.length} member${members.length !== 1 ? 's' : ''}`
             }
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto -mx-6 px-6">
+        <div className="flex-1 overflow-y-auto py-3 -mx-6 px-6">
           <div className="space-y-2">
             {members.map((member) => {
               const isSelf = member.user_id === currentUserId;
@@ -98,12 +100,12 @@ export function MembersDialog({
                 <div
                   key={member.id}
                   className={cn(
-                    "flex items-center gap-3 p-3 rounded-lg bg-muted/50 transition-colors",
+                    "flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg bg-muted/50 transition-colors",
                     isEditing && "bg-accent"
                   )}
                 >
                   <div className={cn(
-                    "flex h-10 w-10 items-center justify-center rounded-full font-semibold shrink-0",
+                    "flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full text-sm sm:text-base font-semibold shrink-0",
                     member.is_registered ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
                   )}>
                     {member.display_name.charAt(0).toUpperCase()}
@@ -114,7 +116,7 @@ export function MembersDialog({
                       <Input
                         value={editingName}
                         onChange={(e) => setEditingName(e.target.value)}
-                        className="h-8"
+                        className="h-8 text-sm"
                         autoFocus
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') handleSaveEdit(member.id);
@@ -123,9 +125,9 @@ export function MembersDialog({
                       />
                     ) : (
                       <>
-                        <p className="font-medium text-foreground truncate">
+                        <p className="text-sm font-medium text-foreground truncate">
                           {member.display_name}
-                          {isSelf && <span className="text-xs text-muted-foreground ml-2">(You)</span>}
+                          {isSelf && <span className="text-xs text-muted-foreground ml-1">(You)</span>}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {isCreator ? "Admin" : member.is_registered ? "Registered" : "Guest"}
@@ -135,26 +137,26 @@ export function MembersDialog({
                   </div>
 
                   {isAdmin && !isCreator && (
-                    <div className="flex items-center gap-1 shrink-0">
+                    <div className="flex items-center gap-0.5 shrink-0">
                       {isEditing ? (
                         <>
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8"
+                            className="h-7 w-7 sm:h-8 sm:w-8"
                             onClick={() => handleSaveEdit(member.id)}
                             disabled={isLoading}
                           >
-                            <Check className="h-4 w-4 text-success" />
+                            <Check className="h-3.5 w-3.5 text-success" />
                           </Button>
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8"
+                            className="h-7 w-7 sm:h-8 sm:w-8"
                             onClick={handleCancelEdit}
                             disabled={isLoading}
                           >
-                            <X className="h-4 w-4" />
+                            <X className="h-3.5 w-3.5" />
                           </Button>
                         </>
                       ) : (
@@ -162,21 +164,21 @@ export function MembersDialog({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8"
+                            className="h-7 w-7 sm:h-8 sm:w-8"
                             onClick={() => handleStartEdit(member)}
                             disabled={isLoading}
                           >
-                            <Pencil className="h-4 w-4" />
+                            <Pencil className="h-3.5 w-3.5" />
                           </Button>
                           {!isSelf && (
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-destructive hover:text-destructive"
+                              className="h-7 w-7 sm:h-8 sm:w-8 text-destructive hover:text-destructive"
                               onClick={() => handleRemoveMember(member.id)}
                               disabled={isLoading}
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-3.5 w-3.5" />
                             </Button>
                           )}
                         </>
@@ -190,18 +192,24 @@ export function MembersDialog({
         </div>
 
         {isAdmin && (
-          <div className="pt-4 border-t mt-4">
+          <div className="pt-3 border-t">
             <div className="flex gap-2">
               <Input
-                placeholder="Add new member..."
+                placeholder="Add member..."
                 value={newMemberName}
                 onChange={(e) => setNewMemberName(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAddMember()}
                 disabled={isAdding}
+                className="h-9 text-sm"
               />
-              <Button onClick={handleAddMember} disabled={!newMemberName.trim() || isAdding}>
-                <Plus className="h-4 w-4 mr-1" />
-                Add
+              <Button 
+                onClick={handleAddMember} 
+                disabled={!newMemberName.trim() || isAdding}
+                size="sm"
+                className="h-9 px-3"
+              >
+                <Plus className="h-4 w-4 sm:mr-1" />
+                <span className="hidden sm:inline">Add</span>
               </Button>
             </div>
           </div>

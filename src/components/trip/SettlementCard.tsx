@@ -10,36 +10,29 @@ interface SettlementCardProps {
 
 export function SettlementCard({ settlement, onMarkSettled }: SettlementCardProps) {
   return (
-    <div className="rounded-xl bg-card p-4 sm:p-5 card-shadow animate-fade-in">
-      {/* Mobile Layout */}
+    <div className="rounded-xl bg-card p-3 sm:p-5 card-shadow animate-fade-in">
+      {/* Mobile Layout - Compact horizontal */}
       <div className="sm:hidden">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-destructive/10 text-destructive font-semibold shrink-0">
+        <div className="flex items-center gap-2">
+          {/* From person */}
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-destructive/10 text-destructive text-sm font-semibold shrink-0">
               {settlement.fromName.charAt(0).toUpperCase()}
             </div>
-            <div className="min-w-0">
-              <p className="font-medium text-foreground truncate">{settlement.fromName}</p>
-              <p className="text-xs text-muted-foreground">pays</p>
-            </div>
+            <span className="text-sm font-medium truncate">{settlement.fromName}</span>
           </div>
-        </div>
-        
-        <div className="flex items-center justify-center py-2">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/5 border border-primary/20">
-            <span className="font-bold text-primary">{formatCurrency(settlement.amount)}</span>
-            <ArrowDown className="h-4 w-4 text-primary" />
+          
+          {/* Arrow with amount */}
+          <div className="flex items-center gap-1 shrink-0 px-2 py-1 rounded-full bg-primary/10">
+            <span className="text-xs font-bold text-primary">{formatCurrency(settlement.amount)}</span>
+            <ArrowRight className="h-3 w-3 text-primary" />
           </div>
-        </div>
-        
-        <div className="flex items-center justify-between mt-3">
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-success/10 text-success font-semibold shrink-0">
+          
+          {/* To person */}
+          <div className="flex items-center gap-2 min-w-0 flex-1 justify-end">
+            <span className="text-sm font-medium truncate">{settlement.toName}</span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-success/10 text-success text-sm font-semibold shrink-0">
               {settlement.toName.charAt(0).toUpperCase()}
-            </div>
-            <div className="min-w-0">
-              <p className="font-medium text-foreground truncate">{settlement.toName}</p>
-              <p className="text-xs text-muted-foreground">receives</p>
             </div>
           </div>
         </div>
@@ -49,9 +42,9 @@ export function SettlementCard({ settlement, onMarkSettled }: SettlementCardProp
             variant="outline" 
             size="sm" 
             onClick={onMarkSettled}
-            className="w-full mt-4"
+            className="w-full mt-3 h-8 text-xs"
           >
-            <Check className="h-4 w-4 mr-1" />
+            <Check className="h-3 w-3 mr-1" />
             Mark Paid
           </Button>
         )}
