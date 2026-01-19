@@ -24,7 +24,6 @@ interface AddExpenseDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   members: DbTripMember[];
-  currentUserId?: string;
   onAddExpense: (expense: {
     title: string;
     amount: number;
@@ -37,17 +36,14 @@ interface AddExpenseDialogProps {
 
 const categories = ['food', 'stay', 'travel', 'shopping', 'activities', 'other'];
 
-export function AddExpenseDialog({ open, onOpenChange, members, currentUserId, onAddExpense }: AddExpenseDialogProps) {
+export function AddExpenseDialog({ open, onOpenChange, members, onAddExpense }: AddExpenseDialogProps) {
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
+  const [paidBy, setPaidBy] = useState('');
   const [category, setCategory] = useState('food');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [participants, setParticipants] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-
-  // Find the current user's member ID
-  const currentUserMember = members.find(m => m.user_id === currentUserId);
-  const paidBy = currentUserMember?.id || '';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,6 +62,7 @@ export function AddExpenseDialog({ open, onOpenChange, members, currentUserId, o
 
     setTitle('');
     setAmount('');
+    setPaidBy('');
     setCategory('food');
     setDate(new Date().toISOString().split('T')[0]);
     setParticipants([]);
@@ -113,14 +110,15 @@ export function AddExpenseDialog({ open, onOpenChange, members, currentUserId, o
               </SelectContent>
             </Select>
           </div>
-          {currentUserMember && (
-            <div className="space-y-2">
-              <Label>Paid by</Label>
-              <div className="flex items-center h-10 px-3 rounded-md border bg-muted/50 text-sm">
-                {currentUserMember.display_name} (You)
-              </div>
-            </div>
-          )}
+          <div className="space-y-2">
+            <Label>Paid by</Label>
+            <Select value={paidBy} onValueChange={setPaidBy}>
+              <SelectTrigger><SelectValue placeholder="Select who paid" /></SelectTrigger>
+              <SelectContent>
+                {members.map(m => <SelectItem key={m.id} value={m.id}>{m.display_name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label>Split between</Label>
