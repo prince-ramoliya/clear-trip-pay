@@ -12,12 +12,13 @@ interface ExpensesViewProps {
   trip: Trip;
   members: DbTripMember[];
   expenses: (DbExpense & { participants: DbExpenseParticipant[] })[];
+  currentUserId?: string;
   onAddExpense: (expense: { title: string; amount: number; paidBy: string; participants: string[]; category: string; date: string; }) => Promise<any>;
   onUpdateExpense: (expenseId: string, expense: { title: string; amount: number; paidBy: string; participants: string[]; category: string; date: string; }) => Promise<boolean>;
   onRemoveExpense: (expenseId: string) => Promise<boolean>;
 }
 
-export function ExpensesView({ trip, members, expenses, onAddExpense, onUpdateExpense, onRemoveExpense }: ExpensesViewProps) {
+export function ExpensesView({ trip, members, expenses, currentUserId, onAddExpense, onUpdateExpense, onRemoveExpense }: ExpensesViewProps) {
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<(DbExpense & { participants: DbExpenseParticipant[] }) | null>(null);
 
@@ -43,8 +44,9 @@ export function ExpensesView({ trip, members, expenses, onAddExpense, onUpdateEx
           {sortedExpenses.map(expense => (
             <ExpenseCard
               key={expense.id}
-              expense={{ id: expense.id, title: expense.title, amount: Number(expense.amount), paidBy: expense.paid_by, participants: expense.participants.map(p => p.member_id), category: expense.category as any, date: expense.expense_date, createdAt: expense.created_at }}
+              expense={{ id: expense.id, title: expense.title, amount: Number(expense.amount), paidBy: expense.paid_by, participants: expense.participants.map(p => p.member_id), category: expense.category as any, date: expense.expense_date, createdAt: expense.created_at, createdBy: expense.created_by }}
               members={members.map(m => ({ id: m.id, name: m.display_name }))}
+              currentUserId={currentUserId}
               onEdit={() => setEditingExpense(expense)}
               onDelete={() => onRemoveExpense(expense.id)}
             />
@@ -61,7 +63,7 @@ export function ExpensesView({ trip, members, expenses, onAddExpense, onUpdateEx
         </div>
       )}
 
-      <AddExpenseDialog open={isAddExpenseOpen} onOpenChange={setIsAddExpenseOpen} members={members} onAddExpense={onAddExpense} />
+      <AddExpenseDialog open={isAddExpenseOpen} onOpenChange={setIsAddExpenseOpen} members={members} currentUserId={currentUserId} onAddExpense={onAddExpense} />
       {editingExpense && (
         <EditExpenseDialog open={!!editingExpense} onOpenChange={(open) => !open && setEditingExpense(null)} expense={editingExpense} members={members} onUpdateExpense={onUpdateExpense} />
       )}
