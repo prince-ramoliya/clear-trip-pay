@@ -348,18 +348,21 @@ export function useTrips(userId: string | undefined) {
     if (!userId) return null;
 
     try {
-      // Find trip by invite code
+      // Normalize invite code - trim whitespace and convert to lowercase
+      const normalizedCode = inviteCode.trim().toLowerCase();
+      
+      // Find trip by invite code (case-insensitive)
       const { data: trip, error: tripError } = await supabase
         .from('trips')
         .select('*')
-        .eq('invite_code', inviteCode.toLowerCase())
+        .ilike('invite_code', normalizedCode)
         .maybeSingle();
 
       if (tripError) throw tripError;
       if (!trip) {
         toast({
           title: "Invalid invite code",
-          description: "No trip found with this invite code.",
+          description: "No trip found with this invite code. Please check the code and try again.",
           variant: "destructive",
         });
         return null;

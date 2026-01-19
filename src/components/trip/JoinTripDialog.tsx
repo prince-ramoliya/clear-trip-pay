@@ -53,10 +53,10 @@ export function JoinTripDialog({ open, onOpenChange, onJoinTrip }: JoinTripDialo
             <Label htmlFor="invite-code">Invite Code</Label>
             <Input
               id="invite-code"
-              placeholder="e.g., ABC123"
+              placeholder="e.g., abc123def456"
               value={inviteCode}
-              onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-              className="text-center text-lg font-mono tracking-widest"
+              onChange={(e) => setInviteCode(e.target.value)}
+              className="text-center text-lg font-mono tracking-widest lowercase"
               maxLength={12}
               required
             />
