@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -26,11 +26,12 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Redirect if already authenticated
-  if (isAuthenticated) {
-    navigate('/');
-    return null;
-  }
+  // Redirect if already authenticated - must be in useEffect
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
 
   const validateField = (field: string, value: string, schema: z.ZodString) => {
     try {
