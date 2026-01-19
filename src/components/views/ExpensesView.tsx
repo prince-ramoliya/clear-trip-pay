@@ -15,13 +15,17 @@ interface ExpensesViewProps {
   onAddExpense: (expense: { title: string; amount: number; paidBy: string; participants: string[]; category: string; date: string; }) => Promise<any>;
   onUpdateExpense: (expenseId: string, expense: { title: string; amount: number; paidBy: string; participants: string[]; category: string; date: string; }) => Promise<boolean>;
   onRemoveExpense: (expenseId: string) => Promise<boolean>;
+  currentUserId?: string;
 }
 
-export function ExpensesView({ trip, members, expenses, onAddExpense, onUpdateExpense, onRemoveExpense }: ExpensesViewProps) {
+export function ExpensesView({ trip, members, expenses, onAddExpense, onUpdateExpense, onRemoveExpense, currentUserId }: ExpensesViewProps) {
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<(DbExpense & { participants: DbExpenseParticipant[] }) | null>(null);
 
   const sortedExpenses = [...expenses].sort((a, b) => new Date(b.expense_date).getTime() - new Date(a.expense_date).getTime());
+  
+  // Find current user's member ID
+  const currentMember = members.find(m => m.user_id === currentUserId);
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -40,15 +44,21 @@ export function ExpensesView({ trip, members, expenses, onAddExpense, onUpdateEx
 
       {sortedExpenses.length > 0 ? (
         <div className="space-y-2 sm:space-y-3">
-          {sortedExpenses.map(expense => (
-            <ExpenseCard
-              key={expense.id}
-              expense={{ id: expense.id, title: expense.title, amount: Number(expense.amount), paidBy: expense.paid_by, participants: expense.participants.map(p => p.member_id), category: expense.category as any, date: expense.expense_date, createdAt: expense.created_at }}
-              members={members.map(m => ({ id: m.id, name: m.display_name }))}
-              onEdit={() => setEditingExpense(expense)}
-              onDelete={() => onRemoveExpense(expense.id)}
-            />
-          ))}
+          {sortedExpenses.map(expense => {
+            // Check if current user created this expense
+            const canEditDelete = expense.created_by === currentUserId || expense.created_by === currentMember?.id;
+            
+            return (
+              <ExpenseCard
+                key={expense.id}
+                expense={{ id: expense.id, title: expense.title, amount: Number(expense.amount), paidBy: expense.paid_by, participants: expense.participants.map(p => p.member_id), category: expense.category as any, date: expense.expense_date, createdAt: expense.created_at, createdBy: expense.created_by }}
+                members={members.map(m => ({ id: m.id, name: m.display_name }))}
+                onEdit={() => setEditingExpense(expense)}
+                onDelete={() => onRemoveExpense(expense.id)}
+                canEditDelete={canEditDelete}
+              />
+            );
+          })}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-12 sm:py-16 text-center px-4">

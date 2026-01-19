@@ -13,6 +13,7 @@ export interface Expense {
   category: ExpenseCategory;
   date: string;
   createdAt: string;
+  createdBy?: string | null;
 }
 
 export type ExpenseCategory = 
