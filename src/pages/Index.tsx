@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useTrips } from "@/hooks/useTrips";
+import { usePayments } from "@/hooks/usePayments";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { BottomNavigation } from "@/components/layout/BottomNavigation";
 import { ExpensesView } from "@/components/views/ExpensesView";
@@ -24,6 +25,7 @@ export default function Index() {
     setCurrentTripId, createTrip, addExpense, updateExpense, removeExpense, joinTripByCode,
     addMember, removeMember, updateMemberName,
   } = useTrips(user?.id);
+  const { payments, addPayment, deletePayment } = usePayments(currentTripId || undefined, user?.id);
 
   const [currentView, setCurrentView] = useState('expenses');
   const [isCreateTripOpen, setIsCreateTripOpen] = useState(false);
@@ -106,7 +108,7 @@ export default function Index() {
       case 'summary':
         return <SummaryView trip={tripForView} />;
       case 'settlements':
-        return <SettlementsView trip={tripForView} />;
+        return <SettlementsView trip={tripForView} payments={payments} onMarkPaid={addPayment} onDeletePayment={deletePayment} />;
       default:
         return <ExpensesView trip={tripForView} members={currentTripData.members} expenses={currentTripData.expenses} onAddExpense={addExpense} onUpdateExpense={updateExpense} onRemoveExpense={removeExpense} />;
     }

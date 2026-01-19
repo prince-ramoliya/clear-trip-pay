@@ -104,6 +104,64 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: string | null
+          from_member_id: string
+          id: string
+          notes: string | null
+          paid_at: string
+          to_member_id: string
+          trip_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: string | null
+          from_member_id: string
+          id?: string
+          notes?: string | null
+          paid_at?: string
+          to_member_id: string
+          trip_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: string | null
+          from_member_id?: string
+          id?: string
+          notes?: string | null
+          paid_at?: string
+          to_member_id?: string
+          trip_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_from_member_id_fkey"
+            columns: ["from_member_id"]
+            isOneToOne: false
+            referencedRelation: "trip_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_to_member_id_fkey"
+            columns: ["to_member_id"]
+            isOneToOne: false
+            referencedRelation: "trip_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
