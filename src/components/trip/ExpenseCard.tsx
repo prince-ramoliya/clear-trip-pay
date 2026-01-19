@@ -11,15 +11,19 @@ import {
 import { Button } from "@/components/ui/button";
 
 interface ExpenseCardProps {
-  expense: Expense;
+  expense: Expense & { createdBy?: string | null };
   members: Member[];
+  currentUserId?: string;
   onEdit?: () => void;
   onDelete?: () => void;
 }
 
-export function ExpenseCard({ expense, members, onEdit, onDelete }: ExpenseCardProps) {
+export function ExpenseCard({ expense, members, currentUserId, onEdit, onDelete }: ExpenseCardProps) {
   const payer = members.find(m => m.id === expense.paidBy);
   const participantNames = expense.participants.map(id => members.find(m => m.id === id)?.name || 'Unknown').join(', ');
+  
+  // Only show edit/delete if the current user created this expense
+  const canEditDelete = expense.createdBy === currentUserId;
 
   return (
     <div className="group rounded-xl bg-card p-3 sm:p-4 card-shadow hover:card-shadow-hover transition-all duration-200 animate-fade-in">
@@ -49,7 +53,7 @@ export function ExpenseCard({ expense, members, onEdit, onDelete }: ExpenseCardP
               </div>
               
               {/* Mobile: Dropdown Menu */}
-              {(onEdit || onDelete) && (
+              {canEditDelete && (onEdit || onDelete) && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild className="sm:hidden">
                     <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -75,12 +79,12 @@ export function ExpenseCard({ expense, members, onEdit, onDelete }: ExpenseCardP
               
               {/* Desktop: Hover Buttons */}
               <div className="hidden sm:flex opacity-0 group-hover:opacity-100 gap-1 transition-all">
-                {onEdit && (
+                {canEditDelete && onEdit && (
                   <button onClick={onEdit} className="p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10">
                     <Pencil className="h-4 w-4" />
                   </button>
                 )}
-                {onDelete && (
+                {canEditDelete && onDelete && (
                   <button onClick={onDelete} className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10">
                     <Trash2 className="h-4 w-4" />
                   </button>
