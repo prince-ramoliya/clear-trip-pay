@@ -578,6 +578,72 @@ export function useTrips(userId: string | undefined) {
     }
   }, [currentTripId, fetchTripDetails]);
 
+  // Update trip (admin only)
+  const updateTrip = useCallback(async (
+    tripId: string,
+    data: { name: string; destination: string; startDate: string; endDate: string }
+  ) => {
+    try {
+      const { error } = await supabase
+        .from('trips')
+        .update({
+          name: data.name,
+          destination: data.destination,
+          start_date: data.startDate,
+          end_date: data.endDate,
+        })
+        .eq('id', tripId);
+
+      if (error) throw error;
+
+      await fetchTrips();
+      await fetchTripDetails();
+      
+      toast({
+        title: "Trip updated",
+        description: "Trip details have been updated.",
+      });
+
+      return true;
+    } catch (error: any) {
+      toast({
+        title: "Error updating trip",
+        description: error.message,
+        variant: "destructive",
+      });
+      return false;
+    }
+  }, [fetchTrips, fetchTripDetails, toast]);
+
+  // Delete trip (admin only)
+  const deleteTrip = useCallback(async (tripId: string) => {
+    try {
+      const { error } = await supabase
+        .from('trips')
+        .delete()
+        .eq('id', tripId);
+
+      if (error) throw error;
+
+      setCurrentTripId(null);
+      await fetchTrips();
+      
+      toast({
+        title: "Trip deleted",
+        description: "The trip has been deleted.",
+      });
+
+      return true;
+    } catch (error: any) {
+      toast({
+        title: "Error deleting trip",
+        description: error.message,
+        variant: "destructive",
+      });
+      return false;
+    }
+  }, [fetchTrips, toast]);
+
   return {
     trips,
     currentTripId,
@@ -585,6 +651,8 @@ export function useTrips(userId: string | undefined) {
     loading,
     setCurrentTripId,
     createTrip,
+    updateTrip,
+    deleteTrip,
     addExpense,
     updateExpense,
     removeExpense,
