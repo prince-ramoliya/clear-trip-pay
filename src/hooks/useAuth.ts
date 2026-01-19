@@ -58,19 +58,6 @@ export function useAuth() {
     return { error };
   }, []);
 
-  const signInWithGoogle = useCallback(async () => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: redirectUrl,
-      },
-    });
-    
-    return { data, error };
-  }, []);
-
   return {
     user,
     session,
@@ -78,7 +65,6 @@ export function useAuth() {
     signUp,
     signIn,
     signOut,
-    signInWithGoogle,
     isAuthenticated: !!session,
   };
 }
