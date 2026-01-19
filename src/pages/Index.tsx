@@ -13,8 +13,9 @@ import { JoinTripDialog } from "@/components/trip/JoinTripDialog";
 import { InviteDialog } from "@/components/trip/InviteDialog";
 import { AddExpenseDialog } from "@/components/trip/AddExpenseDialog";
 import { MembersDialog } from "@/components/trip/MembersDialog";
+import { EditTripDialog } from "@/components/trip/EditTripDialog";
 import { Button } from "@/components/ui/button";
-import { Menu, X, UserPlus, Loader2, Users } from "lucide-react";
+import { Menu, X, UserPlus, Loader2, Users, Settings } from "lucide-react";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ export default function Index() {
   const { user, loading: authLoading, signOut, isAuthenticated } = useAuth();
   const {
     trips, currentTripId, currentTripData, loading: tripsLoading,
-    setCurrentTripId, createTrip, addExpense, updateExpense, removeExpense, joinTripByCode,
+    setCurrentTripId, createTrip, updateTrip, deleteTrip, addExpense, updateExpense, removeExpense, joinTripByCode,
     addMember, removeMember, updateMemberName,
   } = useTrips(user?.id);
   const { payments, addPayment, deletePayment } = usePayments(currentTripId || undefined, user?.id);
@@ -32,8 +33,11 @@ export default function Index() {
   const [isJoinTripOpen, setIsJoinTripOpen] = useState(false);
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [isMembersOpen, setIsMembersOpen] = useState(false);
+  const [isEditTripOpen, setIsEditTripOpen] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isMobileAddExpenseOpen, setIsMobileAddExpenseOpen] = useState(false);
+
+  const isAdmin = currentTripData?.trip.created_by === user?.id;
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -133,6 +137,11 @@ export default function Index() {
         </div>
         {currentTripData && (
           <div className="flex items-center gap-1 shrink-0">
+            {isAdmin && (
+              <Button variant="ghost" size="icon" onClick={() => setIsEditTripOpen(true)}>
+                <Settings className="h-5 w-5" />
+              </Button>
+            )}
             <Button variant="ghost" size="icon" onClick={() => setIsMembersOpen(true)}>
               <Users className="h-5 w-5" />
             </Button>
@@ -164,7 +173,9 @@ export default function Index() {
                 currentView={currentView}
                 onViewChange={(view) => { setCurrentView(view); setIsMobileSidebarOpen(false); }}
                 onSignOut={handleSignOut}
+                onEditTrip={() => { setIsEditTripOpen(true); setIsMobileSidebarOpen(false); }}
                 isMobile={true}
+                currentUserId={user?.id}
               />
             </div>
           </div>
@@ -182,6 +193,8 @@ export default function Index() {
           currentView={currentView}
           onViewChange={setCurrentView}
           onSignOut={handleSignOut}
+          onEditTrip={() => setIsEditTripOpen(true)}
+          currentUserId={user?.id}
         />
       </div>
 
@@ -196,6 +209,11 @@ export default function Index() {
                 <p className="text-muted-foreground">{currentTripData.trip.destination}</p>
               </div>
               <div className="flex items-center gap-2">
+                {isAdmin && (
+                  <Button variant="outline" size="sm" onClick={() => setIsEditTripOpen(true)}>
+                    <Settings className="h-4 w-4 mr-2" /> Edit Trip
+                  </Button>
+                )}
                 <Button variant="outline" size="sm" onClick={() => setIsMembersOpen(true)}>
                   <Users className="h-4 w-4 mr-2" /> Members ({currentTripData.members.length})
                 </Button>
@@ -239,6 +257,15 @@ export default function Index() {
             onRemoveMember={removeMember}
             onUpdateMemberName={updateMemberName}
           />
+          {isAdmin && (
+            <EditTripDialog
+              open={isEditTripOpen}
+              onOpenChange={setIsEditTripOpen}
+              trip={currentTripData.trip}
+              onUpdate={updateTrip}
+              onDelete={deleteTrip}
+            />
+          )}
         </>
       )}
     </div>

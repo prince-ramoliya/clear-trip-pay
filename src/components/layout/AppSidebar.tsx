@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
-import { Map, Receipt, PieChart, Plus, ChevronRight, Wallet, LogOut, Ticket } from "lucide-react";
+import { Map, Receipt, PieChart, Plus, ChevronRight, Wallet, LogOut, Ticket, Settings } from "lucide-react";
 import { DbTrip } from "@/types/database";
+import { Button } from "@/components/ui/button";
 
 interface AppSidebarProps {
   trips: DbTrip[];
@@ -11,7 +12,9 @@ interface AppSidebarProps {
   currentView: string;
   onViewChange: (view: string) => void;
   onSignOut: () => void;
+  onEditTrip?: () => void;
   isMobile?: boolean;
+  currentUserId?: string;
 }
 
 const navItems = [
@@ -20,26 +23,29 @@ const navItems = [
   { id: 'settlements', label: 'Settle Up', icon: Wallet },
 ];
 
-export function AppSidebar({ trips, currentTripId, onSelectTrip, onCreateTrip, onJoinTrip, currentView, onViewChange, onSignOut, isMobile = false }: AppSidebarProps) {
+export function AppSidebar({ trips, currentTripId, onSelectTrip, onCreateTrip, onJoinTrip, currentView, onViewChange, onSignOut, onEditTrip, isMobile = false, currentUserId }: AppSidebarProps) {
   const currentTrip = trips.find(t => t.id === currentTripId);
+  const isAdmin = currentTrip?.created_by === currentUserId;
 
   // Mobile version - simplified without header
   if (isMobile) {
     return (
       <div className="flex flex-col h-full">
         <div className="flex-1 overflow-y-auto py-4">
+          {/* Big buttons for Create and Join */}
+          <div className="px-4 mb-4 space-y-2">
+            <Button onClick={onCreateTrip} className="w-full justify-start gap-3" size="lg">
+              <Plus className="h-5 w-5" />
+              Create a New Trip
+            </Button>
+            <Button onClick={onJoinTrip} variant="outline" className="w-full justify-start gap-3" size="lg">
+              <Ticket className="h-5 w-5" />
+              Join a Trip
+            </Button>
+          </div>
+
           <div className="px-4 mb-2">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-medium uppercase tracking-wider text-sidebar-muted">Your Trips</span>
-              <div className="flex gap-1">
-                <button onClick={onJoinTrip} className="flex h-6 w-6 items-center justify-center rounded-md text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                  <Ticket className="h-4 w-4" />
-                </button>
-                <button onClick={onCreateTrip} className="flex h-6 w-6 items-center justify-center rounded-md text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                  <Plus className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
+            <span className="text-xs font-medium uppercase tracking-wider text-sidebar-muted mb-3 block">Your Trips</span>
             <div className="space-y-1">
               {trips.length === 0 ? (
                 <p className="text-sm text-sidebar-muted px-3 py-4 text-center">No trips yet</p>
@@ -84,18 +90,20 @@ export function AppSidebar({ trips, currentTripId, onSelectTrip, onCreateTrip, o
       </div>
 
       <div className="flex-1 overflow-y-auto py-4">
+        {/* Big buttons for Create and Join */}
+        <div className="px-4 mb-4 space-y-2">
+          <Button onClick={onCreateTrip} className="w-full justify-start gap-3" size="lg">
+            <Plus className="h-5 w-5" />
+            Create a New Trip
+          </Button>
+          <Button onClick={onJoinTrip} variant="outline" className="w-full justify-start gap-3" size="lg">
+            <Ticket className="h-5 w-5" />
+            Join a Trip
+          </Button>
+        </div>
+
         <div className="px-4 mb-2">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-medium uppercase tracking-wider text-sidebar-muted">Your Trips</span>
-            <div className="flex gap-1">
-              <button onClick={onJoinTrip} className="flex h-6 w-6 items-center justify-center rounded-md text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                <Ticket className="h-4 w-4" />
-              </button>
-              <button onClick={onCreateTrip} className="flex h-6 w-6 items-center justify-center rounded-md text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                <Plus className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
+          <span className="text-xs font-medium uppercase tracking-wider text-sidebar-muted mb-3 block">Your Trips</span>
           <div className="space-y-1">
             {trips.length === 0 ? (
               <p className="text-sm text-sidebar-muted px-3 py-4 text-center">No trips yet</p>
@@ -120,7 +128,14 @@ export function AppSidebar({ trips, currentTripId, onSelectTrip, onCreateTrip, o
 
         {currentTrip && (
           <div className="px-4 mt-6">
-            <span className="text-xs font-medium uppercase tracking-wider text-sidebar-muted px-3 mb-3 block truncate">{currentTrip.name}</span>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-medium uppercase tracking-wider text-sidebar-muted truncate">{currentTrip.name}</span>
+              {isAdmin && onEditTrip && (
+                <button onClick={onEditTrip} className="flex h-6 w-6 items-center justify-center rounded-md text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground">
+                  <Settings className="h-4 w-4" />
+                </button>
+              )}
+            </div>
             <nav className="space-y-1">
               {navItems.map(item => (
                 <button key={item.id} onClick={() => onViewChange(item.id)}
