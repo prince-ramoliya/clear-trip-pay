@@ -348,61 +348,31 @@ export function useTrips(userId: string | undefined) {
     if (!userId) return null;
 
     try {
-      // Normalize invite code - trim whitespace and convert to lowercase
       const normalizedCode = inviteCode.trim().toLowerCase();
-      
-      // Find trip by invite code (case-insensitive)
+      if (!normalizedCode) return null;
+
+      const { data, error } = await supabase.functions.invoke("join-trip-by-code", {
+        body: { inviteCode: normalizedCode },
+      });
+
+      if (error) throw error;
+
+      const tripId: string | undefined = (data as any)?.tripId;
+      if (!tripId) {
+        throw new Error("Join failed: no tripId returned");
+      }
+
+      // Now that the user is a member, we can safely fetch the trip via RLS
       const { data: trip, error: tripError } = await supabase
-        .from('trips')
-        .select('*')
-        .ilike('invite_code', normalizedCode)
+        .from("trips")
+        .select("*")
+        .eq("id", tripId)
         .maybeSingle();
 
       if (tripError) throw tripError;
       if (!trip) {
-        toast({
-          title: "Invalid invite code",
-          description: "No trip found with this invite code. Please check the code and try again.",
-          variant: "destructive",
-        });
-        return null;
+        throw new Error("Joined trip, but failed to load trip data");
       }
-
-      // Check if already a member
-      const { data: existingMember } = await supabase
-        .from('trip_members')
-        .select('id')
-        .eq('trip_id', trip.id)
-        .eq('user_id', userId)
-        .maybeSingle();
-
-      if (existingMember) {
-        setCurrentTripId(trip.id);
-        toast({
-          title: "Already a member",
-          description: "You're already a member of this trip!",
-        });
-        return trip;
-      }
-
-      // Get user's display name
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('display_name')
-        .eq('id', userId)
-        .maybeSingle();
-
-      // Add user as member
-      const { error: memberError } = await supabase
-        .from('trip_members')
-        .insert({
-          trip_id: trip.id,
-          user_id: userId,
-          display_name: profile?.display_name || 'New Member',
-          is_registered: true,
-        });
-
-      if (memberError) throw memberError;
 
       await fetchTrips();
       setCurrentTripId(trip.id);
@@ -414,9 +384,17 @@ export function useTrips(userId: string | undefined) {
 
       return trip;
     } catch (error: any) {
+      const msg = (error?.message ?? "").toString();
+      const isInvalid =
+        msg.includes("INVALID_CODE") ||
+        msg.toLowerCase().includes("not found") ||
+        msg.toLowerCase().includes("404");
+
       toast({
-        title: "Error joining trip",
-        description: error.message,
+        title: isInvalid ? "Invalid invite code" : "Error joining trip",
+        description: isInvalid
+          ? "No trip found with this invite code. Please check the code and try again."
+          : msg,
         variant: "destructive",
       });
       return null;
