@@ -469,7 +469,7 @@ export default function Landing() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 sm:py-32">
+      <section className="py-20 sm:py-32 bg-accent">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div className="text-center mb-12 sm:mb-16" initial={{
           opacity: 0,
