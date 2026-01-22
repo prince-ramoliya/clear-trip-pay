@@ -122,6 +122,7 @@ export function getCategoryLabel(category: string): string {
   return labels[category] || 'Other';
 }
 
+// Default format for SSR/non-context usage - uses INR
 export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat('en-IN', {
     style: 'currency',

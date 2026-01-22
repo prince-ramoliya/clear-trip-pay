@@ -644,6 +644,81 @@ export function useTrips(userId: string | undefined) {
     }
   }, [fetchTrips, toast]);
 
+  // Leave trip (for non-admin members)
+  const leaveTrip = useCallback(async () => {
+    if (!currentTripId || !userId) return false;
+
+    try {
+      // Find the current user's membership
+      const { data: membership, error: findError } = await supabase
+        .from('trip_members')
+        .select('id')
+        .eq('trip_id', currentTripId)
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (findError) throw findError;
+      if (!membership) {
+        toast({
+          title: "Error",
+          description: "You are not a member of this trip.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Check if user has paid for any expenses
+      const { data: userExpenses } = await supabase
+        .from('expenses')
+        .select('id')
+        .eq('trip_id', currentTripId)
+        .eq('paid_by', membership.id)
+        .limit(1);
+
+      if (userExpenses && userExpenses.length > 0) {
+        toast({
+          title: "Cannot leave trip",
+          description: "You have paid for expenses. Reassign or delete those expenses first.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Remove from expense participations
+      const { error: removeParticipationError } = await supabase
+        .from('expense_participants')
+        .delete()
+        .eq('member_id', membership.id);
+
+      if (removeParticipationError) throw removeParticipationError;
+
+      // Delete membership
+      const { error } = await supabase
+        .from('trip_members')
+        .delete()
+        .eq('id', membership.id);
+
+      if (error) throw error;
+
+      setCurrentTripId(null);
+      await fetchTrips();
+      
+      toast({
+        title: "Left trip",
+        description: "You have left the trip successfully.",
+      });
+
+      return true;
+    } catch (error: any) {
+      toast({
+        title: "Error leaving trip",
+        description: error.message,
+        variant: "destructive",
+      });
+      return false;
+    }
+  }, [currentTripId, userId, fetchTrips, toast]);
+
   return {
     trips,
     currentTripId,
@@ -660,6 +735,7 @@ export function useTrips(userId: string | undefined) {
     addMember,
     removeMember,
     updateMemberName,
+    leaveTrip,
     refreshTrips: fetchTrips,
     refreshTripDetails: fetchTripDetails,
   };
