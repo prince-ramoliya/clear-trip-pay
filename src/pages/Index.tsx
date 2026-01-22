@@ -41,7 +41,7 @@ export default function Index() {
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      navigate('/auth');
+      navigate('/');
     }
   }, [authLoading, isAuthenticated, navigate]);
 

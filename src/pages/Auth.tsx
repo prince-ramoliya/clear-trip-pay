@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wallet, Loader2 } from 'lucide-react';
+import { Plane, Loader2 } from 'lucide-react';
 import { z } from 'zod';
 import { useToast } from '@/hooks/use-toast';
 
@@ -14,10 +14,14 @@ const passwordSchema = z.string().min(6, 'Password must be at least 6 characters
 
 export default function Auth() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { signIn, signUp, signInWithGoogle, isAuthenticated } = useAuth();
   const { toast } = useToast();
   
-  const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login');
+  const tabFromUrl = searchParams.get('tab');
+  const [activeTab, setActiveTab] = useState<'login' | 'signup'>(
+    tabFromUrl === 'signup' ? 'signup' : 'login'
+  );
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
@@ -29,7 +33,7 @@ export default function Auth() {
   // Redirect if already authenticated - must be in useEffect
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/');
+      navigate('/dashboard');
     }
   }, [isAuthenticated, navigate]);
 
@@ -74,7 +78,7 @@ export default function Auth() {
         });
       }
     } else {
-      navigate('/');
+      navigate('/dashboard');
     }
   };
 
@@ -110,7 +114,7 @@ export default function Auth() {
         title: "Account created!",
         description: "Welcome to TripSplit! You're now logged in.",
       });
-      navigate('/');
+      navigate('/dashboard');
     }
   };
 
@@ -134,7 +138,7 @@ export default function Auth() {
         {/* Logo */}
         <div className="flex items-center justify-center gap-3 mb-8">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/25">
-            <Wallet className="h-7 w-7 text-primary-foreground" />
+            <Plane className="h-7 w-7 text-primary-foreground" />
           </div>
           <span className="text-3xl font-bold text-foreground">TripSplit</span>
         </div>
