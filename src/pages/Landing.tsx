@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
-  Plane, Users, Receipt, Calculator, MessageCircle, Shield, 
-  Smartphone, Globe, ChevronRight, Check, ArrowRight, Sparkles, 
-  TrendingUp, Clock, Share2, CreditCard, PieChart, UserPlus, 
-  QrCode, History, Zap, Heart, Star, ChevronDown, Play,
+  Plane, Users, Receipt, Calculator, MessageCircle, Shield,
+  Smartphone, Globe, ChevronRight, Check, ArrowRight, Sparkles,
+  TrendingUp, CreditCard, PieChart,
+  QrCode, Zap, Heart, Star, ChevronDown, Play,
   Utensils, Home, Car, ShoppingBag, Palette, MoreHorizontal,
   ArrowDown, CircleDot, Menu, X
 } from "lucide-react";
@@ -15,6 +15,7 @@ import {
 export default function Landing() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [heroWordIndex, setHeroWordIndex] = useState(0);
   const { scrollYProgress } = useScroll();
   const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -50]);
 
@@ -26,30 +27,48 @@ export default function Landing() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      setHeroWordIndex((i) => (i + 1) % 4);
+    }, 2600);
+    return () => window.clearInterval(id);
+  }, []);
+
+  const heroWords = [
+    "without the drama",
+    "with total clarity",
+    "in real-time",
+    "with fewer payments",
+  ];
+
   const coreFeatures = [
     {
       icon: Plane,
       title: "Trip Management",
       description: "Create, edit, and manage trips with destinations and dates",
-      color: "bg-blue-500"
+      color: "bg-primary",
+      iconColor: "text-primary-foreground",
     },
     {
       icon: Receipt,
       title: "Expense Tracking", 
       description: "Log expenses with categories and participant splits",
-      color: "bg-emerald-500"
+      color: "bg-success",
+      iconColor: "text-success-foreground",
     },
     {
       icon: Calculator,
       title: "Smart Settlements",
       description: "Minimize transactions with intelligent algorithms",
-      color: "bg-purple-500"
+      color: "bg-accent-foreground",
+      iconColor: "text-background",
     },
     {
       icon: Users,
       title: "Member System",
       description: "Add registered or manual members to any trip",
-      color: "bg-orange-500"
+      color: "bg-warning",
+      iconColor: "text-warning-foreground",
     }
   ];
 
@@ -129,12 +148,12 @@ export default function Landing() {
   ];
 
   const expenseCategories = [
-    { icon: Utensils, name: "Food", color: "bg-orange-500", description: "Meals & drinks" },
-    { icon: Home, name: "Stay", color: "bg-blue-500", description: "Accommodation" },
-    { icon: Car, name: "Travel", color: "bg-emerald-500", description: "Transport" },
-    { icon: ShoppingBag, name: "Shopping", color: "bg-pink-500", description: "Purchases" },
-    { icon: Palette, name: "Activities", color: "bg-purple-500", description: "Fun & tours" },
-    { icon: MoreHorizontal, name: "Other", color: "bg-slate-500", description: "Miscellaneous" }
+    { icon: Utensils, name: "Food", color: "bg-warning", fg: "text-warning-foreground", description: "Meals & drinks" },
+    { icon: Home, name: "Stay", color: "bg-primary", fg: "text-primary-foreground", description: "Accommodation" },
+    { icon: Car, name: "Travel", color: "bg-success", fg: "text-success-foreground", description: "Transport" },
+    { icon: ShoppingBag, name: "Shopping", color: "bg-destructive", fg: "text-destructive-foreground", description: "Purchases" },
+    { icon: Palette, name: "Activities", color: "bg-accent-foreground", fg: "text-background", description: "Fun & tours" },
+    { icon: MoreHorizontal, name: "Other", color: "bg-muted", fg: "text-foreground", description: "Miscellaneous" }
   ];
 
   const flowSteps = [
@@ -325,11 +344,12 @@ export default function Landing() {
           />
 
           {/* Grid Pattern */}
-          <div 
-            className="absolute inset-0 opacity-[0.02]"
+          <div
+            className="absolute inset-0 opacity-[0.03]"
             style={{
-              backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`,
-              backgroundSize: '60px 60px'
+              backgroundImage:
+                "linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)",
+              backgroundSize: "64px 64px",
             }}
           />
 
@@ -383,14 +403,35 @@ export default function Landing() {
 
             {/* Headline */}
             <motion.h1 
-              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.1] mb-4 sm:mb-6"
+              className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-[1.05] mb-4 sm:mb-6 tracking-[-0.02em]"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
-              Split Trip Expenses
-              <span className="block mt-1 sm:mt-2 bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                Without the Drama
+              <span className="block">Split trip expenses</span>
+              <span className="block mt-2 sm:mt-3">
+                <span className="inline-flex items-baseline gap-3">
+                  <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                    {""}
+                    {""}
+                    TripSplit
+                  </span>
+                  <span className="relative inline-block min-w-[14ch] text-left">
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={heroWordIndex}
+                        initial={{ opacity: 0, y: 10, filter: "blur(6px)" }}
+                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                        exit={{ opacity: 0, y: -10, filter: "blur(6px)" }}
+                        transition={{ duration: 0.35, ease: "easeOut" }}
+                        className="bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent"
+                      >
+                        {heroWords[heroWordIndex]}
+                      </motion.span>
+                    </AnimatePresence>
+                    <span className="absolute -bottom-2 left-0 right-0 h-px bg-gradient-to-r from-primary/60 via-primary/20 to-transparent" />
+                  </span>
+                </span>
               </span>
             </motion.h1>
 
@@ -446,7 +487,7 @@ export default function Landing() {
                   className="flex flex-col items-center p-3 sm:p-4 rounded-xl bg-card/60 backdrop-blur-sm border border-border/50"
                 >
                   <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg ${feature.color} flex items-center justify-center mb-2`}>
-                    <feature.icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                    <feature.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${feature.iconColor}`} />
                   </div>
                   <span className="text-xs sm:text-sm font-medium text-foreground text-center">
                     {feature.title}
@@ -573,9 +614,9 @@ export default function Landing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 mb-4">
-              <PieChart className="h-3.5 w-3.5 text-orange-500" />
-              <span className="text-xs sm:text-sm font-medium text-orange-500">Smart Categories</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-warning/10 border border-warning/20 mb-4">
+              <PieChart className="h-3.5 w-3.5 text-warning" />
+              <span className="text-xs sm:text-sm font-medium text-warning">Smart Categories</span>
             </div>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3">
               Track Every Expense Type
@@ -596,7 +637,7 @@ export default function Landing() {
                 className="flex flex-col items-center p-3 sm:p-4 rounded-xl bg-card border border-border hover:border-primary/30 hover:shadow-md transition-all group"
               >
                 <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${category.color} flex items-center justify-center mb-2 group-hover:scale-110 transition-transform`}>
-                  <category.icon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                  <category.icon className={`h-5 w-5 sm:h-6 sm:w-6 ${category.fg}`} />
                 </div>
                 <span className="text-xs sm:text-sm font-medium text-foreground">
                   {category.name}
@@ -672,9 +713,9 @@ export default function Landing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-pink-500/10 border border-pink-500/20 mb-4">
-              <Heart className="h-3.5 w-3.5 text-pink-500" />
-              <span className="text-xs sm:text-sm font-medium text-pink-500">Loved by Travelers</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-destructive/10 border border-destructive/20 mb-4">
+              <Heart className="h-3.5 w-3.5 text-destructive" />
+              <span className="text-xs sm:text-sm font-medium text-destructive">Loved by Travelers</span>
             </div>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3">
               What Users Say
@@ -694,7 +735,7 @@ export default function Landing() {
                   <CardContent className="p-4 sm:p-5">
                     <div className="flex gap-0.5 mb-3">
                       {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                        <Star key={i} className="h-4 w-4 fill-warning text-warning" />
                       ))}
                     </div>
                     <p className="text-sm text-foreground mb-4 leading-relaxed">
@@ -755,7 +796,7 @@ export default function Landing() {
                 100% Free
               </span>
               <span className="flex items-center gap-1.5">
-                <Smartphone className="h-4 w-4 text-orange-500" />
+                <Smartphone className="h-4 w-4 text-warning" />
                 Mobile Friendly
               </span>
             </div>
