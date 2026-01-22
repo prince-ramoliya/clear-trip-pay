@@ -15,6 +15,8 @@ import { AddExpenseDialog } from "@/components/trip/AddExpenseDialog";
 import { MembersDialog } from "@/components/trip/MembersDialog";
 import { EditTripDialog } from "@/components/trip/EditTripDialog";
 import { LeaveTripDialog } from "@/components/trip/LeaveTripDialog";
+import { ProfileDialog } from "@/components/trip/ProfileDialog";
+import { CurrencyDialog } from "@/components/trip/CurrencyDialog";
 import { Button } from "@/components/ui/button";
 import { Menu, X, UserPlus, Loader2, Users } from "lucide-react";
 
@@ -36,6 +38,8 @@ export default function Index() {
   const [isMembersOpen, setIsMembersOpen] = useState(false);
   const [isEditTripOpen, setIsEditTripOpen] = useState(false);
   const [isLeaveTripOpen, setIsLeaveTripOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isCurrencyOpen, setIsCurrencyOpen] = useState(false);
   const [isLeavingTrip, setIsLeavingTrip] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isMobileAddExpenseOpen, setIsMobileAddExpenseOpen] = useState(false);
@@ -82,6 +86,16 @@ export default function Index() {
     return success;
   };
 
+  const handleOpenProfile = () => {
+    setIsMobileSidebarOpen(false);
+    setIsProfileOpen(true);
+  };
+
+  const handleOpenCurrency = () => {
+    setIsMobileSidebarOpen(false);
+    setIsCurrencyOpen(true);
+  };
+
   const renderView = () => {
     if (!currentTripData) {
       return (
@@ -94,8 +108,8 @@ export default function Index() {
             <p className="text-base text-muted-foreground max-w-md">Create your first trip or join an existing one.</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            <Button size="lg" onClick={() => setIsCreateTripOpen(true)} className="w-full sm:w-auto text-base h-12">Create Trip</Button>
-            <Button size="lg" variant="outline" onClick={() => setIsJoinTripOpen(true)} className="w-full sm:w-auto text-base h-12">Join Trip</Button>
+            <Button size="lg" onClick={() => setIsCreateTripOpen(true)} className="w-full sm:w-auto text-base h-12 font-semibold">Create Trip</Button>
+            <Button size="lg" variant="outline" onClick={() => setIsJoinTripOpen(true)} className="w-full sm:w-auto text-base h-12 font-semibold">Join Trip</Button>
           </div>
         </div>
       );
@@ -138,11 +152,11 @@ export default function Index() {
           </Button>
           {currentTripData ? (
             <div className="min-w-0 flex-1">
-              <h1 className="font-semibold text-foreground truncate text-lg">{currentTripData.trip.name}</h1>
+              <h1 className="font-bold text-foreground truncate text-lg">{currentTripData.trip.name}</h1>
               <p className="text-base text-muted-foreground truncate">{currentTripData.trip.destination}</p>
             </div>
           ) : (
-            <span className="font-semibold text-foreground text-lg">TripSplit</span>
+            <span className="font-bold text-foreground text-lg">TripSplit</span>
           )}
         </div>
         <div className="flex items-center gap-1 shrink-0">
@@ -165,7 +179,7 @@ export default function Index() {
           <div className="absolute inset-0 bg-black/50" onClick={() => setIsMobileSidebarOpen(false)} />
           <div className="absolute inset-y-0 left-0 w-[300px] max-w-[85vw] bg-sidebar shadow-xl animate-in slide-in-from-left duration-300">
             <div className="flex items-center justify-between px-5 py-4 border-b border-sidebar-border">
-              <span className="text-lg font-semibold text-sidebar-foreground">TripSplit</span>
+              <span className="text-lg font-bold text-sidebar-foreground">TripSplit</span>
               <Button variant="ghost" size="icon" onClick={() => setIsMobileSidebarOpen(false)} className="text-sidebar-foreground h-10 w-10">
                 <X className="h-5 w-5" />
               </Button>
@@ -184,7 +198,8 @@ export default function Index() {
                 onLeaveTrip={() => { setIsLeaveTripOpen(true); setIsMobileSidebarOpen(false); }}
                 isMobile={true}
                 currentUserId={user?.id}
-                onCloseSidebar={() => setIsMobileSidebarOpen(false)}
+                onOpenProfile={handleOpenProfile}
+                onOpenCurrency={handleOpenCurrency}
               />
             </div>
           </div>
@@ -205,6 +220,8 @@ export default function Index() {
           onEditTrip={() => setIsEditTripOpen(true)}
           onLeaveTrip={() => setIsLeaveTripOpen(true)}
           currentUserId={user?.id}
+          onOpenProfile={() => setIsProfileOpen(true)}
+          onOpenCurrency={() => setIsCurrencyOpen(true)}
         />
       </div>
 
@@ -219,10 +236,10 @@ export default function Index() {
                 <p className="text-muted-foreground">{currentTripData.trip.destination}</p>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => setIsMembersOpen(true)}>
+                <Button variant="outline" size="sm" onClick={() => setIsMembersOpen(true)} className="font-semibold">
                   <Users className="h-4 w-4 mr-2" /> Members ({currentTripData.members.length})
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setIsInviteOpen(true)}>
+                <Button variant="outline" size="sm" onClick={() => setIsInviteOpen(true)} className="font-semibold">
                   <UserPlus className="h-4 w-4 mr-2" /> Invite
                 </Button>
               </div>
@@ -243,6 +260,9 @@ export default function Index() {
       {/* Dialogs */}
       <CreateTripDialog open={isCreateTripOpen} onOpenChange={setIsCreateTripOpen} onCreate={handleCreateTrip} />
       <JoinTripDialog open={isJoinTripOpen} onOpenChange={setIsJoinTripOpen} onJoinTrip={joinTripByCode} />
+      <ProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} userId={user?.id} />
+      <CurrencyDialog open={isCurrencyOpen} onOpenChange={setIsCurrencyOpen} />
+      
       {currentTripData && (
         <>
           <InviteDialog open={isInviteOpen} onOpenChange={setIsInviteOpen} inviteCode={currentTripData.trip.invite_code} tripName={currentTripData.trip.name} />
