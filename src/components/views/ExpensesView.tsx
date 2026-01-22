@@ -28,22 +28,22 @@ export function ExpensesView({ trip, members, expenses, onAddExpense, onUpdateEx
   const currentMember = members.find(m => m.user_id === currentUserId);
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       <TripStats trip={trip} />
 
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="min-w-0">
-          <h2 className="text-lg sm:text-xl font-semibold text-foreground">Expenses</h2>
-          <p className="text-sm text-muted-foreground">{expenses.length} transactions</p>
+          <h2 className="text-xl sm:text-2xl font-semibold text-foreground">Expenses</h2>
+          <p className="text-base text-muted-foreground">{expenses.length} transactions</p>
         </div>
         {/* Hide on mobile - use bottom nav button instead */}
-        <Button onClick={() => setIsAddExpenseOpen(true)} className="hidden sm:flex">
-          <Plus className="h-4 w-4 mr-2" /> Add Expense
+        <Button onClick={() => setIsAddExpenseOpen(true)} className="hidden sm:flex h-11 text-base">
+          <Plus className="h-5 w-5 mr-2" /> Add Expense
         </Button>
       </div>
 
       {sortedExpenses.length > 0 ? (
-        <div className="space-y-2 sm:space-y-3">
+        <div className="space-y-3">
           {sortedExpenses.map(expense => {
             // Check if current user created this expense
             const canEditDelete = expense.created_by === currentUserId || expense.created_by === currentMember?.id;
@@ -61,13 +61,15 @@ export function ExpensesView({ trip, members, expenses, onAddExpense, onUpdateEx
           })}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-12 sm:py-16 text-center px-4">
-          <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-muted mb-4">
-            <Receipt className="h-7 w-7 sm:h-8 sm:w-8 text-muted-foreground" />
+        <div className="flex flex-col items-center justify-center py-16 text-center px-4">
+          <div className="flex h-16 w-16 sm:h-20 sm:w-20 items-center justify-center rounded-full bg-muted mb-4">
+            <Receipt className="h-8 w-8 sm:h-10 sm:w-10 text-muted-foreground" />
           </div>
-          <h3 className="text-base sm:text-lg font-medium text-foreground mb-2">No expenses yet</h3>
-          <p className="text-xs sm:text-sm text-muted-foreground mb-4">Start tracking by adding your first expense.</p>
-          <Button onClick={() => setIsAddExpenseOpen(true)}><Plus className="h-4 w-4 mr-2" /> Add First Expense</Button>
+          <h3 className="text-lg sm:text-xl font-medium text-foreground mb-2">No expenses yet</h3>
+          <p className="text-base text-muted-foreground mb-6">Start tracking by adding your first expense.</p>
+          <Button onClick={() => setIsAddExpenseOpen(true)} className="h-12 text-base px-6">
+            <Plus className="h-5 w-5 mr-2" /> Add First Expense
+          </Button>
         </div>
       )}
 

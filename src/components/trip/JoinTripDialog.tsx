@@ -37,30 +37,32 @@ export function JoinTripDialog({ open, onOpenChange, onJoinTrip }: JoinTripDialo
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-w-[calc(100vw-20px)]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Ticket className="h-5 w-5 text-primary" />
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+              <Ticket className="h-5 w-5 text-primary" />
+            </div>
             Join a Trip
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-base">
             Enter the invite code shared by your friend to join their trip.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        <form onSubmit={handleSubmit} className="space-y-5 mt-4">
           <div className="space-y-2">
-            <Label htmlFor="invite-code">Invite Code</Label>
+            <Label htmlFor="invite-code" className="text-base">Invite Code</Label>
             <Input
               id="invite-code"
               placeholder="e.g., abc123def456"
               value={inviteCode}
               onChange={(e) => setInviteCode(e.target.value)}
-              className="text-center text-lg font-mono tracking-widest lowercase"
+              className="text-center text-lg font-mono tracking-widest lowercase h-14"
               maxLength={12}
               required
             />
-            <p className="text-xs text-muted-foreground text-center">
+            <p className="text-sm text-muted-foreground text-center">
               The code is case-insensitive
             </p>
           </div>
@@ -69,16 +71,16 @@ export function JoinTripDialog({ open, onOpenChange, onJoinTrip }: JoinTripDialo
             <Button
               type="button"
               variant="outline"
-              className="flex-1"
+              className="flex-1 h-12 text-base"
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
               Cancel
             </Button>
-            <Button type="submit" className="flex-1" disabled={loading || !inviteCode.trim()}>
+            <Button type="submit" className="flex-1 h-12 text-base" disabled={loading || !inviteCode.trim()}>
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                   Joining...
                 </>
               ) : (

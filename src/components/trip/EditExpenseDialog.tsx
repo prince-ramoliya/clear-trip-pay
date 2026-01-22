@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getCategoryIcon, getCategoryLabel } from "@/lib/calculations";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 interface EditExpenseDialogProps {
   open: boolean;
@@ -51,6 +52,7 @@ export function EditExpenseDialog({
   const [date, setDate] = useState('');
   const [participants, setParticipants] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const { currency } = useCurrency();
 
   useEffect(() => {
     if (expense && open) {
@@ -97,29 +99,30 @@ export function EditExpenseDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-w-[calc(100vw-20px)] max-h-[calc(100vh-40px)] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Edit Expense</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-lg sm:text-xl">Edit Expense</DialogTitle>
+          <DialogDescription className="text-base">
             Update the expense details.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+        <form onSubmit={handleSubmit} className="space-y-5 mt-4">
           <div className="space-y-2">
-            <Label htmlFor="edit-title">Description</Label>
+            <Label htmlFor="edit-title" className="text-base">Description</Label>
             <Input
               id="edit-title"
               placeholder="e.g., Dinner at restaurant"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
+              className="h-12 text-base"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="edit-amount">Amount (₹)</Label>
+              <Label htmlFor="edit-amount" className="text-base">Amount ({currency.symbol})</Label>
               <Input
                 id="edit-amount"
                 type="number"
@@ -129,32 +132,34 @@ export function EditExpenseDialog({
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 required
+                className="h-12 text-base"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="edit-date">Date</Label>
+              <Label htmlFor="edit-date" className="text-base">Date</Label>
               <Input
                 id="edit-date"
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 required
+                className="h-12 text-base"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label>Category</Label>
+            <Label className="text-base">Category</Label>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger>
+              <SelectTrigger className="h-12 text-base">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-popover">
                 {categories.map(cat => (
-                  <SelectItem key={cat} value={cat}>
+                  <SelectItem key={cat} value={cat} className="text-base py-3">
                     <span className="flex items-center gap-2">
-                      <span>{getCategoryIcon(cat)}</span>
+                      <span className="text-lg">{getCategoryIcon(cat)}</span>
                       <span>{getCategoryLabel(cat)}</span>
                     </span>
                   </SelectItem>
@@ -164,14 +169,14 @@ export function EditExpenseDialog({
           </div>
 
           <div className="space-y-2">
-            <Label>Paid by</Label>
+            <Label className="text-base">Paid by</Label>
             <Select value={paidBy} onValueChange={setPaidBy}>
-              <SelectTrigger>
+              <SelectTrigger className="h-12 text-base">
                 <SelectValue placeholder="Select who paid" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-popover">
                 {members.map(member => (
-                  <SelectItem key={member.id} value={member.id}>
+                  <SelectItem key={member.id} value={member.id} className="text-base py-3">
                     {member.display_name}
                   </SelectItem>
                 ))}
@@ -181,13 +186,13 @@ export function EditExpenseDialog({
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>Split between</Label>
+              <Label className="text-base">Split between</Label>
               <Button
                 type="button"
                 variant="ghost"
                 size="sm"
                 onClick={selectAllParticipants}
-                className="text-xs text-primary"
+                className="text-sm text-primary h-9"
               >
                 Select all
               </Button>
@@ -196,13 +201,14 @@ export function EditExpenseDialog({
               {members.map(member => (
                 <label
                   key={member.id}
-                  className="flex items-center gap-2 cursor-pointer p-2 rounded-md hover:bg-accent transition-colors"
+                  className="flex items-center gap-3 cursor-pointer p-3 rounded-md hover:bg-accent transition-colors"
                 >
                   <Checkbox
                     checked={participants.includes(member.id)}
                     onCheckedChange={() => toggleParticipant(member.id)}
+                    className="h-5 w-5"
                   />
-                  <span className="text-sm">{member.display_name}</span>
+                  <span className="text-base">{member.display_name}</span>
                 </label>
               ))}
             </div>
@@ -212,13 +218,13 @@ export function EditExpenseDialog({
             <Button
               type="button"
               variant="outline"
-              className="flex-1"
+              className="flex-1 h-12 text-base"
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
               Cancel
             </Button>
-            <Button type="submit" className="flex-1" disabled={loading}>
+            <Button type="submit" className="flex-1 h-12 text-base" disabled={loading}>
               {loading ? 'Saving...' : 'Save Changes'}
             </Button>
           </div>

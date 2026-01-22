@@ -14,10 +14,9 @@ import { InviteDialog } from "@/components/trip/InviteDialog";
 import { AddExpenseDialog } from "@/components/trip/AddExpenseDialog";
 import { MembersDialog } from "@/components/trip/MembersDialog";
 import { EditTripDialog } from "@/components/trip/EditTripDialog";
-import { SettingsDialog } from "@/components/trip/SettingsDialog";
 import { LeaveTripDialog } from "@/components/trip/LeaveTripDialog";
 import { Button } from "@/components/ui/button";
-import { Menu, X, UserPlus, Loader2, Users, Settings, LogOut } from "lucide-react";
+import { Menu, X, UserPlus, Loader2, Users } from "lucide-react";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -36,7 +35,6 @@ export default function Index() {
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [isMembersOpen, setIsMembersOpen] = useState(false);
   const [isEditTripOpen, setIsEditTripOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isLeaveTripOpen, setIsLeaveTripOpen] = useState(false);
   const [isLeavingTrip, setIsLeavingTrip] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
@@ -93,7 +91,7 @@ export default function Index() {
               <span className="text-4xl">✈️</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Welcome to TripSplit</h2>
-            <p className="text-sm sm:text-base text-muted-foreground max-w-md">Create your first trip or join an existing one.</p>
+            <p className="text-base text-muted-foreground max-w-md">Create your first trip or join an existing one.</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             <Button size="lg" onClick={() => setIsCreateTripOpen(true)} className="w-full sm:w-auto text-base h-12">Create Trip</Button>
@@ -135,37 +133,25 @@ export default function Index() {
       {/* Mobile Header */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-3 py-3 bg-card border-b border-border">
         <div className="flex items-center gap-2 min-w-0 flex-1">
-          <Button variant="ghost" size="icon" onClick={() => setIsMobileSidebarOpen(true)} className="shrink-0 h-9 w-9">
+          <Button variant="ghost" size="icon" onClick={() => setIsMobileSidebarOpen(true)} className="shrink-0 h-10 w-10">
             <Menu className="h-5 w-5" />
           </Button>
           {currentTripData ? (
             <div className="min-w-0 flex-1">
-              <h1 className="font-semibold text-foreground truncate text-base">{currentTripData.trip.name}</h1>
-              <p className="text-sm text-muted-foreground truncate">{currentTripData.trip.destination}</p>
+              <h1 className="font-semibold text-foreground truncate text-lg">{currentTripData.trip.name}</h1>
+              <p className="text-base text-muted-foreground truncate">{currentTripData.trip.destination}</p>
             </div>
           ) : (
-            <span className="font-semibold text-foreground text-base">TripSplit</span>
+            <span className="font-semibold text-foreground text-lg">TripSplit</span>
           )}
         </div>
-        <div className="flex items-center gap-0.5 shrink-0">
-          <Button variant="ghost" size="icon" onClick={() => setIsSettingsOpen(true)} className="h-9 w-9">
-            <Settings className="h-5 w-5" />
-          </Button>
+        <div className="flex items-center gap-1 shrink-0">
           {currentTripData && (
             <>
-              {isAdmin ? (
-                <Button variant="ghost" size="icon" onClick={() => setIsEditTripOpen(true)} className="h-9 w-9">
-                  <Settings className="h-5 w-5" />
-                </Button>
-              ) : (
-                <Button variant="ghost" size="icon" onClick={() => setIsLeaveTripOpen(true)} className="h-9 w-9 text-destructive">
-                  <LogOut className="h-5 w-5" />
-                </Button>
-              )}
-              <Button variant="ghost" size="icon" onClick={() => setIsMembersOpen(true)} className="h-9 w-9">
+              <Button variant="ghost" size="icon" onClick={() => setIsMembersOpen(true)} className="h-10 w-10">
                 <Users className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => setIsInviteOpen(true)} className="h-9 w-9">
+              <Button variant="ghost" size="icon" onClick={() => setIsInviteOpen(true)} className="h-10 w-10">
                 <UserPlus className="h-5 w-5" />
               </Button>
             </>
@@ -177,10 +163,10 @@ export default function Index() {
       {isMobileSidebarOpen && (
         <div className="lg:hidden fixed inset-0 z-[60]">
           <div className="absolute inset-0 bg-black/50" onClick={() => setIsMobileSidebarOpen(false)} />
-          <div className="absolute inset-y-0 left-0 w-[280px] max-w-[85vw] bg-sidebar shadow-xl animate-in slide-in-from-left duration-300">
+          <div className="absolute inset-y-0 left-0 w-[300px] max-w-[85vw] bg-sidebar shadow-xl animate-in slide-in-from-left duration-300">
             <div className="flex items-center justify-between px-5 py-4 border-b border-sidebar-border">
               <span className="text-lg font-semibold text-sidebar-foreground">TripSplit</span>
-              <Button variant="ghost" size="icon" onClick={() => setIsMobileSidebarOpen(false)} className="text-sidebar-foreground">
+              <Button variant="ghost" size="icon" onClick={() => setIsMobileSidebarOpen(false)} className="text-sidebar-foreground h-10 w-10">
                 <X className="h-5 w-5" />
               </Button>
             </div>
@@ -195,6 +181,7 @@ export default function Index() {
                 onViewChange={(view) => { setCurrentView(view); setIsMobileSidebarOpen(false); }}
                 onSignOut={handleSignOut}
                 onEditTrip={() => { setIsEditTripOpen(true); setIsMobileSidebarOpen(false); }}
+                onLeaveTrip={() => { setIsLeaveTripOpen(true); setIsMobileSidebarOpen(false); }}
                 isMobile={true}
                 currentUserId={user?.id}
               />
@@ -215,12 +202,13 @@ export default function Index() {
           onViewChange={setCurrentView}
           onSignOut={handleSignOut}
           onEditTrip={() => setIsEditTripOpen(true)}
+          onLeaveTrip={() => setIsLeaveTripOpen(true)}
           currentUserId={user?.id}
         />
       </div>
 
       {/* Main Content */}
-      <main className="lg:ml-64 pt-14 lg:pt-0 pb-20 lg:pb-0">
+      <main className="lg:ml-64 pt-16 lg:pt-0 pb-24 lg:pb-0">
         <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
           {/* Desktop Trip Header */}
           {currentTripData && (
@@ -230,18 +218,6 @@ export default function Index() {
                 <p className="text-muted-foreground">{currentTripData.trip.destination}</p>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => setIsSettingsOpen(true)}>
-                  <Settings className="h-4 w-4 mr-2" /> Settings
-                </Button>
-                {isAdmin ? (
-                  <Button variant="outline" size="sm" onClick={() => setIsEditTripOpen(true)}>
-                    <Settings className="h-4 w-4 mr-2" /> Edit Trip
-                  </Button>
-                ) : (
-                  <Button variant="outline" size="sm" onClick={() => setIsLeaveTripOpen(true)} className="text-destructive border-destructive/30 hover:bg-destructive/10">
-                    <LogOut className="h-4 w-4 mr-2" /> Leave Trip
-                  </Button>
-                )}
                 <Button variant="outline" size="sm" onClick={() => setIsMembersOpen(true)}>
                   <Users className="h-4 w-4 mr-2" /> Members ({currentTripData.members.length})
                 </Button>
@@ -266,7 +242,6 @@ export default function Index() {
       {/* Dialogs */}
       <CreateTripDialog open={isCreateTripOpen} onOpenChange={setIsCreateTripOpen} onCreate={handleCreateTrip} />
       <JoinTripDialog open={isJoinTripOpen} onOpenChange={setIsJoinTripOpen} onJoinTrip={joinTripByCode} />
-      <SettingsDialog open={isSettingsOpen} onOpenChange={setIsSettingsOpen} />
       {currentTripData && (
         <>
           <InviteDialog open={isInviteOpen} onOpenChange={setIsInviteOpen} inviteCode={currentTripData.trip.invite_code} tripName={currentTripData.trip.name} />
