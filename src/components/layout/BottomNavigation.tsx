@@ -27,14 +27,14 @@ export function BottomNavigation({
 }: BottomNavigationProps) {
   if (!hasTripSelected) return null;
   return <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border safe-area-inset-bottom">
-      <div className="flex items-center justify-around h-16 px-2">
-        {navItems.map(item => <button key={item.id} onClick={() => onViewChange(item.id)} className={cn("flex flex-col items-center justify-center flex-1 h-full py-1 px-2 transition-colors min-w-0 bg-primary-foreground", currentView === item.id ? "text-primary" : "text-muted-foreground hover:text-foreground")}>
+      <div className="flex items-center justify-around h-16 px-2 bg-secondary-foreground">
+        {navItems.map(item => <button key={item.id} onClick={() => onViewChange(item.id)} className={cn("flex flex-col items-center justify-center flex-1 h-full py-1 px-2 transition-colors min-w-0 bg-secondary-foreground", currentView === item.id ? "text-primary" : "text-muted-foreground hover:text-foreground")}>
             <item.icon className="h-5 w-5 shrink-0" />
             <span className="text-xs mt-1 font-medium truncate max-w-full">{item.label}</span>
           </button>)}
         
         {/* Floating Add Button */}
-        <button onClick={onAddExpense} className="flex flex-col items-center justify-center flex-1 h-full py-1 px-2 bg-primary-foreground">
+        <button onClick={onAddExpense} className="flex flex-col items-center justify-center flex-1 h-full py-1 px-2 bg-secondary-foreground">
           <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary text-primary-foreground shadow-lg -mt-3">
             <Plus className="h-5 w-5" />
           </div>
