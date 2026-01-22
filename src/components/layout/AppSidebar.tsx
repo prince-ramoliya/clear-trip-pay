@@ -23,6 +23,7 @@ interface AppSidebarProps {
   onLeaveTrip?: () => void;
   isMobile?: boolean;
   currentUserId?: string;
+  onCloseSidebar?: () => void;
 }
 
 const navItems = [
@@ -34,7 +35,7 @@ const navItems = [
 export function AppSidebar({ 
   trips, currentTripId, onSelectTrip, onCreateTrip, onJoinTrip, 
   currentView, onViewChange, onSignOut, onEditTrip, onLeaveTrip,
-  isMobile = false, currentUserId 
+  isMobile = false, currentUserId, onCloseSidebar 
 }: AppSidebarProps) {
   const currentTrip = trips.find(t => t.id === currentTripId);
   const isAdmin = currentTrip?.created_by === currentUserId;
@@ -64,6 +65,12 @@ export function AppSidebar({
   const openProfileDialog = () => {
     setNewName(profile?.display_name || '');
     setIsProfileOpen(true);
+    onCloseSidebar?.();
+  };
+
+  const openCurrencyDialog = () => {
+    setIsCurrencyOpen(true);
+    onCloseSidebar?.();
   };
 
   // Settings section component
@@ -87,7 +94,7 @@ export function AppSidebar({
 
         {/* Currency Setting */}
         <button 
-          onClick={() => setIsCurrencyOpen(true)}
+          onClick={openCurrencyDialog}
           className="w-full flex items-center gap-3 rounded-lg px-3 py-3 text-left transition-all text-sidebar-foreground hover:bg-sidebar-accent/50"
         >
           <div className="flex h-8 w-8 items-center justify-center rounded-md bg-sidebar-primary/20 shrink-0">

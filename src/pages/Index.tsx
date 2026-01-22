@@ -184,6 +184,7 @@ export default function Index() {
                 onLeaveTrip={() => { setIsLeaveTripOpen(true); setIsMobileSidebarOpen(false); }}
                 isMobile={true}
                 currentUserId={user?.id}
+                onCloseSidebar={() => setIsMobileSidebarOpen(false)}
               />
             </div>
           </div>
