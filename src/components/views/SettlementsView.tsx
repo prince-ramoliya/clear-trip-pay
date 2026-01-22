@@ -5,7 +5,8 @@ import { SettlementCard } from "@/components/trip/SettlementCard";
 import { TripStats } from "@/components/trip/TripStats";
 import { WhatsAppShareButton } from "@/components/trip/WhatsAppShareButton";
 import { PaymentHistoryDialog } from "@/components/trip/PaymentHistoryDialog";
-import { calculateSettlements, formatCurrency } from "@/lib/calculations";
+import { calculateSettlements } from "@/lib/calculations";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { CheckCircle2, Wallet, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -17,6 +18,7 @@ interface SettlementsViewProps {
 }
 
 export function SettlementsView({ trip, payments, onMarkPaid, onDeletePayment }: SettlementsViewProps) {
+  const { formatCurrency } = useCurrency();
   const [historyOpen, setHistoryOpen] = useState(false);
   const allSettlements = calculateSettlements(trip.members, trip.expenses);
   
@@ -57,12 +59,12 @@ export function SettlementsView({ trip, payments, onMarkPaid, onDeletePayment }:
       <div>
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-primary/10 shrink-0">
-              <Wallet className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+            <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-lg bg-primary/10 shrink-0">
+              <Wallet className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-base sm:text-xl font-semibold text-foreground">Settle Up</h2>
-              <p className="text-xs sm:text-sm text-muted-foreground">
+              <h2 className="text-lg sm:text-xl font-semibold text-foreground">Settle Up</h2>
+              <p className="text-sm sm:text-base text-muted-foreground">
                 {remainingSettlements.length > 0
                   ? `${remainingSettlements.length} payment${remainingSettlements.length > 1 ? 's' : ''} remaining`
                   : 'All settled!'}
@@ -75,7 +77,7 @@ export function SettlementsView({ trip, payments, onMarkPaid, onDeletePayment }:
               variant="outline"
               size="sm"
               onClick={() => setHistoryOpen(true)}
-              className="gap-1"
+              className="gap-1 h-10 text-sm"
             >
               <History className="h-4 w-4" />
               <span className="hidden sm:inline">History</span>
@@ -85,9 +87,9 @@ export function SettlementsView({ trip, payments, onMarkPaid, onDeletePayment }:
 
         {/* Payment summary */}
         {payments.length > 0 && (
-          <div className="rounded-xl bg-success/10 border border-success/20 p-3 mb-4">
-            <p className="text-sm text-success font-medium flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4" />
+          <div className="rounded-xl bg-success/10 border border-success/20 p-4 mb-4">
+            <p className="text-sm sm:text-base text-success font-medium flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
               {formatCurrency(totalPaid)} already paid ({payments.length} payment{payments.length > 1 ? 's' : ''})
             </p>
           </div>
@@ -103,8 +105,8 @@ export function SettlementsView({ trip, payments, onMarkPaid, onDeletePayment }:
               />
             ))}
 
-            <div className="rounded-xl bg-accent/50 border border-accent p-3 mt-4">
-              <p className="text-xs text-accent-foreground">
+            <div className="rounded-xl bg-accent/50 border border-accent p-4 mt-4">
+              <p className="text-sm text-accent-foreground">
                 💡 <span className="font-medium">Tip:</span> Share payment details with your group using WhatsApp.
               </p>
             </div>
@@ -118,12 +120,12 @@ export function SettlementsView({ trip, payments, onMarkPaid, onDeletePayment }:
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-10 sm:py-16 text-center px-4">
-            <div className="flex h-12 w-12 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-success/10 mb-3 sm:mb-4">
-              <CheckCircle2 className="h-6 w-6 sm:h-8 sm:w-8 text-success" />
+          <div className="flex flex-col items-center justify-center py-12 sm:py-16 text-center px-4">
+            <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-success/10 mb-4">
+              <CheckCircle2 className="h-7 w-7 sm:h-8 sm:w-8 text-success" />
             </div>
-            <h3 className="text-base sm:text-lg font-medium text-foreground mb-1 sm:mb-2">All Settled!</h3>
-            <p className="text-xs sm:text-sm text-muted-foreground max-w-sm">
+            <h3 className="text-lg sm:text-xl font-medium text-foreground mb-2">All Settled!</h3>
+            <p className="text-sm sm:text-base text-muted-foreground max-w-sm">
               Great news! Everyone's balances are squared up. No payments needed.
             </p>
           </div>

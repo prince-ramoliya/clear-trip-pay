@@ -1,5 +1,6 @@
 import { Expense, Member } from "@/types/trip";
-import { getCategoryIcon, getCategoryLabel, formatCurrency } from "@/lib/calculations";
+import { getCategoryIcon, getCategoryLabel } from "@/lib/calculations";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import { Trash2, User, Pencil, MoreVertical } from "lucide-react";
 import { format } from "date-fns";
 import {
@@ -19,26 +20,27 @@ interface ExpenseCardProps {
 }
 
 export function ExpenseCard({ expense, members, onEdit, onDelete, canEditDelete = true }: ExpenseCardProps) {
+  const { formatCurrency } = useCurrency();
   const payer = members.find(m => m.id === expense.paidBy);
   const participantNames = expense.participants.map(id => members.find(m => m.id === id)?.name || 'Unknown').join(', ');
   
   const showActions = canEditDelete && (onEdit || onDelete);
 
   return (
-    <div className="group rounded-xl bg-card p-3 sm:p-4 card-shadow hover:card-shadow-hover transition-all duration-200 animate-fade-in">
+    <div className="group rounded-xl bg-card p-4 sm:p-5 card-shadow hover:card-shadow-hover transition-all duration-200 animate-fade-in">
       <div className="flex items-start gap-3 sm:gap-4">
-        <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-accent text-xl sm:text-2xl shrink-0">
+        <div className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-accent text-xl sm:text-2xl shrink-0">
           {getCategoryIcon(expense.category)}
         </div>
         
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
-              <h3 className="font-medium text-foreground truncate text-sm sm:text-base">{expense.title}</h3>
-              <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-0.5 text-xs sm:text-sm text-muted-foreground">
+              <h3 className="font-medium text-foreground truncate text-base sm:text-lg">{expense.title}</h3>
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1 text-sm sm:text-base text-muted-foreground">
                 <span className="flex items-center gap-1 shrink-0">
-                  <User className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                  <span className="truncate max-w-[80px] sm:max-w-none">{payer?.name}</span>
+                  <User className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <span className="truncate max-w-[100px] sm:max-w-none">{payer?.name}</span>
                 </span>
                 <span className="shrink-0">•</span>
                 <span className="shrink-0">{format(new Date(expense.date), 'MMM d')}</span>
@@ -47,27 +49,27 @@ export function ExpenseCard({ expense, members, onEdit, onDelete, canEditDelete 
             
             <div className="flex items-center gap-1 shrink-0">
               <div className="text-right">
-                <p className="text-sm sm:text-lg font-semibold text-foreground">{formatCurrency(expense.amount)}</p>
-                <p className="text-[10px] sm:text-xs text-muted-foreground">{formatCurrency(expense.amount / expense.participants.length)} each</p>
+                <p className="text-base sm:text-xl font-semibold text-foreground">{formatCurrency(expense.amount)}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground">{formatCurrency(expense.amount / expense.participants.length)} each</p>
               </div>
               
               {/* Mobile: Dropdown Menu */}
               {showActions && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild className="sm:hidden">
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreVertical className="h-4 w-4" />
+                    <Button variant="ghost" size="icon" className="h-9 w-9">
+                      <MoreVertical className="h-5 w-5" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-popover">
                     {onEdit && (
-                      <DropdownMenuItem onClick={onEdit}>
+                      <DropdownMenuItem onClick={onEdit} className="text-base py-3">
                         <Pencil className="h-4 w-4 mr-2" />
                         Edit
                       </DropdownMenuItem>
                     )}
                     {onDelete && (
-                      <DropdownMenuItem onClick={onDelete} className="text-destructive">
+                      <DropdownMenuItem onClick={onDelete} className="text-destructive text-base py-3">
                         <Trash2 className="h-4 w-4 mr-2" />
                         Delete
                       </DropdownMenuItem>
@@ -94,7 +96,7 @@ export function ExpenseCard({ expense, members, onEdit, onDelete, canEditDelete 
             </div>
           </div>
           
-          <p className="text-[10px] sm:text-xs text-muted-foreground mt-1.5 truncate">
+          <p className="text-xs sm:text-sm text-muted-foreground mt-2 truncate">
             Split: {participantNames}
           </p>
         </div>
