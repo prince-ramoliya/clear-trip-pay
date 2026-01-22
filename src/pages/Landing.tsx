@@ -745,8 +745,7 @@ export default function Landing() {
               <span className="text-xl font-bold text-foreground">TripSplit</span>
             </div>
             <p className="text-muted-foreground text-center">
-              © {new Date().getFullYear()} TripSplit. Made with ❤️ for travelers
-              everywhere.
+              © {new Date().getFullYear()} TripSplit. Developed by Prince Ramoliya ❤️ for travelers everywhere.
             </p>
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="sm" asChild>
