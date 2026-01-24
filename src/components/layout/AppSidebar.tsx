@@ -48,8 +48,8 @@ export function AppSidebar({
           onClick={onOpenProfile}
           className="w-full flex items-center gap-3 rounded-lg px-3 py-3 text-left transition-all text-sidebar-foreground hover:bg-sidebar-accent/50"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-sidebar-primary/20 shrink-0">
-            <User className="h-4 w-4 text-sidebar-primary" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-amber-500/20 shrink-0">
+            <User className="h-4 w-4 text-amber-400" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold truncate">My Profile</p>
@@ -62,8 +62,8 @@ export function AppSidebar({
           onClick={onOpenCurrency}
           className="w-full flex items-center gap-3 rounded-lg px-3 py-3 text-left transition-all text-sidebar-foreground hover:bg-sidebar-accent/50"
         >
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-sidebar-primary/20 shrink-0">
-            <Globe className="h-4 w-4 text-sidebar-primary" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-emerald-500/20 shrink-0">
+            <Globe className="h-4 w-4 text-emerald-400" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold">Currency</p>

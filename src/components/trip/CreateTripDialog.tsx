@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, X, Copy, Check, ChevronDown, ChevronUp, Users, UserPlus } from "lucide-react";
+import { Plus, X, Copy, Check, ChevronDown, ChevronUp, Users, UserPlus, Link } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CreateTripDialogProps {
@@ -12,9 +12,10 @@ interface CreateTripDialogProps {
   onCreate: (trip: { name: string; destination: string; startDate: string; endDate: string }, memberNames: string[]) => Promise<void>;
 }
 
+const APP_URL = "https://clear-trip-pay.lovable.app";
+
 export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDialogProps) {
   const [name, setName] = useState('');
-  const [destination, setDestination] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [members, setMembers] = useState<string[]>(['']);
@@ -22,7 +23,8 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
   const [showDates, setShowDates] = useState(false);
   const [memberMode, setMemberMode] = useState<'automatic' | 'manual'>('automatic');
   const [generatedCode, setGeneratedCode] = useState('');
-  const [copied, setCopied] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
 
   // Generate a preview code when dialog opens
   const generatePreviewCode = () => {
@@ -41,15 +43,21 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
     onOpenChange(isOpen);
   };
 
+  const copyLink = async () => {
+    await navigator.clipboard.writeText(APP_URL);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
+  };
+
   const copyCode = async () => {
     await navigator.clipboard.writeText(generatedCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setCopiedCode(true);
+    setTimeout(() => setCopiedCode(false), 2000);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !destination) return;
+    if (!name) return;
 
     // Use today's date as default if dates not provided
     const today = new Date().toISOString().split('T')[0];
@@ -58,11 +66,11 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
 
     setLoading(true);
     const memberNames = memberMode === 'manual' ? members.filter(m => m.trim()) : [];
-    await onCreate({ name, destination, startDate: finalStartDate, endDate: finalEndDate }, memberNames);
+    // Pass empty destination since it's removed
+    await onCreate({ name, destination: '', startDate: finalStartDate, endDate: finalEndDate }, memberNames);
     setLoading(false);
 
     setName(''); 
-    setDestination(''); 
     setStartDate(''); 
     setEndDate(''); 
     setMembers(['']);
@@ -86,16 +94,6 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
               placeholder="e.g., Goa Beach Trip" 
               value={name} 
               onChange={(e) => setName(e.target.value)} 
-              required 
-              className="h-12 text-base"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-base font-semibold">Destination</Label>
-            <Input 
-              placeholder="e.g., Goa, India" 
-              value={destination} 
-              onChange={(e) => setDestination(e.target.value)} 
               required 
               className="h-12 text-base"
             />
@@ -133,26 +131,52 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
               </button>
             </div>
 
-            {/* Automatic Mode - Show Invite Code */}
+            {/* Automatic Mode - Show Invite Link & Code */}
             {memberMode === 'automatic' && (
-              <div className="p-4 rounded-lg border bg-accent/50 space-y-3">
-                <p className="text-sm text-muted-foreground">
-                  Share this code with your team members to join:
+              <div className="p-4 rounded-lg border bg-accent/50 space-y-4">
+                <p className="text-sm font-medium text-foreground">
+                  Share these with your team members to join:
                 </p>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 bg-background rounded-md px-4 py-3 font-mono text-lg font-bold tracking-wider text-center border">
-                    {generatedCode}
+                
+                {/* App Link */}
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">App Link</Label>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 flex items-center gap-2 bg-background rounded-md px-3 py-2.5 border text-sm">
+                      <Link className="h-4 w-4 text-muted-foreground shrink-0" />
+                      <span className="truncate text-foreground">{APP_URL}</span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={copyLink}
+                      className="h-10 w-10 shrink-0"
+                    >
+                      {copiedLink ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
+                    </Button>
                   </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={copyCode}
-                    className="h-12 w-12 shrink-0"
-                  >
-                    {copied ? <Check className="h-5 w-5 text-success" /> : <Copy className="h-5 w-5" />}
-                  </Button>
                 </div>
+
+                {/* Trip Code */}
+                <div className="space-y-2">
+                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Trip Code</Label>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 bg-background rounded-md px-4 py-2.5 font-mono text-lg font-bold tracking-wider text-center border text-foreground">
+                      {generatedCode}
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={copyCode}
+                      className="h-10 w-10 shrink-0"
+                    >
+                      {copiedCode ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
+                    </Button>
+                  </div>
+                </div>
+
                 <p className="text-xs text-muted-foreground">
                   A unique code will be generated when your trip is created.
                 </p>
