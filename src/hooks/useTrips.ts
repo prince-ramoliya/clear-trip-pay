@@ -176,6 +176,7 @@ export function useTrips(userId: string | undefined) {
       toast({
         title: "Trip created!",
         description: `${trip.name} has been created successfully.`,
+        variant: "success",
       });
 
       return trip;
@@ -235,6 +236,7 @@ export function useTrips(userId: string | undefined) {
       toast({
         title: "Expense added",
         description: `${expense.title} has been added.`,
+        variant: "success",
       });
 
       return newExpense;
@@ -302,6 +304,7 @@ export function useTrips(userId: string | undefined) {
       toast({
         title: "Expense updated",
         description: `${expense.title} has been updated.`,
+        variant: "success",
       });
 
       return true;
@@ -330,6 +333,7 @@ export function useTrips(userId: string | undefined) {
       toast({
         title: "Expense deleted",
         description: "The expense has been removed.",
+        variant: "success",
       });
 
       return true;
@@ -380,6 +384,7 @@ export function useTrips(userId: string | undefined) {
       toast({
         title: "Joined trip!",
         description: `You've joined ${trip.name}.`,
+        variant: "success",
       });
 
       return trip;
@@ -423,6 +428,7 @@ export function useTrips(userId: string | undefined) {
       toast({
         title: "Member added",
         description: `${displayName} has been added to the trip.`,
+        variant: "success",
       });
 
       return member;
@@ -487,6 +493,7 @@ export function useTrips(userId: string | undefined) {
       toast({
         title: "Member removed",
         description: "The member has been removed from the trip.",
+        variant: "success",
       });
 
       return true;
@@ -515,6 +522,7 @@ export function useTrips(userId: string | undefined) {
       toast({
         title: "Member updated",
         description: "Member name has been updated.",
+        variant: "success",
       });
 
       return true;
@@ -706,6 +714,7 @@ export function useTrips(userId: string | undefined) {
       toast({
         title: "Left trip",
         description: "You have left the trip successfully.",
+        variant: "success",
       });
 
       return true;

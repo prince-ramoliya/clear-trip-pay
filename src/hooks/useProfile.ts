@@ -56,6 +56,7 @@ export function useProfile(userId: string | undefined) {
       toast({
         title: "Name updated",
         description: "Your display name has been changed successfully.",
+        variant: "success",
       });
 
       return true;

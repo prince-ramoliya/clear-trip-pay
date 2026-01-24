@@ -58,6 +58,7 @@ export function usePayments(tripId: string | undefined, userId: string | undefin
       toast({
         title: "Payment recorded",
         description: "The settlement has been marked as paid.",
+        variant: "success",
       });
 
       await fetchPayments();
@@ -84,6 +85,7 @@ export function usePayments(tripId: string | undefined, userId: string | undefin
       toast({
         title: "Payment removed",
         description: "The payment record has been removed.",
+        variant: "success",
       });
 
       await fetchPayments();
