@@ -42,7 +42,6 @@ export function AddExpenseDialog({ open, onOpenChange, members, onAddExpense }: 
   const [amount, setAmount] = useState('');
   const [paidBy, setPaidBy] = useState('');
   const [category, setCategory] = useState('food');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [participants, setParticipants] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const { currency } = useCurrency();
@@ -58,7 +57,7 @@ export function AddExpenseDialog({ open, onOpenChange, members, onAddExpense }: 
       paidBy,
       participants,
       category,
-      date,
+      date: new Date().toISOString().split('T')[0],
     });
     setLoading(false);
 
@@ -66,7 +65,6 @@ export function AddExpenseDialog({ open, onOpenChange, members, onAddExpense }: 
     setAmount('');
     setPaidBy('');
     setCategory('food');
-    setDate(new Date().toISOString().split('T')[0]);
     setParticipants([]);
     onOpenChange(false);
   };
@@ -96,29 +94,17 @@ export function AddExpenseDialog({ open, onOpenChange, members, onAddExpense }: 
               className="h-12 text-base"
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-base">Amount ({currency.symbol})</Label>
-              <Input 
-                type="number" 
-                min="0" 
-                step="0.01" 
-                value={amount} 
-                onChange={(e) => setAmount(e.target.value)} 
-                required 
-                className="h-12 text-base"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-base">Date</Label>
-              <Input 
-                type="date" 
-                value={date} 
-                onChange={(e) => setDate(e.target.value)} 
-                required 
-                className="h-12 text-base"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label className="text-base">Amount ({currency.symbol})</Label>
+            <Input 
+              type="number" 
+              min="0" 
+              step="0.01" 
+              value={amount} 
+              onChange={(e) => setAmount(e.target.value)} 
+              required 
+              className="h-12 text-base"
+            />
           </div>
           <div className="space-y-2">
             <Label className="text-base">Category</Label>
