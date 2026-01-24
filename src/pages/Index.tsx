@@ -168,7 +168,7 @@ export default function Index() {
           </Button>
           {currentTripData ? <div className="min-w-0 flex-1">
               <h1 className="font-bold text-foreground truncate text-lg">{currentTripData.trip.name}</h1>
-              <p className="text-base text-muted-foreground truncate">{currentTripData.trip.destination}</p>
+              
             </div> : <span className="font-bold text-foreground text-lg">TripSplit</span>}
         </div>
         <div className="flex items-center gap-1 shrink-0">
