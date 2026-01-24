@@ -34,7 +34,7 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
   // Generate a preview code when dialog opens
   const generatePreviewCode = () => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let code = "FGTGHFGRDF";
+    let code = "";
     for (let i = 0; i < 8; i++) {
       code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
