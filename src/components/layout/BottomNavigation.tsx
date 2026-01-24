@@ -27,7 +27,7 @@ export function BottomNavigation({
 }: BottomNavigationProps) {
   if (!hasTripSelected) return null;
   return <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border safe-area-inset-bottom">
-      <div className="h-16 bg-primary-foreground flex-row px-[14px] flex items-start justify-center gap-0 rounded-md shadow-xl border-solid py-px my-[9px]">
+      <div className="h-16 bg-primary-foreground flex-row px-[14px] flex items-start justify-center gap-0 rounded-md shadow-xl border-solid py-px my-0">
         {navItems.map(item => <button key={item.id} onClick={() => onViewChange(item.id)} className={cn("flex flex-col items-center justify-center flex-1 h-full px-2 transition-colors min-w-0 bg-primary-foreground my-0 py-[5px]", currentView === item.id ? "text-primary" : "text-muted-foreground hover:text-foreground")}>
             <item.icon className="h-5 w-5 shrink-0" />
             <span className="text-xs mt-1 font-medium truncate max-w-full">{item.label}</span>
