@@ -224,7 +224,7 @@ export default function Index() {
 
       {/* Main Content */}
       <main className="lg:ml-64 pt-16 lg:pt-0 pb-24 lg:pb-0">
-        <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 py-[28px]">
+        <div className="max-w-5xl mx-auto p-4 sm:p-6 lg:p-8 py-[17px]">
           {/* Desktop Trip Header */}
           {currentTripData && <div className="hidden lg:flex items-center justify-between mb-8">
               <div>
