@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,12 +41,15 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
     }
     return code;
   };
-  const handleOpenChange = (isOpen: boolean) => {
-    if (isOpen && !generatedCode) {
-      setGeneratedCode(generatePreviewCode());
+
+  // IMPORTANT: Radix Dialog's onOpenChange won't fire when the parent controls `open`.
+  // So generate the code whenever `open` becomes true.
+  useEffect(() => {
+    if (open) {
+      setGeneratedCode((prev) => prev || generatePreviewCode());
     }
-    onOpenChange(isOpen);
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
   const copyLink = async () => {
     await navigator.clipboard.writeText(APP_URL);
     setCopiedLink(true);
@@ -89,7 +92,7 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
     onOpenChange(false);
   };
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md max-w-[calc(100vw-20px)] max-h-[calc(100vh-40px)] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-lg sm:text-xl font-bold">Create New Trip</DialogTitle>
