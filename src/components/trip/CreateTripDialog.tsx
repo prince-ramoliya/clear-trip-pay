@@ -33,14 +33,14 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedBoth, setCopiedBoth] = useState(false);
 
-  // Generate a preview code when dialog opens
+  // Generate a 12-character hex invite code (matches backend default format)
   const generatePreviewCode = () => {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let code = "";
-    for (let i = 0; i < 8; i++) {
-      code += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return code;
+    // 6 bytes => 12 hex chars
+    const bytes = new Uint8Array(6);
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes)
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
   };
 
   // IMPORTANT: Radix Dialog's onOpenChange won't fire when the parent controls `open`.
@@ -64,7 +64,7 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
   };
 
   const getFormattedMessage = () => {
-    return `🎒 Join my trip on ClearTripPay!\n\n📱 App: ${APP_URL}\n🔑 Code: ${generatedCode}\n\nDownload the app and enter the code to join!`;
+    return `🎒 Join my trip on ClearTripPay!\n\n📱 App: ${APP_URL}\n🔑 Code: ${generatedCode}`;
   };
 
   const copyBoth = async () => {
