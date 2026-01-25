@@ -14,11 +14,12 @@ interface CreateTripDialogProps {
       destination: string;
       startDate: string;
       endDate: string;
+      inviteCode?: string;
     },
     memberNames: string[],
   ) => Promise<void>;
 }
-const APP_URL = "https://cleartrippay.site/";
+const APP_URL = "https://clear-trip-pay.lovable.app";
 export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDialogProps) {
   const [name, setName] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -66,13 +67,14 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
     const finalEndDate = endDate || today;
     setLoading(true);
     const memberNames = memberMode === "manual" ? members.filter((m) => m.trim()) : [];
-    // Pass empty destination since it's removed
+    // Pass empty destination since it's removed, include invite code for automatic mode
     await onCreate(
       {
         name,
         destination: "",
         startDate: finalStartDate,
         endDate: finalEndDate,
+        inviteCode: memberMode === "automatic" ? generatedCode : undefined,
       },
       memberNames,
     );

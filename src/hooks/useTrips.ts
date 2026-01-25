@@ -119,13 +119,13 @@ export function useTrips(userId: string | undefined) {
 
   // Create trip
   const createTrip = useCallback(async (
-    tripData: { name: string; destination: string; startDate: string; endDate: string },
+    tripData: { name: string; destination: string; startDate: string; endDate: string; inviteCode?: string },
     memberNames: string[]
   ) => {
     if (!userId) return null;
 
     try {
-      // Create trip
+      // Create trip with optional custom invite code
       const { data: trip, error: tripError } = await supabase
         .from('trips')
         .insert({
@@ -134,6 +134,7 @@ export function useTrips(userId: string | undefined) {
           start_date: tripData.startDate,
           end_date: tripData.endDate,
           created_by: userId,
+          ...(tripData.inviteCode ? { invite_code: tripData.inviteCode } : {}),
         })
         .select()
         .single();
