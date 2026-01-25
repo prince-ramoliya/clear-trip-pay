@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, X, Copy, Check, ChevronDown, ChevronUp, Users, UserPlus, Link } from "lucide-react";
+import { Plus, X, Copy, Check, ChevronDown, ChevronUp, Users, UserPlus, Link, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 interface CreateTripDialogProps {
   open: boolean;
@@ -31,6 +31,7 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
   const [generatedCode, setGeneratedCode] = useState("");
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
+  const [copiedBoth, setCopiedBoth] = useState(false);
 
   // Generate a preview code when dialog opens
   const generatePreviewCode = () => {
@@ -56,9 +57,27 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
     setTimeout(() => setCopiedLink(false), 2000);
   };
   const copyCode = async () => {
+    if (!generatedCode) setGeneratedCode(generatePreviewCode());
     await navigator.clipboard.writeText(generatedCode);
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
+  };
+
+  const getFormattedMessage = () => {
+    return `🎒 Join my trip on ClearTripPay!\n\n📱 App: ${APP_URL}\n🔑 Code: ${generatedCode}\n\nDownload the app and enter the code to join!`;
+  };
+
+  const copyBoth = async () => {
+    if (!generatedCode) setGeneratedCode(generatePreviewCode());
+    await navigator.clipboard.writeText(getFormattedMessage());
+    setCopiedBoth(true);
+    setTimeout(() => setCopiedBoth(false), 2000);
+  };
+
+  const shareOnWhatsApp = () => {
+    if (!generatedCode) setGeneratedCode(generatePreviewCode());
+    const message = encodeURIComponent(getFormattedMessage());
+    window.open(`https://wa.me/?text=${message}`, "_blank");
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,8 +209,33 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
                   </div>
                 </div>
 
+                {/* Quick Share Buttons */}
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={copyBoth}
+                    className="flex-1 h-11"
+                  >
+                    {copiedBoth ? (
+                      <Check className="h-4 w-4 mr-2 text-success" />
+                    ) : (
+                      <Copy className="h-4 w-4 mr-2" />
+                    )}
+                    {copiedBoth ? "Copied!" : "Copy Both"}
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={shareOnWhatsApp}
+                    className="flex-1 h-11 bg-[#25D366] hover:bg-[#20BD5A] text-white"
+                  >
+                    <MessageCircle className="h-4 w-4 mr-2" />
+                    WhatsApp
+                  </Button>
+                </div>
+
                 <p className="text-xs text-muted-foreground">
-                  A unique code will be generated when your trip is created.
+                  Share the app link and trip code with your team members.
                 </p>
               </div>
             )}
