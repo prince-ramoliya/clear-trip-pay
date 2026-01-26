@@ -69,10 +69,16 @@ export function EditExpenseDialog({
     e.preventDefault();
     if (!title || !amount || !paidBy || participants.length === 0) return;
 
+    // Validate amount is a positive number within bounds
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || !isFinite(parsedAmount) || parsedAmount <= 0 || parsedAmount >= 999999999) {
+      return;
+    }
+
     setLoading(true);
     const success = await onUpdateExpense(expense.id, {
       title,
-      amount: parseFloat(amount),
+      amount: parsedAmount,
       paidBy,
       participants,
       category,
