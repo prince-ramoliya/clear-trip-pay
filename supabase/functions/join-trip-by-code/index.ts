@@ -42,19 +42,19 @@ Deno.serve(async (req) => {
     // Validate user
     const { data: userData, error: userError } = await userClient.auth.getUser();
     if (userError || !userData?.user) {
-      console.error("User auth error:", userError?.message);
+      console.error("User auth failed");
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    console.log("Authenticated user:", userData.user.id);
+    console.log("User authenticated successfully");
 
     const { inviteCode }: JoinTripRequest = await req.json().catch(() => ({}));
 
     const normalized = (inviteCode ?? "").trim().toLowerCase();
-    console.log("Looking up invite code:", normalized);
+    console.log("Processing invite code request");
 
     if (!normalized) {
       return new Response(JSON.stringify({ error: "Invite code is required" }), {
@@ -70,10 +70,8 @@ Deno.serve(async (req) => {
       .ilike("invite_code", normalized)
       .maybeSingle();
 
-    console.log("Trip lookup result:", { trip, error: tripError?.message });
-
     if (tripError) {
-      console.error("Trip lookup error", tripError);
+      console.error("Trip lookup failed");
       return new Response(JSON.stringify({ error: "Failed to lookup trip" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -81,7 +79,7 @@ Deno.serve(async (req) => {
     }
 
     if (!trip) {
-      console.log("No trip found for code:", normalized);
+      console.log("Invalid invite code provided");
       return new Response(JSON.stringify({ error: "INVALID_CODE" }), {
         status: 404,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -89,7 +87,7 @@ Deno.serve(async (req) => {
     }
 
     const userId = userData.user.id;
-    console.log("Found trip:", trip.id, "- checking membership for user:", userId);
+    console.log("Checking trip membership");
 
     // Check if already a member using admin client
     const { data: existingMember, error: memberLookupError } = await adminClient
@@ -100,7 +98,7 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (memberLookupError) {
-      console.error("Member lookup error", memberLookupError);
+      console.error("Membership check failed");
       return new Response(JSON.stringify({ error: "Failed to check membership" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -108,7 +106,7 @@ Deno.serve(async (req) => {
     }
 
     if (existingMember) {
-      console.log("User already a member, returning trip id");
+      console.log("User already a member");
       return new Response(JSON.stringify({ tripId: trip.id, alreadyMember: true }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -123,7 +121,7 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     const displayName = profile?.display_name ?? "New Member";
-    console.log("Adding user as member with display name:", displayName);
+    console.log("Adding new member to trip");
 
     const { error: insertError } = await adminClient.from("trip_members").insert({
       trip_id: trip.id,
@@ -133,14 +131,14 @@ Deno.serve(async (req) => {
     });
 
     if (insertError) {
-      console.error("Member insert error", insertError);
+      console.error("Failed to add member to trip");
       return new Response(JSON.stringify({ error: "Failed to join trip" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    console.log("Successfully joined trip:", trip.id);
+    console.log("Member successfully added to trip");
     return new Response(JSON.stringify({ tripId: trip.id }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },

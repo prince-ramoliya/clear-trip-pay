@@ -61,10 +61,16 @@ export function AddExpenseDialog({ open, onOpenChange, members, currentUserId, o
     e.preventDefault();
     if (!title || !amount || !effectivePaidBy || participants.length === 0) return;
 
+    // Validate amount is a positive number within bounds
+    const parsedAmount = parseFloat(amount);
+    if (isNaN(parsedAmount) || !isFinite(parsedAmount) || parsedAmount <= 0 || parsedAmount >= 999999999) {
+      return;
+    }
+
     setLoading(true);
     await onAddExpense({
       title,
-      amount: parseFloat(amount),
+      amount: parsedAmount,
       paidBy: effectivePaidBy,
       participants,
       category,
