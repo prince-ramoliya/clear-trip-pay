@@ -10,6 +10,43 @@ type JoinTripRequest = {
   inviteCode?: string;
 };
 
+// In-memory rate limiting store (resets on function cold start)
+// For production, consider using Redis/Upstash for distributed rate limiting
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute window
+const MAX_REQUESTS_PER_WINDOW = 10; // 10 attempts per minute per user
+
+function checkRateLimit(userId: string): { allowed: boolean; retryAfter?: number } {
+  const now = Date.now();
+  const record = rateLimitStore.get(userId);
+
+  if (!record || now > record.resetTime) {
+    // Start new window
+    rateLimitStore.set(userId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return { allowed: true };
+  }
+
+  if (record.count >= MAX_REQUESTS_PER_WINDOW) {
+    const retryAfter = Math.ceil((record.resetTime - now) / 1000);
+    return { allowed: false, retryAfter };
+  }
+
+  // Increment count
+  record.count++;
+  return { allowed: true };
+}
+
+// Clean up old rate limit entries periodically
+function cleanupRateLimitStore() {
+  const now = Date.now();
+  for (const [key, value] of rateLimitStore.entries()) {
+    if (now > value.resetTime) {
+      rateLimitStore.delete(key);
+    }
+  }
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -21,15 +58,14 @@ Deno.serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
     if (!supabaseUrl || !serviceRoleKey) {
-      console.error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY env vars");
-      return new Response(JSON.stringify({ error: "Server misconfiguration" }), {
+      console.error("Missing environment configuration");
+      return new Response(JSON.stringify({ error: "Server configuration error" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const authHeader = req.headers.get("Authorization") ?? "";
-    console.log("Auth header present:", !!authHeader);
 
     // Create admin client with service role key (bypasses RLS)
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
@@ -42,23 +78,53 @@ Deno.serve(async (req) => {
     // Validate user
     const { data: userData, error: userError } = await userClient.auth.getUser();
     if (userError || !userData?.user) {
-      console.error("User auth failed");
+      console.log("Authentication failed");
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    console.log("User authenticated successfully");
+    const userId = userData.user.id;
+
+    // Check rate limit for this user
+    const rateCheck = checkRateLimit(userId);
+    if (!rateCheck.allowed) {
+      console.log("Rate limit exceeded for user");
+      return new Response(JSON.stringify({ error: "Too many requests. Please try again later." }), {
+        status: 429,
+        headers: { 
+          ...corsHeaders, 
+          "Content-Type": "application/json",
+          "Retry-After": String(rateCheck.retryAfter || 60)
+        },
+      });
+    }
+
+    // Periodic cleanup of rate limit store
+    if (Math.random() < 0.1) {
+      cleanupRateLimitStore();
+    }
+
+    console.log("Processing join request");
 
     const { inviteCode }: JoinTripRequest = await req.json().catch(() => ({}));
 
     const normalized = (inviteCode ?? "").trim().toLowerCase();
-    console.log("Processing invite code request");
 
     if (!normalized) {
       return new Response(JSON.stringify({ error: "Invite code is required" }), {
         status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate invite code format (should be 12 hex characters)
+    if (!/^[a-f0-9]{12}$/.test(normalized)) {
+      // Return same error as invalid code to prevent enumeration
+      console.log("Invalid code format provided");
+      return new Response(JSON.stringify({ error: "INVALID_CODE" }), {
+        status: 404,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -71,23 +137,23 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (tripError) {
-      console.error("Trip lookup failed");
-      return new Response(JSON.stringify({ error: "Failed to lookup trip" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    if (!trip) {
-      console.log("Invalid invite code provided");
+      console.error("Database lookup error");
+      // Return generic error to prevent enumeration
       return new Response(JSON.stringify({ error: "INVALID_CODE" }), {
         status: 404,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const userId = userData.user.id;
-    console.log("Checking trip membership");
+    if (!trip) {
+      console.log("Code not found");
+      return new Response(JSON.stringify({ error: "INVALID_CODE" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    console.log("Valid code, checking membership");
 
     // Check if already a member using admin client
     const { data: existingMember, error: memberLookupError } = await adminClient
@@ -98,9 +164,10 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (memberLookupError) {
-      console.error("Membership check failed");
-      return new Response(JSON.stringify({ error: "Failed to check membership" }), {
-        status: 500,
+      console.error("Membership check error");
+      // Return generic error to prevent enumeration
+      return new Response(JSON.stringify({ error: "INVALID_CODE" }), {
+        status: 404,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
@@ -131,22 +198,24 @@ Deno.serve(async (req) => {
     });
 
     if (insertError) {
-      console.error("Failed to add member to trip");
-      return new Response(JSON.stringify({ error: "Failed to join trip" }), {
-        status: 500,
+      console.error("Failed to add member");
+      // Return generic error to prevent enumeration
+      return new Response(JSON.stringify({ error: "INVALID_CODE" }), {
+        status: 404,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    console.log("Member successfully added to trip");
+    console.log("Member successfully added");
     return new Response(JSON.stringify({ tripId: trip.id }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
-    console.error("Unhandled join-trip-by-code error", e);
-    return new Response(JSON.stringify({ error: "Internal error" }), {
-      status: 500,
+    console.error("Unhandled error in join-trip-by-code");
+    // Return generic error to prevent enumeration
+    return new Response(JSON.stringify({ error: "INVALID_CODE" }), {
+      status: 404,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
