@@ -229,6 +229,7 @@ export type Database = {
           end_date: string
           id: string
           invite_code: string | null
+          member_mode: string
           name: string
           start_date: string
           updated_at: string
@@ -240,6 +241,7 @@ export type Database = {
           end_date: string
           id?: string
           invite_code?: string | null
+          member_mode?: string
           name: string
           start_date: string
           updated_at?: string
@@ -251,6 +253,7 @@ export type Database = {
           end_date?: string
           id?: string
           invite_code?: string | null
+          member_mode?: string
           name?: string
           start_date?: string
           updated_at?: string

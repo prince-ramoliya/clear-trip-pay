@@ -15,6 +15,7 @@ interface CreateTripDialogProps {
       startDate: string;
       endDate: string;
       inviteCode?: string;
+      memberMode?: 'automatic' | 'manual';
     },
     memberNames: string[],
   ) => Promise<void>;
@@ -89,7 +90,7 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
     const finalEndDate = endDate || today;
     setLoading(true);
     const memberNames = memberMode === "manual" ? members.filter((m) => m.trim()) : [];
-    // Pass empty destination since it's removed, include invite code for automatic mode
+    // Pass member mode and invite code for automatic mode
     await onCreate(
       {
         name,
@@ -97,6 +98,7 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
         startDate: finalStartDate,
         endDate: finalEndDate,
         inviteCode: memberMode === "automatic" ? generatedCode : undefined,
+        memberMode: memberMode,
       },
       memberNames,
     );

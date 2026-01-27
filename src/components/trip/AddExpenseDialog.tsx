@@ -26,6 +26,7 @@ interface AddExpenseDialogProps {
   onOpenChange: (open: boolean) => void;
   members: DbTripMember[];
   currentUserId?: string;
+  memberMode?: string;
   onAddExpense: (expense: {
     title: string;
     amount: number;
@@ -38,7 +39,7 @@ interface AddExpenseDialogProps {
 
 const categories = ['food', 'stay', 'travel', 'shopping', 'activities', 'other'];
 
-export function AddExpenseDialog({ open, onOpenChange, members, currentUserId, onAddExpense }: AddExpenseDialogProps) {
+export function AddExpenseDialog({ open, onOpenChange, members, currentUserId, memberMode, onAddExpense }: AddExpenseDialogProps) {
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [paidBy, setPaidBy] = useState('');
@@ -47,9 +48,8 @@ export function AddExpenseDialog({ open, onOpenChange, members, currentUserId, o
   const [loading, setLoading] = useState(false);
   const { currency } = useCurrency();
 
-  // Check if this is an "automatic" trip (only 1 registered member - the current user)
-  const registeredMembers = members.filter(m => m.is_registered);
-  const isAutomaticTrip = registeredMembers.length === 1 && registeredMembers[0]?.user_id === currentUserId;
+  // Check if this is an "automatic" trip - use the trip's member_mode
+  const isAutomaticTrip = memberMode === 'automatic';
   
   // Find current user's member record
   const currentUserMember = members.find(m => m.user_id === currentUserId);

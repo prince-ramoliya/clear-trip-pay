@@ -26,6 +26,8 @@ interface EditExpenseDialogProps {
   onOpenChange: (open: boolean) => void;
   expense: DbExpense & { participants: DbExpenseParticipant[] };
   members: DbTripMember[];
+  currentUserId?: string;
+  memberMode?: string;
   onUpdateExpense: (expenseId: string, expense: {
     title: string;
     amount: number;
@@ -42,7 +44,9 @@ export function EditExpenseDialog({
   open, 
   onOpenChange, 
   expense, 
-  members, 
+  members,
+  currentUserId,
+  memberMode,
   onUpdateExpense 
 }: EditExpenseDialogProps) {
   const [title, setTitle] = useState('');
@@ -54,6 +58,11 @@ export function EditExpenseDialog({
   const [loading, setLoading] = useState(false);
   const { currency } = useCurrency();
 
+  // Check if this is an "automatic" trip
+  const isAutomaticTrip = memberMode === 'automatic';
+  
+  // Find current user's member record
+  const currentUserMember = members.find(m => m.user_id === currentUserId);
   useEffect(() => {
     if (expense && open) {
       setTitle(expense.title);
@@ -67,7 +76,11 @@ export function EditExpenseDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !amount || !paidBy || participants.length === 0) return;
+    
+    // For automatic trips, use current user as paidBy
+    const effectivePaidBy = isAutomaticTrip && currentUserMember ? currentUserMember.id : paidBy;
+    
+    if (!title || !amount || !effectivePaidBy || participants.length === 0) return;
 
     // Validate amount is a positive number within bounds
     const parsedAmount = parseFloat(amount);
@@ -79,7 +92,7 @@ export function EditExpenseDialog({
     const success = await onUpdateExpense(expense.id, {
       title,
       amount: parsedAmount,
-      paidBy,
+      paidBy: effectivePaidBy,
       participants,
       category,
       date,
@@ -176,18 +189,24 @@ export function EditExpenseDialog({
 
           <div className="space-y-2">
             <Label className="text-base">Paid by</Label>
-            <Select value={paidBy} onValueChange={setPaidBy}>
-              <SelectTrigger className="h-12 text-base">
-                <SelectValue placeholder="Select who paid" />
-              </SelectTrigger>
-              <SelectContent className="bg-popover">
-                {members.map(member => (
-                  <SelectItem key={member.id} value={member.id} className="text-base py-3">
-                    {member.display_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {isAutomaticTrip && currentUserMember ? (
+              <div className="h-12 flex items-center px-3 rounded-md border bg-muted/50 text-base text-foreground">
+                {currentUserMember.display_name}
+              </div>
+            ) : (
+              <Select value={paidBy} onValueChange={setPaidBy}>
+                <SelectTrigger className="h-12 text-base">
+                  <SelectValue placeholder="Select who paid" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover">
+                  {members.map(member => (
+                    <SelectItem key={member.id} value={member.id} className="text-base py-3">
+                      {member.display_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           <div className="space-y-2">

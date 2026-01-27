@@ -12,13 +12,14 @@ interface ExpensesViewProps {
   trip: Trip;
   members: DbTripMember[];
   expenses: (DbExpense & { participants: DbExpenseParticipant[] })[];
+  memberMode?: string;
   onAddExpense: (expense: { title: string; amount: number; paidBy: string; participants: string[]; category: string; date: string; }) => Promise<any>;
   onUpdateExpense: (expenseId: string, expense: { title: string; amount: number; paidBy: string; participants: string[]; category: string; date: string; }) => Promise<boolean>;
   onRemoveExpense: (expenseId: string) => Promise<boolean>;
   currentUserId?: string;
 }
 
-export function ExpensesView({ trip, members, expenses, onAddExpense, onUpdateExpense, onRemoveExpense, currentUserId }: ExpensesViewProps) {
+export function ExpensesView({ trip, members, expenses, memberMode, onAddExpense, onUpdateExpense, onRemoveExpense, currentUserId }: ExpensesViewProps) {
   const [isAddExpenseOpen, setIsAddExpenseOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<(DbExpense & { participants: DbExpenseParticipant[] }) | null>(null);
 
@@ -73,9 +74,9 @@ export function ExpensesView({ trip, members, expenses, onAddExpense, onUpdateEx
         </div>
       )}
 
-      <AddExpenseDialog open={isAddExpenseOpen} onOpenChange={setIsAddExpenseOpen} members={members} onAddExpense={onAddExpense} />
+      <AddExpenseDialog open={isAddExpenseOpen} onOpenChange={setIsAddExpenseOpen} members={members} currentUserId={currentUserId} memberMode={memberMode} onAddExpense={onAddExpense} />
       {editingExpense && (
-        <EditExpenseDialog open={!!editingExpense} onOpenChange={(open) => !open && setEditingExpense(null)} expense={editingExpense} members={members} onUpdateExpense={onUpdateExpense} />
+        <EditExpenseDialog open={!!editingExpense} onOpenChange={(open) => !open && setEditingExpense(null)} expense={editingExpense} members={members} currentUserId={currentUserId} memberMode={memberMode} onUpdateExpense={onUpdateExpense} />
       )}
     </div>
   );
