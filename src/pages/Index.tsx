@@ -231,7 +231,6 @@ export default function Index() {
           {currentTripData && <div className="hidden lg:flex items-center justify-between mb-8">
               <div>
                 <h1 className="text-2xl lg:text-3xl font-bold text-foreground">{currentTripData.trip.name}</h1>
-                <p className="text-muted-foreground">{currentTripData.trip.destination}</p>
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="sm" onClick={() => setIsMembersOpen(true)} className="font-semibold">
