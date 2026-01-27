@@ -17,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { getCategoryIcon, getCategoryLabel } from "@/lib/calculations";
 import { useCurrency } from "@/contexts/CurrencyContext";
 
@@ -54,7 +53,6 @@ export function EditExpenseDialog({
   const [paidBy, setPaidBy] = useState('');
   const [category, setCategory] = useState('food');
   const [date, setDate] = useState('');
-  const [participants, setParticipants] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const { currency } = useCurrency();
 
@@ -63,6 +61,7 @@ export function EditExpenseDialog({
   
   // Find current user's member record
   const currentUserMember = members.find(m => m.user_id === currentUserId);
+
   useEffect(() => {
     if (expense && open) {
       setTitle(expense.title);
@@ -70,7 +69,6 @@ export function EditExpenseDialog({
       setPaidBy(expense.paid_by);
       setCategory(expense.category);
       setDate(expense.expense_date);
-      setParticipants(expense.participants.map(p => p.member_id));
     }
   }, [expense, open]);
 
@@ -80,7 +78,7 @@ export function EditExpenseDialog({
     // For automatic trips, use current user as paidBy
     const effectivePaidBy = isAutomaticTrip && currentUserMember ? currentUserMember.id : paidBy;
     
-    if (!title || !amount || !effectivePaidBy || participants.length === 0) return;
+    if (!title || !amount || !effectivePaidBy) return;
 
     // Validate amount is a positive number within bounds
     const parsedAmount = parseFloat(amount);
@@ -89,11 +87,12 @@ export function EditExpenseDialog({
     }
 
     setLoading(true);
+    // Always split between all members
     const success = await onUpdateExpense(expense.id, {
       title,
       amount: parsedAmount,
       paidBy: effectivePaidBy,
-      participants,
+      participants: members.map(m => m.id),
       category,
       date,
     });
@@ -102,18 +101,6 @@ export function EditExpenseDialog({
     if (success) {
       onOpenChange(false);
     }
-  };
-
-  const toggleParticipant = (memberId: string) => {
-    setParticipants(prev =>
-      prev.includes(memberId)
-        ? prev.filter(id => id !== memberId)
-        : [...prev, memberId]
-    );
-  };
-
-  const selectAllParticipants = () => {
-    setParticipants(members.map(m => m.id));
   };
 
   return (
@@ -207,36 +194,6 @@ export function EditExpenseDialog({
                 </SelectContent>
               </Select>
             )}
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-base">Split between</Label>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={selectAllParticipants}
-                className="text-sm text-primary h-9"
-              >
-                Select all
-              </Button>
-            </div>
-            <div className="grid grid-cols-2 gap-2 p-3 rounded-lg border bg-muted/30">
-              {members.map(member => (
-                <label
-                  key={member.id}
-                  className="flex items-center gap-3 cursor-pointer p-3 rounded-md hover:bg-accent transition-colors"
-                >
-                  <Checkbox
-                    checked={participants.includes(member.id)}
-                    onCheckedChange={() => toggleParticipant(member.id)}
-                    className="h-5 w-5"
-                  />
-                  <span className="text-base">{member.display_name}</span>
-                </label>
-              ))}
-            </div>
           </div>
 
           <div className="flex gap-3 pt-4">

@@ -17,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { getCategoryIcon, getCategoryLabel } from "@/lib/calculations";
 import { useCurrency } from "@/contexts/CurrencyContext";
 
@@ -44,7 +43,6 @@ export function AddExpenseDialog({ open, onOpenChange, members, currentUserId, m
   const [amount, setAmount] = useState('');
   const [paidBy, setPaidBy] = useState('');
   const [category, setCategory] = useState('food');
-  const [participants, setParticipants] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const { currency } = useCurrency();
 
@@ -59,7 +57,7 @@ export function AddExpenseDialog({ open, onOpenChange, members, currentUserId, m
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !amount || !effectivePaidBy || participants.length === 0) return;
+    if (!title || !amount || !effectivePaidBy) return;
 
     // Validate amount is a positive number within bounds
     const parsedAmount = parseFloat(amount);
@@ -68,11 +66,12 @@ export function AddExpenseDialog({ open, onOpenChange, members, currentUserId, m
     }
 
     setLoading(true);
+    // Auto-split between all members
     await onAddExpense({
       title,
       amount: parsedAmount,
       paidBy: effectivePaidBy,
-      participants,
+      participants: members.map(m => m.id),
       category,
       date: new Date().toISOString().split('T')[0],
     });
@@ -82,14 +81,7 @@ export function AddExpenseDialog({ open, onOpenChange, members, currentUserId, m
     setAmount('');
     setPaidBy('');
     setCategory('food');
-    setParticipants([]);
     onOpenChange(false);
-  };
-
-  const toggleParticipant = (memberId: string) => {
-    setParticipants(prev =>
-      prev.includes(memberId) ? prev.filter(id => id !== memberId) : [...prev, memberId]
-    );
   };
 
   return (
@@ -97,7 +89,7 @@ export function AddExpenseDialog({ open, onOpenChange, members, currentUserId, m
       <DialogContent className="sm:max-w-md max-w-[calc(100vw-20px)] max-h-[calc(100vh-40px)] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-lg sm:text-xl">Add Expense</DialogTitle>
-          <DialogDescription className="text-base">Add a new expense to split among group members.</DialogDescription>
+          <DialogDescription className="text-base">Add a new expense to split among all members.</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-5 mt-4">
           <div className="space-y-2">
@@ -161,32 +153,6 @@ export function AddExpenseDialog({ open, onOpenChange, members, currentUserId, m
                 </SelectContent>
               </Select>
             )}
-          </div>
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-base">Split between</Label>
-              <Button 
-                type="button" 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setParticipants(members.map(m => m.id))} 
-                className="text-sm text-primary h-9"
-              >
-                Select all
-              </Button>
-            </div>
-            <div className="grid grid-cols-2 gap-2 p-3 rounded-lg border bg-muted/30">
-              {members.map(m => (
-                <label key={m.id} className="flex items-center gap-3 cursor-pointer p-3 rounded-md hover:bg-accent">
-                  <Checkbox 
-                    checked={participants.includes(m.id)} 
-                    onCheckedChange={() => toggleParticipant(m.id)} 
-                    className="h-5 w-5"
-                  />
-                  <span className="text-base">{m.display_name}</span>
-                </label>
-              ))}
-            </div>
           </div>
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="outline" className="flex-1 h-12 text-base" onClick={() => onOpenChange(false)}>
