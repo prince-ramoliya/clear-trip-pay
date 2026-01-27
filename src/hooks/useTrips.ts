@@ -119,13 +119,16 @@ export function useTrips(userId: string | undefined) {
 
   // Create trip
   const createTrip = useCallback(async (
-    tripData: { name: string; destination: string; startDate: string; endDate: string; inviteCode?: string },
+    tripData: { name: string; destination: string; startDate: string; endDate: string; inviteCode?: string; memberMode?: 'automatic' | 'manual' },
     memberNames: string[]
   ) => {
     if (!userId) return null;
 
     try {
-      // Create trip with optional custom invite code
+      // Determine member mode - if inviteCode is provided, it's automatic mode
+      const memberMode = tripData.memberMode || (tripData.inviteCode ? 'automatic' : 'manual');
+      
+      // Create trip with optional custom invite code and member mode
       const { data: trip, error: tripError } = await supabase
         .from('trips')
         .insert({
@@ -134,6 +137,7 @@ export function useTrips(userId: string | undefined) {
           start_date: tripData.startDate,
           end_date: tripData.endDate,
           created_by: userId,
+          member_mode: memberMode,
           ...(tripData.inviteCode ? { invite_code: tripData.inviteCode } : {}),
         })
         .select()

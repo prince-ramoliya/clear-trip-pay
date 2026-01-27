@@ -88,6 +88,8 @@ export default function Index() {
     destination: string;
     startDate: string;
     endDate: string;
+    inviteCode?: string;
+    memberMode?: 'automatic' | 'manual';
   }, memberNames: string[]) => {
     await createTrip(data, memberNames);
     setCurrentView('expenses');
@@ -150,13 +152,13 @@ export default function Index() {
     };
     switch (currentView) {
       case 'expenses':
-        return <ExpensesView trip={tripForView} members={currentTripData.members} expenses={currentTripData.expenses} onAddExpense={addExpense} onUpdateExpense={updateExpense} onRemoveExpense={removeExpense} currentUserId={user?.id} />;
+        return <ExpensesView trip={tripForView} members={currentTripData.members} expenses={currentTripData.expenses} memberMode={currentTripData.trip.member_mode} onAddExpense={addExpense} onUpdateExpense={updateExpense} onRemoveExpense={removeExpense} currentUserId={user?.id} />;
       case 'summary':
         return <SummaryView trip={tripForView} />;
       case 'settlements':
         return <SettlementsView trip={tripForView} payments={payments} onMarkPaid={addPayment} onDeletePayment={deletePayment} />;
       default:
-        return <ExpensesView trip={tripForView} members={currentTripData.members} expenses={currentTripData.expenses} onAddExpense={addExpense} onUpdateExpense={updateExpense} onRemoveExpense={removeExpense} currentUserId={user?.id} />;
+        return <ExpensesView trip={tripForView} members={currentTripData.members} expenses={currentTripData.expenses} memberMode={currentTripData.trip.member_mode} onAddExpense={addExpense} onUpdateExpense={updateExpense} onRemoveExpense={removeExpense} currentUserId={user?.id} />;
     }
   };
   return <div className="min-h-screen bg-background">
@@ -255,7 +257,7 @@ export default function Index() {
       
       {currentTripData && <>
           <InviteDialog open={isInviteOpen} onOpenChange={setIsInviteOpen} inviteCode={currentTripData.trip.invite_code} tripName={currentTripData.trip.name} />
-          <AddExpenseDialog open={isMobileAddExpenseOpen} onOpenChange={setIsMobileAddExpenseOpen} members={currentTripData.members} currentUserId={user?.id} onAddExpense={addExpense} />
+          <AddExpenseDialog open={isMobileAddExpenseOpen} onOpenChange={setIsMobileAddExpenseOpen} members={currentTripData.members} currentUserId={user?.id} memberMode={currentTripData.trip.member_mode} onAddExpense={addExpense} />
           <MembersDialog open={isMembersOpen} onOpenChange={setIsMembersOpen} members={currentTripData.members} currentUserId={user?.id} tripCreatedBy={currentTripData.trip.created_by} onAddMember={addMember} onRemoveMember={removeMember} onUpdateMemberName={updateMemberName} />
           {isAdmin ? <EditTripDialog open={isEditTripOpen} onOpenChange={setIsEditTripOpen} trip={currentTripData.trip} onUpdate={updateTrip} onDelete={deleteTrip} /> : <LeaveTripDialog open={isLeaveTripOpen} onOpenChange={setIsLeaveTripOpen} tripName={currentTripData.trip.name} onLeave={handleLeaveTrip} isLoading={isLeavingTrip} />}
         </>}

@@ -8,6 +8,7 @@ export interface DbTrip {
   created_by: string | null;
   created_at: string;
   updated_at: string;
+  member_mode: string;
 }
 
 export interface DbTripMember {
