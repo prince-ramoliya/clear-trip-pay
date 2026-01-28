@@ -127,7 +127,7 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="h-12 text-base"
+              className="h-10 text-base"
             />
           </div>
 
@@ -265,7 +265,7 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
                         placeholder={`Member ${i + 1}`}
                         value={member}
                         onChange={(e) => setMembers(members.map((m, j) => (j === i ? e.target.value : m)))}
-                        className="h-12 text-base"
+                        className="h-10 text-base"
                       />
                       {members.length > 1 && (
                         <Button
@@ -273,7 +273,7 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
                           variant="ghost"
                           size="icon"
                           onClick={() => setMembers(members.filter((_, j) => j !== i))}
-                          className="h-12 w-12 shrink-0"
+                          className="h-10 w-10 shrink-0"
                         >
                           <X className="h-5 w-5" />
                         </Button>
@@ -311,7 +311,7 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="h-12 text-base"
+                    className="h-10 text-base"
                   />
                 </div>
                 <div className="space-y-2">
@@ -320,7 +320,7 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="h-12 text-base"
+                    className="h-10 text-base"
                   />
                 </div>
               </div>
@@ -331,12 +331,12 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
             <Button
               type="button"
               variant="outline"
-              className="flex-1 h-12 text-base font-semibold"
+              className="flex-1 h-10 text-base font-semibold"
               onClick={() => onOpenChange(false)}
             >
               Cancel
             </Button>
-            <Button type="submit" className="flex-1 h-12 text-base font-semibold" disabled={loading}>
+            <Button type="submit" className="flex-1 h-10 text-base font-semibold" disabled={loading}>
               {loading ? "Creating..." : "Create Trip"}
             </Button>
           </div>

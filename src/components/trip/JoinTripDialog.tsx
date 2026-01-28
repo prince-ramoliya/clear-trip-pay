@@ -71,13 +71,13 @@ export function JoinTripDialog({ open, onOpenChange, onJoinTrip }: JoinTripDialo
             <Button
               type="button"
               variant="outline"
-              className="flex-1 h-12 text-base"
+              className="flex-1 h-10 text-base"
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
               Cancel
             </Button>
-            <Button type="submit" className="flex-1 h-12 text-base" disabled={loading || !inviteCode.trim()}>
+            <Button type="submit" className="flex-1 h-10 text-base" disabled={loading || !inviteCode.trim()}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />

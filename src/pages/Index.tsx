@@ -17,6 +17,7 @@ import { EditTripDialog } from "@/components/trip/EditTripDialog";
 import { LeaveTripDialog } from "@/components/trip/LeaveTripDialog";
 import { ProfileDialog } from "@/components/trip/ProfileDialog";
 import { CurrencyDialog } from "@/components/trip/CurrencyDialog";
+import { FirstLoginNamePrompt } from "@/components/trip/FirstLoginNamePrompt";
 import { Button } from "@/components/ui/button";
 import { Menu, X, UserPlus, Loader2, Users } from "lucide-react";
 export default function Index() {
@@ -253,6 +254,7 @@ export default function Index() {
       <JoinTripDialog open={isJoinTripOpen} onOpenChange={setIsJoinTripOpen} onJoinTrip={joinTripByCode} />
       <ProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} userId={user?.id} />
       <CurrencyDialog open={isCurrencyOpen} onOpenChange={setIsCurrencyOpen} />
+      <FirstLoginNamePrompt userId={user?.id} />
       
       {currentTripData && <>
           <InviteDialog open={isInviteOpen} onOpenChange={setIsInviteOpen} inviteCode={currentTripData.trip.invite_code} tripName={currentTripData.trip.name} />

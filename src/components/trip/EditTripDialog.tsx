@@ -68,33 +68,33 @@ export function EditTripDialog({ open, onOpenChange, trip, onUpdate, onDelete }:
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
-            <Label>Trip Name</Label>
-            <Input placeholder="e.g., Goa Beach Trip" value={name} onChange={(e) => setName(e.target.value)} required />
+            <Label className="text-base">Trip Name</Label>
+            <Input placeholder="e.g., Goa Beach Trip" value={name} onChange={(e) => setName(e.target.value)} required className="h-10 text-base" />
           </div>
           <div className="space-y-2">
-            <Label>Destination</Label>
-            <Input placeholder="e.g., Goa, India" value={destination} onChange={(e) => setDestination(e.target.value)} required />
+            <Label className="text-base">Destination</Label>
+            <Input placeholder="e.g., Goa, India" value={destination} onChange={(e) => setDestination(e.target.value)} required className="h-10 text-base" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Start Date</Label>
-              <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
+              <Label className="text-base">Start Date</Label>
+              <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} required className="h-10 text-base" />
             </div>
             <div className="space-y-2">
-              <Label>End Date</Label>
-              <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
+              <Label className="text-base">End Date</Label>
+              <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required className="h-10 text-base" />
             </div>
           </div>
           
           <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit" className="flex-1" disabled={loading}>{loading ? 'Saving...' : 'Save Changes'}</Button>
+            <Button type="button" variant="outline" className="flex-1 h-10 text-base" onClick={() => onOpenChange(false)}>Cancel</Button>
+            <Button type="submit" className="flex-1 h-10 text-base" disabled={loading}>{loading ? 'Saving...' : 'Save Changes'}</Button>
           </div>
 
           <div className="border-t border-border pt-4 mt-4">
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button type="button" variant="destructive" className="w-full" disabled={deleteLoading}>
+                <Button type="button" variant="destructive" className="w-full h-10 text-base" disabled={deleteLoading}>
                   <Trash2 className="h-4 w-4 mr-2" />
                   {deleteLoading ? 'Deleting...' : 'Delete Trip'}
                 </Button>

@@ -34,12 +34,12 @@ export function CurrencyDialog({ open, onOpenChange }: CurrencyDialogProps) {
         </DialogHeader>
         <div className="space-y-4 pt-4">
           <Select value={currency.code} onValueChange={handleCurrencyChange}>
-            <SelectTrigger className="w-full h-12 text-base font-medium">
+            <SelectTrigger className="w-full h-10 text-base font-medium">
               <SelectValue placeholder="Select currency" />
             </SelectTrigger>
             <SelectContent className="bg-popover">
               {CURRENCIES.map((curr) => (
-                <SelectItem key={curr.code} value={curr.code} className="text-base py-3">
+                <SelectItem key={curr.code} value={curr.code} className="text-base py-2">
                   <span className="flex items-center gap-3">
                     <span className="text-lg font-bold w-8">{curr.symbol}</span>
                     <span className="font-medium">{curr.name}</span>
