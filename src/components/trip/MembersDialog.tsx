@@ -200,12 +200,12 @@ export function MembersDialog({
                 onChange={(e) => setNewMemberName(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAddMember()}
                 disabled={isAdding}
-                className="h-12 text-base"
+                className="h-10 text-base"
               />
               <Button 
                 onClick={handleAddMember} 
                 disabled={!newMemberName.trim() || isAdding}
-                className="h-12 px-4"
+                className="h-10 px-4"
               >
                 <Plus className="h-5 w-5 sm:mr-2" />
                 <span className="hidden sm:inline">Add</span>
