@@ -122,7 +122,7 @@ export function EditExpenseDialog({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
-              className="h-12 text-base"
+              className="h-10 text-base"
             />
           </div>
 
@@ -138,7 +138,7 @@ export function EditExpenseDialog({
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 required
-                className="h-12 text-base"
+                className="h-10 text-base"
               />
             </div>
 
@@ -150,7 +150,7 @@ export function EditExpenseDialog({
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 required
-                className="h-12 text-base"
+                className="h-10 text-base"
               />
             </div>
           </div>
@@ -158,12 +158,12 @@ export function EditExpenseDialog({
           <div className="space-y-2">
             <Label className="text-base">Category</Label>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="h-12 text-base">
+              <SelectTrigger className="h-10 text-base">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-popover">
                 {categories.map(cat => (
-                  <SelectItem key={cat} value={cat} className="text-base py-3">
+                  <SelectItem key={cat} value={cat} className="text-base py-2">
                     <span className="flex items-center gap-2">
                       <span className="text-lg">{getCategoryIcon(cat)}</span>
                       <span>{getCategoryLabel(cat)}</span>
@@ -177,17 +177,17 @@ export function EditExpenseDialog({
           <div className="space-y-2">
             <Label className="text-base">Paid by</Label>
             {isAutomaticTrip && currentUserMember ? (
-              <div className="h-12 flex items-center px-3 rounded-md border bg-muted/50 text-base text-foreground">
+              <div className="h-10 flex items-center px-3 rounded-md border bg-muted/50 text-base text-foreground">
                 {currentUserMember.display_name}
               </div>
             ) : (
               <Select value={paidBy} onValueChange={setPaidBy}>
-                <SelectTrigger className="h-12 text-base">
+                <SelectTrigger className="h-10 text-base">
                   <SelectValue placeholder="Select who paid" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover">
                   {members.map(member => (
-                    <SelectItem key={member.id} value={member.id} className="text-base py-3">
+                    <SelectItem key={member.id} value={member.id} className="text-base py-2">
                       {member.display_name}
                     </SelectItem>
                   ))}
@@ -200,13 +200,13 @@ export function EditExpenseDialog({
             <Button
               type="button"
               variant="outline"
-              className="flex-1 h-12 text-base"
+              className="flex-1 h-10 text-base"
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
               Cancel
             </Button>
-            <Button type="submit" className="flex-1 h-12 text-base" disabled={loading}>
+            <Button type="submit" className="flex-1 h-10 text-base" disabled={loading}>
               {loading ? 'Saving...' : 'Save Changes'}
             </Button>
           </div>

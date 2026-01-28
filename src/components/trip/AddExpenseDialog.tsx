@@ -100,7 +100,7 @@ export function AddExpenseDialog({ open, onOpenChange, members, currentUserId, m
               value={title} 
               onChange={(e) => setTitle(e.target.value)} 
               required 
-              className="h-12 text-base"
+              className="h-10 text-base"
             />
           </div>
           <div className="space-y-2">
@@ -112,18 +112,18 @@ export function AddExpenseDialog({ open, onOpenChange, members, currentUserId, m
               value={amount} 
               onChange={(e) => setAmount(e.target.value)} 
               required 
-              className="h-12 text-base"
+              className="h-10 text-base"
             />
           </div>
           <div className="space-y-2">
             <Label className="text-base">Category</Label>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="h-12 text-base">
+              <SelectTrigger className="h-10 text-base">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-popover">
                 {categories.map(cat => (
-                  <SelectItem key={cat} value={cat} className="text-base py-3">
+                  <SelectItem key={cat} value={cat} className="text-base py-2">
                     <span className="flex items-center gap-2">
                       <span className="text-lg">{getCategoryIcon(cat)}</span>
                       <span>{getCategoryLabel(cat)}</span>
@@ -136,17 +136,17 @@ export function AddExpenseDialog({ open, onOpenChange, members, currentUserId, m
           <div className="space-y-2">
             <Label className="text-base">Paid by</Label>
             {isAutomaticTrip && currentUserMember ? (
-              <div className="h-12 flex items-center px-3 rounded-md border bg-muted/50 text-base text-foreground">
+              <div className="h-10 flex items-center px-3 rounded-md border bg-muted/50 text-base text-foreground">
                 {currentUserMember.display_name}
               </div>
             ) : (
               <Select value={paidBy} onValueChange={setPaidBy}>
-                <SelectTrigger className="h-12 text-base">
+                <SelectTrigger className="h-10 text-base">
                   <SelectValue placeholder="Select who paid" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover">
                   {members.map(m => (
-                    <SelectItem key={m.id} value={m.id} className="text-base py-3">
+                    <SelectItem key={m.id} value={m.id} className="text-base py-2">
                       {m.display_name}
                     </SelectItem>
                   ))}
@@ -155,10 +155,10 @@ export function AddExpenseDialog({ open, onOpenChange, members, currentUserId, m
             )}
           </div>
           <div className="flex gap-3 pt-4">
-            <Button type="button" variant="outline" className="flex-1 h-12 text-base" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" className="flex-1 h-10 text-base" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" className="flex-1 h-12 text-base" disabled={loading}>
+            <Button type="submit" className="flex-1 h-10 text-base" disabled={loading}>
               {loading ? 'Adding...' : 'Add Expense'}
             </Button>
           </div>
