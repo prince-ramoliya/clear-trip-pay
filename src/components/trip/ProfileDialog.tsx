@@ -57,7 +57,7 @@ export function ProfileDialog({ open, onOpenChange, userId }: ProfileDialogProps
                 <Mail className="h-4 w-4" />
                 Email
               </Label>
-              <div className="h-11 flex items-center px-3 rounded-md border bg-muted/30 text-base text-foreground">
+              <div className="h-10 flex items-center px-3 rounded-md border bg-muted/30 text-base text-foreground">
                 {profile.email}
               </div>
             </div>
@@ -86,7 +86,7 @@ export function ProfileDialog({ open, onOpenChange, userId }: ProfileDialogProps
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               placeholder="Enter your name"
-              className="h-12 text-base"
+              className="h-10 text-base"
             />
             <p className="text-xs text-muted-foreground">
               This name will be visible to other members in your trips.
@@ -97,14 +97,14 @@ export function ProfileDialog({ open, onOpenChange, userId }: ProfileDialogProps
             <Button 
               type="button" 
               variant="outline" 
-              className="flex-1 h-11 text-base font-semibold" 
+              className="flex-1 h-10 text-base font-semibold" 
               onClick={() => onOpenChange(false)}
             >
               Cancel
             </Button>
             <Button 
               type="button" 
-              className="flex-1 h-11 text-base font-semibold" 
+              className="flex-1 h-10 text-base font-semibold" 
               onClick={handleSaveName}
               disabled={savingName || !newName.trim()}
             >
