@@ -28,6 +28,32 @@ export function useProfile(userId: string | undefined) {
         .single();
 
       if (error) throw error;
+      
+      // Check if we need to sync the name from OAuth metadata
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const oauthName = user.user_metadata?.full_name || user.user_metadata?.name;
+        const currentName = data?.display_name;
+        const emailPrefix = user.email?.split('@')[0]?.toLowerCase();
+        
+        // If profile has auto-generated email prefix name but OAuth has real name, update it
+        if (oauthName && currentName && emailPrefix && 
+            currentName.toLowerCase() === emailPrefix && 
+            oauthName.toLowerCase() !== emailPrefix) {
+          // Update the profile with the OAuth name
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ display_name: oauthName, updated_at: new Date().toISOString() })
+            .eq('id', userId);
+          
+          if (!updateError) {
+            setProfile({ ...data, display_name: oauthName });
+            setLoading(false);
+            return;
+          }
+        }
+      }
+      
       setProfile(data);
     } catch (error) {
       console.error('Error fetching profile:', error);
