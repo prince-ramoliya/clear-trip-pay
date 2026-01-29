@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useTrips } from "@/hooks/useTrips";
 import { usePayments } from "@/hooks/usePayments";
+import { useProfile } from "@/hooks/useProfile";
+import { useToast } from "@/hooks/use-toast";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { BottomNavigation } from "@/components/layout/BottomNavigation";
 import { ExpensesView } from "@/components/views/ExpensesView";
@@ -31,6 +33,9 @@ export default function Index() {
     signOut,
     isAuthenticated
   } = useAuth();
+  const { profile, loading: profileLoading } = useProfile(user?.id);
+  const { toast } = useToast();
+  const welcomeShownRef = useRef(false);
   const {
     trips,
     currentTripId,
@@ -78,6 +83,27 @@ export default function Index() {
       navigate('/');
     }
   }, [urlInviteCode, isAuthenticated, joinTripByCode, navigate]);
+
+  // Show welcome message on first load after login
+  useEffect(() => {
+    if (!profileLoading && profile && isAuthenticated && !welcomeShownRef.current) {
+      const sessionKey = `welcome_shown_${user?.id}`;
+      const alreadyShown = sessionStorage.getItem(sessionKey);
+      
+      if (!alreadyShown) {
+        const displayName = profile.display_name || 'there';
+        const firstName = displayName.split(' ')[0];
+        
+        toast({
+          title: `Welcome back, ${firstName}! 👋`,
+          description: "Ready to track your trip expenses?",
+        });
+        
+        sessionStorage.setItem(sessionKey, 'true');
+        welcomeShownRef.current = true;
+      }
+    }
+  }, [profileLoading, profile, isAuthenticated, user?.id, toast]);
   if (authLoading || tripsLoading) {
     return <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
