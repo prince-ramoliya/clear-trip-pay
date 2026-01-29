@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, X, Copy, Check, ChevronDown, ChevronUp, Users, UserPlus, Link, MessageCircle } from "lucide-react";
+import { Plus, X, Copy, Check, Users, UserPlus, Link, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 interface CreateTripDialogProps {
   open: boolean;
@@ -23,11 +23,11 @@ interface CreateTripDialogProps {
 const APP_URL = "https://clear-trip-pay.lovable.app";
 export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDialogProps) {
   const [name, setName] = useState("");
+  const [destination, setDestination] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [members, setMembers] = useState<string[]>([""]);
   const [loading, setLoading] = useState(false);
-  const [showDates, setShowDates] = useState(false);
   const [memberMode, setMemberMode] = useState<"automatic" | "manual">("automatic");
   const [generatedCode, setGeneratedCode] = useState("");
   const [copiedLink, setCopiedLink] = useState(false);
@@ -82,21 +82,17 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name) return;
+    if (!name || !destination || !startDate || !endDate) return;
 
-    // Use today's date as default if dates not provided
-    const today = new Date().toISOString().split("T")[0];
-    const finalStartDate = startDate || today;
-    const finalEndDate = endDate || today;
     setLoading(true);
     const memberNames = memberMode === "manual" ? members.filter((m) => m.trim()) : [];
     // Pass member mode and invite code for automatic mode
     await onCreate(
       {
         name,
-        destination: "",
-        startDate: finalStartDate,
-        endDate: finalEndDate,
+        destination,
+        startDate,
+        endDate,
         inviteCode: memberMode === "automatic" ? generatedCode : undefined,
         memberMode: memberMode,
       },
@@ -104,10 +100,11 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
     );
     setLoading(false);
     setName("");
+    setDestination("");
     setStartDate("");
     setEndDate("");
     setMembers([""]);
-    setShowDates(false);
+    setMemberMode("automatic");
     setMemberMode("automatic");
     setGeneratedCode("");
     onOpenChange(false);
@@ -129,6 +126,41 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
               required
               className="h-10 text-base"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-base font-semibold">Destination</Label>
+            <Input
+              placeholder="e.g., Goa, India"
+              value={destination}
+              onChange={(e) => setDestination(e.target.value)}
+              required
+              className="h-10 text-base"
+            />
+          </div>
+
+          {/* Trip Dates - Required */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-base font-semibold">Start Date</Label>
+              <Input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                required
+                className="h-10 text-base"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label className="text-base font-semibold">End Date</Label>
+              <Input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                required
+                className="h-10 text-base"
+              />
+            </div>
           </div>
 
           {/* Team Member Mode Toggle */}
@@ -284,45 +316,6 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
                 <p className="text-xs text-muted-foreground">
                   You'll be added automatically. Add friends now or invite them later.
                 </p>
-              </div>
-            )}
-          </div>
-
-          {/* Collapsible Dates Section */}
-          <div className="space-y-3">
-            <button
-              type="button"
-              onClick={() => setShowDates(!showDates)}
-              className="flex items-center justify-between w-full text-left py-2"
-            >
-              <Label className="text-base font-semibold cursor-pointer">Trip Dates (Optional)</Label>
-              {showDates ? (
-                <ChevronUp className="h-5 w-5 text-muted-foreground" />
-              ) : (
-                <ChevronDown className="h-5 w-5 text-muted-foreground" />
-              )}
-            </button>
-
-            {showDates && (
-              <div className="grid grid-cols-2 gap-4 animate-fade-in">
-                <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">Start Date</Label>
-                  <Input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="h-10 text-base"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">End Date</Label>
-                  <Input
-                    type="date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="h-10 text-base"
-                  />
-                </div>
               </div>
             )}
           </div>
