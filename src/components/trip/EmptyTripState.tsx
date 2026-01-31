@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Wallet, Users, PieChart, Calculator, Plane, Plus, Ticket } from "lucide-react";
+import { Plus, Ticket, Users, Calculator, BarChart3, Handshake } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface EmptyTripStateProps {
@@ -11,156 +10,137 @@ interface EmptyTripStateProps {
 const features = [
   {
     icon: Users,
-    title: "Group Expenses",
-    description: "Track shared costs with friends and family",
-    color: "bg-blue-500/10 text-blue-500",
+    title: "Track Together",
+    description: "Add expenses for the whole group",
+    gradient: "from-blue-500 to-blue-600",
   },
   {
     icon: Calculator,
-    title: "Auto Splitting",
-    description: "Automatically calculate who owes what",
-    color: "bg-emerald-500/10 text-emerald-500",
+    title: "Smart Split",
+    description: "Auto-calculate fair shares",
+    gradient: "from-emerald-500 to-emerald-600",
   },
   {
-    icon: PieChart,
-    title: "Visual Summary",
-    description: "See spending breakdowns at a glance",
-    color: "bg-purple-500/10 text-purple-500",
+    icon: BarChart3,
+    title: "See Stats",
+    description: "Visual spending breakdown",
+    gradient: "from-violet-500 to-violet-600",
   },
   {
-    icon: Wallet,
-    title: "Easy Settlements",
-    description: "Settle up with minimal transactions",
-    color: "bg-amber-500/10 text-amber-500",
+    icon: Handshake,
+    title: "Settle Up",
+    description: "Clear debts with one tap",
+    gradient: "from-amber-500 to-amber-600",
   },
 ];
 
 export function EmptyTripState({ onCreateTrip, onJoinTrip }: EmptyTripStateProps) {
   return (
-    <div className="flex flex-col items-center justify-start min-h-[60vh] lg:min-h-[70vh] lg:justify-center px-2 sm:px-4 py-4 sm:py-8">
+    <div className="flex flex-col min-h-[65vh] lg:min-h-[70vh] px-1 sm:px-4 py-6 sm:py-10">
       {/* Hero Section */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="text-center mb-6 sm:mb-10"
+        transition={{ duration: 0.4 }}
+        className="text-center mb-8 sm:mb-12"
       >
-        {/* Animated Icon */}
+        {/* Emoji Hero - Simple and friendly */}
         <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
+          initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.4 }}
-          className="relative mx-auto mb-4 sm:mb-6"
+          transition={{ delay: 0.15, duration: 0.3 }}
+          className="mb-5 sm:mb-6"
         >
-          <div className="flex h-18 w-18 sm:h-24 sm:w-24 items-center justify-center rounded-2xl sm:rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 mx-auto shadow-lg">
-            <Plane className="h-9 w-9 sm:h-12 sm:w-12 text-primary" />
-          </div>
-          {/* Decorative elements */}
-          <motion.div
-            animate={{ y: [0, -8, 0] }}
-            transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-            className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 h-5 w-5 sm:h-6 sm:w-6 rounded-full bg-emerald-500/20 flex items-center justify-center"
-          >
-            <span className="text-[10px] sm:text-xs">✨</span>
-          </motion.div>
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut", delay: 0.5 }}
-            className="absolute -bottom-0.5 -left-1 sm:-bottom-1 sm:-left-2 h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-amber-500/20 flex items-center justify-center"
-          >
-            <span className="text-[10px] sm:text-xs">💰</span>
-          </motion.div>
+          <span className="text-6xl sm:text-7xl lg:text-8xl">🌴</span>
         </motion.div>
 
-        <h1 className="text-xl sm:text-2xl lg:text-4xl font-bold text-foreground mb-2 sm:mb-3">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2 sm:mb-3">
           Welcome to <span className="text-primary">TripSplit</span>
         </h1>
-        <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-xs sm:max-w-md mx-auto px-2">
-          Split expenses effortlessly with your travel companions. No more awkward money talks!
+        <p className="text-base sm:text-lg text-muted-foreground max-w-sm sm:max-w-md mx-auto">
+          Split travel expenses with friends — no spreadsheets, no drama.
         </p>
       </motion.div>
 
-      {/* Action Buttons */}
+      {/* Big Action Buttons */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
-        className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full max-w-sm sm:max-w-md mb-8 sm:mb-12 px-2 sm:px-0"
+        transition={{ delay: 0.2, duration: 0.4 }}
+        className="space-y-3 sm:space-y-4 mb-10 sm:mb-14 w-full max-w-md mx-auto"
       >
         <Button
           size="lg"
           onClick={onCreateTrip}
-          className="flex-1 h-12 sm:h-14 text-base font-semibold gap-2 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all"
+          className="w-full h-16 sm:h-[72px] text-lg sm:text-xl font-bold gap-3 shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/30 transition-all rounded-2xl"
         >
-          <Plus className="h-5 w-5" />
-          Create a Trip
+          <Plus className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2.5} />
+          Create a New Trip
         </Button>
         <Button
           size="lg"
           variant="outline"
           onClick={onJoinTrip}
-          className="flex-1 h-12 sm:h-14 text-base font-semibold gap-2 hover:bg-accent transition-all"
+          className="w-full h-16 sm:h-[72px] text-lg sm:text-xl font-bold gap-3 hover:bg-accent transition-all border-2 rounded-2xl"
         >
-          <Ticket className="h-5 w-5" />
-          Join with Code
+          <Ticket className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2} />
+          Join with Invite Code
         </Button>
       </motion.div>
 
-      {/* Features Grid */}
+      {/* Features Section */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, duration: 0.5 }}
-        className="w-full max-w-sm sm:max-w-2xl px-1 sm:px-0"
+        transition={{ delay: 0.35, duration: 0.4 }}
+        className="w-full max-w-lg mx-auto"
       >
-        <p className="text-xs sm:text-sm font-medium text-muted-foreground text-center mb-3 sm:mb-4 uppercase tracking-wider">
-          Why TripSplit?
+        <p className="text-sm font-semibold text-muted-foreground text-center mb-5 uppercase tracking-wide">
+          How it works
         </p>
-        <div className="grid grid-cols-2 gap-2 sm:gap-4">
-          {features.map((feature, index) => (
-            <motion.div
-              key={feature.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 + index * 0.1, duration: 0.4 }}
-            >
-              <Card className="h-full border-border/50 hover:border-primary/30 hover:shadow-md transition-all duration-300 bg-card/50 backdrop-blur-sm">
-                <CardContent className="p-3 sm:p-5">
-                  <div className={`h-8 w-8 sm:h-10 sm:w-10 rounded-lg sm:rounded-xl ${feature.color} flex items-center justify-center mb-2 sm:mb-3`}>
-                    <feature.icon className="h-4 w-4 sm:h-5 sm:w-5" />
-                  </div>
-                  <h3 className="font-semibold text-foreground text-xs sm:text-base mb-0.5 sm:mb-1 leading-tight">
-                    {feature.title}
-                  </h3>
-                  <p className="text-[10px] sm:text-sm text-muted-foreground leading-snug sm:leading-relaxed">
-                    {feature.description}
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          {features.map((feature, index) => {
+            const IconComponent = feature.icon;
+            return (
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 + index * 0.08, duration: 0.35 }}
+                className="bg-card border border-border rounded-2xl p-4 sm:p-5 hover:shadow-lg hover:border-primary/20 transition-all duration-300"
+              >
+                {/* Icon with gradient background */}
+                <div className={`h-11 w-11 sm:h-12 sm:w-12 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-3 shadow-md`}>
+                  <IconComponent className="h-5 w-5 sm:h-6 sm:w-6 text-white" strokeWidth={2} />
+                </div>
+                <h3 className="font-bold text-foreground text-base sm:text-lg mb-1">
+                  {feature.title}
+                </h3>
+                <p className="text-sm text-muted-foreground leading-snug">
+                  {feature.description}
+                </p>
+              </motion.div>
+            );
+          })}
         </div>
       </motion.div>
 
-      {/* Trust indicators */}
+      {/* Trust badges */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 0.5 }}
-        className="flex flex-wrap justify-center gap-3 sm:gap-4 mt-6 sm:mt-10 text-[10px] sm:text-xs text-muted-foreground"
+        transition={{ delay: 0.8, duration: 0.4 }}
+        className="flex justify-center gap-6 mt-10 sm:mt-12"
       >
-        <span className="flex items-center gap-1 sm:gap-1.5">
-          <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-emerald-500"></span>
-          Free to use
-        </span>
-        <span className="flex items-center gap-1 sm:gap-1.5">
-          <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-blue-500"></span>
-          No ads
-        </span>
-        <span className="flex items-center gap-1 sm:gap-1.5">
-          <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-purple-500"></span>
-          Privacy first
-        </span>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="h-2.5 w-2.5 rounded-full bg-emerald-500"></div>
+          <span className="font-medium">100% Free</span>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="h-2.5 w-2.5 rounded-full bg-blue-500"></div>
+          <span className="font-medium">No Ads</span>
+        </div>
       </motion.div>
     </div>
   );
