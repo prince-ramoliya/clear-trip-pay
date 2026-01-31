@@ -20,6 +20,7 @@ import { LeaveTripDialog } from "@/components/trip/LeaveTripDialog";
 import { ProfileDialog } from "@/components/trip/ProfileDialog";
 import { CurrencyDialog } from "@/components/trip/CurrencyDialog";
 import { FirstLoginNamePrompt } from "@/components/trip/FirstLoginNamePrompt";
+import { EmptyTripState } from "@/components/trip/EmptyTripState";
 import { Button } from "@/components/ui/button";
 import { Menu, X, UserPlus, Loader2, Users } from "lucide-react";
 export default function Index() {
@@ -141,19 +142,12 @@ export default function Index() {
   };
   const renderView = () => {
     if (!currentTripData) {
-      return <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-          <div className="mb-6">
-            <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary/10 mx-auto mb-4">
-              <span className="text-4xl">✈️</span>
-            </div>
-            <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Welcome to TripSplit</h2>
-            <p className="text-base text-muted-foreground max-w-md">Create your first trip or join an existing one.</p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            <Button size="lg" onClick={() => setIsCreateTripOpen(true)} className="w-full sm:w-auto text-base h-12 font-semibold">Create Trip</Button>
-            <Button size="lg" variant="outline" onClick={() => setIsJoinTripOpen(true)} className="w-full sm:w-auto text-base h-12 font-semibold">Join Trip</Button>
-          </div>
-        </div>;
+      return (
+        <EmptyTripState
+          onCreateTrip={() => setIsCreateTripOpen(true)}
+          onJoinTrip={() => setIsJoinTripOpen(true)}
+        />
+      );
     }
     const tripForView = {
       id: currentTripData.trip.id,
