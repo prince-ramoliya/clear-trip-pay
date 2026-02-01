@@ -21,7 +21,7 @@ import { ProfileDialog } from "@/components/trip/ProfileDialog";
 import { CurrencyDialog } from "@/components/trip/CurrencyDialog";
 import { FirstLoginNamePrompt } from "@/components/trip/FirstLoginNamePrompt";
 import { EmptyTripState } from "@/components/trip/EmptyTripState";
-import { VoiceAssistant } from "@/components/trip/VoiceAssistant";
+import { VoiceExpenseButton } from "@/components/trip/VoiceExpenseButton";
 import { Button } from "@/components/ui/button";
 import { Menu, X, UserPlus, Loader2, Users } from "lucide-react";
 export default function Index() {
@@ -283,21 +283,23 @@ export default function Index() {
           <MembersDialog open={isMembersOpen} onOpenChange={setIsMembersOpen} members={currentTripData.members} currentUserId={user?.id} tripCreatedBy={currentTripData.trip.created_by} onAddMember={addMember} onRemoveMember={removeMember} onUpdateMemberName={updateMemberName} />
           {isAdmin ? <EditTripDialog open={isEditTripOpen} onOpenChange={setIsEditTripOpen} trip={currentTripData.trip} onUpdate={updateTrip} onDelete={deleteTrip} /> : <LeaveTripDialog open={isLeaveTripOpen} onOpenChange={setIsLeaveTripOpen} tripName={currentTripData.trip.name} onLeave={handleLeaveTrip} isLoading={isLeavingTrip} />}
           
-          {/* Voice AI Assistant */}
-          <VoiceAssistant
-            members={currentTripData.members.map(m => ({ id: m.id, name: m.display_name }))}
-            tripName={currentTripData.trip.name}
-            onAddExpense={async (data) => {
-              await addExpense({
-                title: data.title,
-                amount: data.amount,
-                paidBy: data.paidBy,
-                participants: currentTripData.members.map(m => m.id),
-                category: data.category as any,
-                date: new Date().toISOString().split('T')[0],
-              });
-            }}
-          />
+          {/* Voice Expense Button - Floating Mic */}
+          <div className="fixed bottom-24 right-4 lg:bottom-8 lg:right-8 z-50">
+            <VoiceExpenseButton
+              members={currentTripData.members.map(m => ({ id: m.id, name: m.display_name }))}
+              tripName={currentTripData.trip.name}
+              onAddExpense={async (data) => {
+                await addExpense({
+                  title: data.title,
+                  amount: data.amount,
+                  paidBy: data.paidBy,
+                  participants: currentTripData.members.map(m => m.id),
+                  category: data.category as any,
+                  date: new Date().toISOString().split('T')[0],
+                });
+              }}
+            />
+          </div>
         </>}
     </div>;
 }
