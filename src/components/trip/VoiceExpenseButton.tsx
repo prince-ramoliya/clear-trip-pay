@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useScribe, CommitStrategy } from '@elevenlabs/react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -17,10 +17,18 @@ interface VoiceExpenseButtonProps {
   }) => Promise<void>;
 }
 
+// Check if browser SpeechRecognition is available
+const SpeechRecognition =
+  typeof window !== 'undefined'
+    ? (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+    : null;
+
 export function VoiceExpenseButton({ members, tripName, onAddExpense }: VoiceExpenseButtonProps) {
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [partialText, setPartialText] = useState('');
+  const [useBrowserSTT, setUseBrowserSTT] = useState(false);
+  const browserRecognitionRef = useRef<any>(null);
 
   const processExpense = useCallback(async (text: string) => {
     if (!text.trim()) return;
@@ -76,6 +84,7 @@ export function VoiceExpenseButton({ members, tripName, onAddExpense }: VoiceExp
     }
   }, [members, tripName, onAddExpense]);
 
+  // ElevenLabs Scribe hook
   const scribe = useScribe({
     modelId: 'scribe_v2_realtime',
     commitStrategy: CommitStrategy.VAD,
@@ -92,15 +101,83 @@ export function VoiceExpenseButton({ members, tripName, onAddExpense }: VoiceExp
     },
   });
 
+  // Browser SpeechRecognition fallback
+  const startBrowserSTT = useCallback(() => {
+    if (!SpeechRecognition) {
+      toast.error('Voice recognition is not supported in this browser.');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'en-IN'; // Indian English for rupee context
+
+    recognition.onstart = () => {
+      setIsListening(true);
+      setPartialText('');
+      toast.info('🎤 Listening... Speak your expense now');
+    };
+
+    recognition.onresult = (event: any) => {
+      let interim = '';
+      let final = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          final += transcript;
+        } else {
+          interim += transcript;
+        }
+      }
+      setPartialText(interim || final);
+      if (final) {
+        processExpense(final);
+      }
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('Browser STT error:', event.error);
+      if (event.error !== 'no-speech') {
+        toast.error('Voice recognition error. Please try again.');
+      }
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+      setPartialText('');
+    };
+
+    browserRecognitionRef.current = recognition;
+    recognition.start();
+  }, [processExpense]);
+
+  const stopBrowserSTT = useCallback(() => {
+    if (browserRecognitionRef.current) {
+      browserRecognitionRef.current.stop();
+      browserRecognitionRef.current = null;
+    }
+    setIsListening(false);
+    setPartialText('');
+  }, []);
+
   const startListening = useCallback(async () => {
+    // If already using browser fallback, use it directly
+    if (useBrowserSTT) {
+      startBrowserSTT();
+      return;
+    }
+
     try {
       console.log('Starting voice recognition...');
       
       const { data, error } = await supabase.functions.invoke('elevenlabs-scribe-token');
       
       if (error || !data?.token) {
-        console.error('Failed to get token:', error);
-        toast.error('Could not start voice recognition. Please try again.');
+        console.warn('ElevenLabs token failed, falling back to browser STT:', error);
+        setUseBrowserSTT(true);
+        startBrowserSTT();
         return;
       }
 
@@ -116,24 +193,31 @@ export function VoiceExpenseButton({ members, tripName, onAddExpense }: VoiceExp
       setPartialText('');
       toast.info('🎤 Listening... Speak your expense now');
     } catch (error) {
-      console.error('Error starting voice recognition:', error);
-      toast.error('Failed to start voice recognition.');
-      setIsListening(false);
+      console.warn('ElevenLabs failed, falling back to browser STT:', error);
+      setUseBrowserSTT(true);
+      startBrowserSTT();
     }
-  }, [scribe]);
+  }, [scribe, useBrowserSTT, startBrowserSTT]);
 
   const stopListening = useCallback(() => {
-    scribe.disconnect();
-    setIsListening(false);
-    setPartialText('');
+    if (useBrowserSTT) {
+      stopBrowserSTT();
+    } else {
+      scribe.disconnect();
+      setIsListening(false);
+      setPartialText('');
+    }
     console.log('Voice recognition stopped');
-  }, [scribe]);
+  }, [scribe, useBrowserSTT, stopBrowserSTT]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (scribe.isConnected) {
         scribe.disconnect();
+      }
+      if (browserRecognitionRef.current) {
+        browserRecognitionRef.current.stop();
       }
     };
   }, [scribe]);
