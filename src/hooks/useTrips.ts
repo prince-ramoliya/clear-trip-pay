@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { DbTrip, DbTripMember, DbExpense, DbExpenseParticipant } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
@@ -9,18 +9,29 @@ export interface TripData {
   expenses: (DbExpense & { participants: DbExpenseParticipant[] })[];
 }
 
+// Cache for trip data - persists across re-renders
+const tripDataCache = new Map<string, TripData>();
+
 export function useTrips(userId: string | undefined) {
   const [trips, setTrips] = useState<DbTrip[]>([]);
   const [currentTripId, setCurrentTripId] = useState<string | null>(null);
   const [currentTripData, setCurrentTripData] = useState<TripData | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  
+  // Track if initial load is complete
+  const initialLoadComplete = useRef(false);
+  const fetchingRef = useRef(false);
 
-  // Fetch all trips for user
-  const fetchTrips = useCallback(async () => {
+  // Fetch all trips for user - optimized with minimal loading state
+  const fetchTrips = useCallback(async (showLoading = true) => {
     if (!userId) return;
     
     try {
+      if (showLoading && !initialLoadComplete.current) {
+        setLoading(true);
+      }
+      
       const { data, error } = await supabase
         .from('trips')
         .select('*')
@@ -33,6 +44,8 @@ export function useTrips(userId: string | undefined) {
       if (!currentTripId && data && data.length > 0) {
         setCurrentTripId(data[0].id);
       }
+      
+      initialLoadComplete.current = true;
     } catch (error: any) {
       toast({
         title: "Error loading trips",
@@ -44,50 +57,61 @@ export function useTrips(userId: string | undefined) {
     }
   }, [userId, currentTripId, toast]);
 
-  // Fetch current trip details
-  const fetchTripDetails = useCallback(async () => {
+  // Fetch current trip details - OPTIMIZED with parallel queries and caching
+  const fetchTripDetails = useCallback(async (forceRefresh = false) => {
     if (!currentTripId) {
       setCurrentTripData(null);
       return;
     }
 
-    try {
-      // Fetch trip
-      const { data: trip, error: tripError } = await supabase
-        .from('trips')
-        .select('*')
-        .eq('id', currentTripId)
-        .maybeSingle();
+    // Prevent concurrent fetches
+    if (fetchingRef.current && !forceRefresh) return;
+    fetchingRef.current = true;
 
-      if (tripError) throw tripError;
+    // Show cached data immediately if available
+    const cachedData = tripDataCache.get(currentTripId);
+    if (cachedData && !forceRefresh) {
+      setCurrentTripData(cachedData);
+    }
+
+    try {
+      // Fetch trip, members, and expenses in PARALLEL
+      const [tripResult, membersResult, expensesResult] = await Promise.all([
+        supabase
+          .from('trips')
+          .select('*')
+          .eq('id', currentTripId)
+          .maybeSingle(),
+        supabase
+          .from('trip_members')
+          .select('*')
+          .eq('trip_id', currentTripId)
+          .order('created_at', { ascending: true }),
+        supabase
+          .from('expenses')
+          .select('*')
+          .eq('trip_id', currentTripId)
+          .order('expense_date', { ascending: false })
+      ]);
+
+      if (tripResult.error) throw tripResult.error;
+      if (membersResult.error) throw membersResult.error;
+      if (expensesResult.error) throw expensesResult.error;
+
+      const trip = tripResult.data;
+      const members = membersResult.data || [];
+      const expenses = expensesResult.data || [];
+
       if (!trip) {
         setCurrentTripData(null);
+        tripDataCache.delete(currentTripId);
         return;
       }
 
-      // Fetch members
-      const { data: members, error: membersError } = await supabase
-        .from('trip_members')
-        .select('*')
-        .eq('trip_id', currentTripId)
-        .order('created_at', { ascending: true });
-
-      if (membersError) throw membersError;
-
-      // Fetch expenses with participants
-      const { data: expenses, error: expensesError } = await supabase
-        .from('expenses')
-        .select('*')
-        .eq('trip_id', currentTripId)
-        .order('expense_date', { ascending: false });
-
-      if (expensesError) throw expensesError;
-
-      // Fetch all participants for these expenses
-      const expenseIds = (expenses || []).map(e => e.id);
+      // Fetch participants only if there are expenses
       let participants: DbExpenseParticipant[] = [];
-      
-      if (expenseIds.length > 0) {
+      if (expenses.length > 0) {
+        const expenseIds = expenses.map(e => e.id);
         const { data: participantsData, error: participantsError } = await supabase
           .from('expense_participants')
           .select('*')
@@ -98,26 +122,70 @@ export function useTrips(userId: string | undefined) {
       }
 
       // Map participants to expenses
-      const expensesWithParticipants = (expenses || []).map(expense => ({
+      const expensesWithParticipants = expenses.map(expense => ({
         ...expense,
         participants: participants.filter(p => p.expense_id === expense.id),
       }));
 
-      setCurrentTripData({
+      const tripData: TripData = {
         trip,
-        members: members || [],
+        members,
         expenses: expensesWithParticipants,
-      });
+      };
+
+      // Update cache and state
+      tripDataCache.set(currentTripId, tripData);
+      setCurrentTripData(tripData);
     } catch (error: any) {
       toast({
         title: "Error loading trip details",
         description: error.message,
         variant: "destructive",
       });
+    } finally {
+      fetchingRef.current = false;
     }
   }, [currentTripId, toast]);
 
-  // Create trip
+  // Pre-fetch trip data when hovering/selecting
+  const prefetchTrip = useCallback(async (tripId: string) => {
+    if (tripDataCache.has(tripId)) return; // Already cached
+    
+    try {
+      const [tripResult, membersResult, expensesResult] = await Promise.all([
+        supabase.from('trips').select('*').eq('id', tripId).maybeSingle(),
+        supabase.from('trip_members').select('*').eq('trip_id', tripId).order('created_at', { ascending: true }),
+        supabase.from('expenses').select('*').eq('trip_id', tripId).order('expense_date', { ascending: false })
+      ]);
+
+      if (tripResult.error || membersResult.error || expensesResult.error) return;
+      if (!tripResult.data) return;
+
+      const expenses = expensesResult.data || [];
+      let participants: DbExpenseParticipant[] = [];
+      
+      if (expenses.length > 0) {
+        const { data } = await supabase
+          .from('expense_participants')
+          .select('*')
+          .in('expense_id', expenses.map(e => e.id));
+        participants = data || [];
+      }
+
+      tripDataCache.set(tripId, {
+        trip: tripResult.data,
+        members: membersResult.data || [],
+        expenses: expenses.map(e => ({
+          ...e,
+          participants: participants.filter(p => p.expense_id === e.id),
+        })),
+      });
+    } catch {
+      // Silent fail for prefetch
+    }
+  }, []);
+
+  // Create trip with optimistic update
   const createTrip = useCallback(async (
     tripData: { name: string; destination: string; startDate: string; endDate: string; inviteCode?: string; memberMode?: 'automatic' | 'manual' },
     memberNames: string[]
@@ -125,10 +193,8 @@ export function useTrips(userId: string | undefined) {
     if (!userId) return null;
 
     try {
-      // Determine member mode - if inviteCode is provided, it's automatic mode
       const memberMode = tripData.memberMode || (tripData.inviteCode ? 'automatic' : 'manual');
       
-      // Create trip with optional custom invite code and member mode
       const { data: trip, error: tripError } = await supabase
         .from('trips')
         .insert({
@@ -145,7 +211,6 @@ export function useTrips(userId: string | undefined) {
 
       if (tripError) throw tripError;
 
-      // Add current user as a member
       const { data: userProfile } = await supabase
         .from('profiles')
         .select('display_name')
@@ -154,7 +219,6 @@ export function useTrips(userId: string | undefined) {
 
       const currentUserName = userProfile?.display_name || 'Me';
       
-      // Create members (including current user)
       const allMembers = [
         { trip_id: trip.id, user_id: userId, display_name: currentUserName, is_registered: true },
         ...memberNames
@@ -175,8 +239,12 @@ export function useTrips(userId: string | undefined) {
         if (membersError) throw membersError;
       }
 
-      await fetchTrips();
+      // Optimistic update - add to trips immediately
+      setTrips(prev => [trip, ...prev]);
       setCurrentTripId(trip.id);
+      
+      // Fetch in background
+      fetchTrips(false);
       
       toast({
         title: "Trip created!",
@@ -195,7 +263,7 @@ export function useTrips(userId: string | undefined) {
     }
   }, [userId, fetchTrips, toast]);
 
-  // Add expense
+  // Add expense with optimistic update
   const addExpense = useCallback(async (expense: {
     title: string;
     amount: number;
@@ -204,10 +272,36 @@ export function useTrips(userId: string | undefined) {
     category: string;
     date: string;
   }) => {
-    if (!currentTripId || !userId) return null;
+    if (!currentTripId || !userId || !currentTripData) return null;
+
+    // Create optimistic expense
+    const optimisticId = `temp-${Date.now()}`;
+    const optimisticExpense = {
+      id: optimisticId,
+      trip_id: currentTripId,
+      title: expense.title,
+      amount: expense.amount,
+      paid_by: expense.paidBy,
+      category: expense.category,
+      expense_date: expense.date,
+      created_by: userId,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      participants: expense.participants.map(memberId => ({
+        id: `temp-p-${memberId}`,
+        expense_id: optimisticId,
+        member_id: memberId,
+        created_at: new Date().toISOString(),
+      })),
+    };
+
+    // Optimistic update
+    setCurrentTripData(prev => prev ? {
+      ...prev,
+      expenses: [optimisticExpense, ...prev.expenses],
+    } : prev);
 
     try {
-      // Create expense
       const { data: newExpense, error: expenseError } = await supabase
         .from('expenses')
         .insert({
@@ -224,7 +318,6 @@ export function useTrips(userId: string | undefined) {
 
       if (expenseError) throw expenseError;
 
-      // Add participants
       const participantRecords = expense.participants.map(memberId => ({
         expense_id: newExpense.id,
         member_id: memberId,
@@ -236,7 +329,8 @@ export function useTrips(userId: string | undefined) {
 
       if (participantsError) throw participantsError;
 
-      await fetchTripDetails();
+      // Refresh to get real data
+      fetchTripDetails(true);
       
       toast({
         title: "Expense added",
@@ -246,6 +340,9 @@ export function useTrips(userId: string | undefined) {
 
       return newExpense;
     } catch (error: any) {
+      // Rollback optimistic update
+      fetchTripDetails(true);
+      
       toast({
         title: "Error adding expense",
         description: error.message,
@@ -253,7 +350,7 @@ export function useTrips(userId: string | undefined) {
       });
       return null;
     }
-  }, [currentTripId, userId, fetchTripDetails, toast]);
+  }, [currentTripId, userId, currentTripData, fetchTripDetails, toast]);
 
   // Update expense
   const updateExpense = useCallback(async (
@@ -270,7 +367,6 @@ export function useTrips(userId: string | undefined) {
     if (!userId) return false;
 
     try {
-      // Update expense
       const { error: expenseError } = await supabase
         .from('expenses')
         .update({
@@ -284,7 +380,6 @@ export function useTrips(userId: string | undefined) {
 
       if (expenseError) throw expenseError;
 
-      // Delete existing participants
       const { error: deleteError } = await supabase
         .from('expense_participants')
         .delete()
@@ -292,7 +387,6 @@ export function useTrips(userId: string | undefined) {
 
       if (deleteError) throw deleteError;
 
-      // Add new participants
       const participantRecords = expense.participants.map(memberId => ({
         expense_id: expenseId,
         member_id: memberId,
@@ -304,7 +398,7 @@ export function useTrips(userId: string | undefined) {
 
       if (participantsError) throw participantsError;
 
-      await fetchTripDetails();
+      fetchTripDetails(true);
       
       toast({
         title: "Expense updated",
@@ -323,8 +417,14 @@ export function useTrips(userId: string | undefined) {
     }
   }, [userId, fetchTripDetails, toast]);
 
-  // Delete expense
+  // Delete expense with optimistic update
   const removeExpense = useCallback(async (expenseId: string) => {
+    // Optimistic update
+    setCurrentTripData(prev => prev ? {
+      ...prev,
+      expenses: prev.expenses.filter(e => e.id !== expenseId),
+    } : prev);
+
     try {
       const { error } = await supabase
         .from('expenses')
@@ -332,8 +432,6 @@ export function useTrips(userId: string | undefined) {
         .eq('id', expenseId);
 
       if (error) throw error;
-
-      await fetchTripDetails();
       
       toast({
         title: "Expense deleted",
@@ -343,6 +441,9 @@ export function useTrips(userId: string | undefined) {
 
       return true;
     } catch (error: any) {
+      // Rollback
+      fetchTripDetails(true);
+      
       toast({
         title: "Error deleting expense",
         description: error.message,
@@ -371,7 +472,6 @@ export function useTrips(userId: string | undefined) {
         throw new Error("Join failed: no tripId returned");
       }
 
-      // Now that the user is a member, we can safely fetch the trip via RLS
       const { data: trip, error: tripError } = await supabase
         .from("trips")
         .select("*")
@@ -383,8 +483,12 @@ export function useTrips(userId: string | undefined) {
         throw new Error("Joined trip, but failed to load trip data");
       }
 
-      await fetchTrips();
+      // Optimistic update
+      setTrips(prev => [trip, ...prev.filter(t => t.id !== trip.id)]);
       setCurrentTripId(trip.id);
+      
+      // Background refresh
+      fetchTrips(false);
 
       toast({
         title: "Joined trip!",
@@ -411,9 +515,24 @@ export function useTrips(userId: string | undefined) {
     }
   }, [userId, fetchTrips, toast]);
 
-  // Add member to trip
+  // Add member with optimistic update
   const addMember = useCallback(async (displayName: string) => {
-    if (!currentTripId) return null;
+    if (!currentTripId || !currentTripData) return null;
+
+    const optimisticMember = {
+      id: `temp-${Date.now()}`,
+      trip_id: currentTripId,
+      user_id: null,
+      display_name: displayName,
+      is_registered: false,
+      created_at: new Date().toISOString(),
+    };
+
+    // Optimistic update
+    setCurrentTripData(prev => prev ? {
+      ...prev,
+      members: [...prev.members, optimisticMember],
+    } : prev);
 
     try {
       const { data: member, error } = await supabase
@@ -428,7 +547,7 @@ export function useTrips(userId: string | undefined) {
 
       if (error) throw error;
 
-      await fetchTripDetails();
+      fetchTripDetails(true);
       
       toast({
         title: "Member added",
@@ -438,6 +557,8 @@ export function useTrips(userId: string | undefined) {
 
       return member;
     } catch (error: any) {
+      fetchTripDetails(true);
+      
       toast({
         title: "Error adding member",
         description: error.message,
@@ -445,14 +566,13 @@ export function useTrips(userId: string | undefined) {
       });
       return null;
     }
-  }, [currentTripId, fetchTripDetails, toast]);
+  }, [currentTripId, currentTripData, fetchTripDetails, toast]);
 
-  // Remove member from trip
+  // Remove member with optimistic update
   const removeMember = useCallback(async (memberId: string) => {
-    if (!currentTripId) return false;
+    if (!currentTripId || !currentTripData) return false;
 
     try {
-      // Check if member has any expenses
       const { data: memberExpenses } = await supabase
         .from('expenses')
         .select('id')
@@ -469,14 +589,18 @@ export function useTrips(userId: string | undefined) {
         return false;
       }
 
-      // Check if member is a participant in any expenses
+      // Optimistic update
+      setCurrentTripData(prev => prev ? {
+        ...prev,
+        members: prev.members.filter(m => m.id !== memberId),
+      } : prev);
+
       const { data: participations } = await supabase
         .from('expense_participants')
         .select('id, expense_id')
         .eq('member_id', memberId);
 
       if (participations && participations.length > 0) {
-        // Remove from all expense participations
         const { error: removeParticipationError } = await supabase
           .from('expense_participants')
           .delete()
@@ -485,15 +609,12 @@ export function useTrips(userId: string | undefined) {
         if (removeParticipationError) throw removeParticipationError;
       }
 
-      // Delete member
       const { error } = await supabase
         .from('trip_members')
         .delete()
         .eq('id', memberId);
 
       if (error) throw error;
-
-      await fetchTripDetails();
       
       toast({
         title: "Member removed",
@@ -503,6 +624,8 @@ export function useTrips(userId: string | undefined) {
 
       return true;
     } catch (error: any) {
+      fetchTripDetails(true);
+      
       toast({
         title: "Error removing member",
         description: error.message,
@@ -510,10 +633,16 @@ export function useTrips(userId: string | undefined) {
       });
       return false;
     }
-  }, [currentTripId, fetchTripDetails, toast]);
+  }, [currentTripId, currentTripData, fetchTripDetails, toast]);
 
   // Update member name
   const updateMemberName = useCallback(async (memberId: string, newName: string) => {
+    // Optimistic update
+    setCurrentTripData(prev => prev ? {
+      ...prev,
+      members: prev.members.map(m => m.id === memberId ? { ...m, display_name: newName } : m),
+    } : prev);
+
     try {
       const { error } = await supabase
         .from('trip_members')
@@ -521,8 +650,6 @@ export function useTrips(userId: string | undefined) {
         .eq('id', memberId);
 
       if (error) throw error;
-
-      await fetchTripDetails();
       
       toast({
         title: "Member updated",
@@ -532,6 +659,8 @@ export function useTrips(userId: string | undefined) {
 
       return true;
     } catch (error: any) {
+      fetchTripDetails(true);
+      
       toast({
         title: "Error updating member",
         description: error.message,
@@ -541,40 +670,55 @@ export function useTrips(userId: string | undefined) {
     }
   }, [fetchTripDetails, toast]);
 
-  // Set up realtime subscriptions
+  // Set up realtime subscriptions - optimized single channel
   useEffect(() => {
     if (!userId) return;
 
-    const tripsChannel = supabase
-      .channel('trips-changes')
+    const channel = supabase
+      .channel('global-trips')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'trips' }, () => {
-        fetchTrips();
+        fetchTrips(false);
       })
       .subscribe();
 
     return () => {
-      supabase.removeChannel(tripsChannel);
+      supabase.removeChannel(channel);
     };
   }, [userId, fetchTrips]);
 
+  // Trip-specific realtime - single channel for all trip data
   useEffect(() => {
     if (!currentTripId) return;
 
-    const tripChannel = supabase
-      .channel(`trip-${currentTripId}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses', filter: `trip_id=eq.${currentTripId}` }, () => {
-        fetchTripDetails();
+    const channel = supabase
+      .channel(`trip-data-${currentTripId}`)
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'expenses', 
+        filter: `trip_id=eq.${currentTripId}` 
+      }, () => {
+        fetchTripDetails(true);
       })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'trip_members', filter: `trip_id=eq.${currentTripId}` }, () => {
-        fetchTripDetails();
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'trip_members', 
+        filter: `trip_id=eq.${currentTripId}` 
+      }, () => {
+        fetchTripDetails(true);
       })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'expense_participants' }, () => {
-        fetchTripDetails();
+      .on('postgres_changes', { 
+        event: '*', 
+        schema: 'public', 
+        table: 'expense_participants' 
+      }, () => {
+        fetchTripDetails(true);
       })
       .subscribe();
 
     return () => {
-      supabase.removeChannel(tripChannel);
+      supabase.removeChannel(channel);
     };
   }, [currentTripId, fetchTripDetails]);
 
@@ -585,13 +729,22 @@ export function useTrips(userId: string | undefined) {
     }
   }, [userId, fetchTrips]);
 
+  // Fetch trip details when currentTripId changes - with cache
   useEffect(() => {
     if (currentTripId) {
+      // Immediately show cached data if available
+      const cached = tripDataCache.get(currentTripId);
+      if (cached) {
+        setCurrentTripData(cached);
+      }
+      // Then fetch fresh data
       fetchTripDetails();
+    } else {
+      setCurrentTripData(null);
     }
   }, [currentTripId, fetchTripDetails]);
 
-  // Update trip (admin only)
+  // Update trip
   const updateTrip = useCallback(async (
     tripId: string,
     data: { name: string; destination: string; startDate: string; endDate: string }
@@ -609,8 +762,25 @@ export function useTrips(userId: string | undefined) {
 
       if (error) throw error;
 
-      await fetchTrips();
-      await fetchTripDetails();
+      // Optimistic updates
+      setTrips(prev => prev.map(t => t.id === tripId ? {
+        ...t,
+        name: data.name,
+        destination: data.destination,
+        start_date: data.startDate,
+        end_date: data.endDate,
+      } : t));
+      
+      setCurrentTripData(prev => prev && prev.trip.id === tripId ? {
+        ...prev,
+        trip: {
+          ...prev.trip,
+          name: data.name,
+          destination: data.destination,
+          start_date: data.startDate,
+          end_date: data.endDate,
+        }
+      } : prev);
       
       toast({
         title: "Trip updated",
@@ -626,20 +796,26 @@ export function useTrips(userId: string | undefined) {
       });
       return false;
     }
-  }, [fetchTrips, fetchTripDetails, toast]);
+  }, [toast]);
 
-  // Delete trip (admin only)
+  // Delete trip
   const deleteTrip = useCallback(async (tripId: string) => {
     try {
+      // Optimistic update
+      setTrips(prev => prev.filter(t => t.id !== tripId));
+      tripDataCache.delete(tripId);
+      
+      if (currentTripId === tripId) {
+        setCurrentTripId(null);
+        setCurrentTripData(null);
+      }
+
       const { error } = await supabase
         .from('trips')
         .delete()
         .eq('id', tripId);
 
       if (error) throw error;
-
-      setCurrentTripId(null);
-      await fetchTrips();
       
       toast({
         title: "Trip deleted",
@@ -648,6 +824,8 @@ export function useTrips(userId: string | undefined) {
 
       return true;
     } catch (error: any) {
+      fetchTrips();
+      
       toast({
         title: "Error deleting trip",
         description: error.message,
@@ -655,14 +833,13 @@ export function useTrips(userId: string | undefined) {
       });
       return false;
     }
-  }, [fetchTrips, toast]);
+  }, [currentTripId, fetchTrips, toast]);
 
-  // Leave trip (for non-admin members)
+  // Leave trip
   const leaveTrip = useCallback(async () => {
     if (!currentTripId || !userId) return false;
 
     try {
-      // Find the current user's membership
       const { data: membership, error: findError } = await supabase
         .from('trip_members')
         .select('id')
@@ -680,7 +857,6 @@ export function useTrips(userId: string | undefined) {
         return false;
       }
 
-      // Check if user has paid for any expenses
       const { data: userExpenses } = await supabase
         .from('expenses')
         .select('id')
@@ -697,7 +873,13 @@ export function useTrips(userId: string | undefined) {
         return false;
       }
 
-      // Remove from expense participations
+      // Optimistic update
+      const tripIdToLeave = currentTripId;
+      setTrips(prev => prev.filter(t => t.id !== tripIdToLeave));
+      tripDataCache.delete(tripIdToLeave);
+      setCurrentTripId(null);
+      setCurrentTripData(null);
+
       const { error: removeParticipationError } = await supabase
         .from('expense_participants')
         .delete()
@@ -705,16 +887,12 @@ export function useTrips(userId: string | undefined) {
 
       if (removeParticipationError) throw removeParticipationError;
 
-      // Delete membership
       const { error } = await supabase
         .from('trip_members')
         .delete()
         .eq('id', membership.id);
 
       if (error) throw error;
-
-      setCurrentTripId(null);
-      await fetchTrips();
       
       toast({
         title: "Left trip",
@@ -724,6 +902,8 @@ export function useTrips(userId: string | undefined) {
 
       return true;
     } catch (error: any) {
+      fetchTrips();
+      
       toast({
         title: "Error leaving trip",
         description: error.message,
@@ -750,6 +930,7 @@ export function useTrips(userId: string | undefined) {
     removeMember,
     updateMemberName,
     leaveTrip,
+    prefetchTrip,
     refreshTrips: fetchTrips,
     refreshTripDetails: fetchTripDetails,
   };

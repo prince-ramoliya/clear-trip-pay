@@ -20,6 +20,7 @@ interface AppSidebarProps {
   currentUserId?: string;
   onOpenProfile?: () => void;
   onOpenCurrency?: () => void;
+  onPrefetchTrip?: (tripId: string) => void;
 }
 
 const navItems = [
@@ -31,7 +32,7 @@ const navItems = [
 export function AppSidebar({ 
   trips, currentTripId, onSelectTrip, onCreateTrip, onJoinTrip, 
   currentView, onViewChange, onSignOut, onEditTrip, onLeaveTrip,
-  isMobile = false, currentUserId, onOpenProfile, onOpenCurrency 
+  isMobile = false, currentUserId, onOpenProfile, onOpenCurrency, onPrefetchTrip 
 }: AppSidebarProps) {
   const currentTrip = trips.find(t => t.id === currentTripId);
   const isAdmin = currentTrip?.created_by === currentUserId;
@@ -114,7 +115,10 @@ export function AppSidebar({
                 <p className="text-sm text-sidebar-muted px-3 py-4 text-center">No trips yet</p>
               ) : (
                 trips.map(trip => (
-                  <button key={trip.id} onClick={() => onSelectTrip(trip.id)}
+                  <button 
+                    key={trip.id} 
+                    onClick={() => onSelectTrip(trip.id)}
+                    onMouseEnter={() => onPrefetchTrip?.(trip.id)}
                     className={cn("w-full flex items-center gap-3 rounded-lg px-3 py-3 text-left transition-all",
                       currentTripId === trip.id ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent/50")}>
                     <div className="flex h-8 w-8 items-center justify-center rounded-md bg-sidebar-primary/20 shrink-0">
@@ -175,7 +179,10 @@ export function AppSidebar({
               <p className="text-sm text-sidebar-muted px-3 py-4 text-center">No trips yet</p>
             ) : (
               trips.map(trip => (
-                <button key={trip.id} onClick={() => onSelectTrip(trip.id)}
+                <button 
+                  key={trip.id} 
+                  onClick={() => onSelectTrip(trip.id)}
+                  onMouseEnter={() => onPrefetchTrip?.(trip.id)}
                   className={cn("w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-all",
                     currentTripId === trip.id ? "bg-sidebar-accent text-sidebar-accent-foreground" : "text-sidebar-foreground hover:bg-sidebar-accent/50")}>
                   <div className="flex h-8 w-8 items-center justify-center rounded-md bg-sidebar-primary/20 shrink-0">

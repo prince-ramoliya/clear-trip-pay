@@ -54,7 +54,8 @@ export default function Index() {
     addMember,
     removeMember,
     updateMemberName,
-    leaveTrip
+    leaveTrip,
+    prefetchTrip
   } = useTrips(user?.id);
   const {
     payments,
@@ -236,14 +237,14 @@ export default function Index() {
           }} onLeaveTrip={() => {
             setIsLeaveTripOpen(true);
             setIsMobileSidebarOpen(false);
-          }} isMobile={true} currentUserId={user?.id} onOpenProfile={handleOpenProfile} onOpenCurrency={handleOpenCurrency} />
+          }} isMobile={true} currentUserId={user?.id} onOpenProfile={handleOpenProfile} onOpenCurrency={handleOpenCurrency} onPrefetchTrip={prefetchTrip} />
             </div>
           </div>
         </div>}
 
       {/* Desktop Sidebar */}
       <div className="hidden lg:block fixed inset-y-0 left-0 z-50">
-        <AppSidebar trips={trips} currentTripId={currentTripId} onSelectTrip={id => setCurrentTripId(id)} onCreateTrip={() => setIsCreateTripOpen(true)} onJoinTrip={() => setIsJoinTripOpen(true)} currentView={currentView} onViewChange={setCurrentView} onSignOut={handleSignOut} onEditTrip={() => setIsEditTripOpen(true)} onLeaveTrip={() => setIsLeaveTripOpen(true)} currentUserId={user?.id} onOpenProfile={() => setIsProfileOpen(true)} onOpenCurrency={() => setIsCurrencyOpen(true)} />
+        <AppSidebar trips={trips} currentTripId={currentTripId} onSelectTrip={id => setCurrentTripId(id)} onCreateTrip={() => setIsCreateTripOpen(true)} onJoinTrip={() => setIsJoinTripOpen(true)} currentView={currentView} onViewChange={setCurrentView} onSignOut={handleSignOut} onEditTrip={() => setIsEditTripOpen(true)} onLeaveTrip={() => setIsLeaveTripOpen(true)} currentUserId={user?.id} onOpenProfile={() => setIsProfileOpen(true)} onOpenCurrency={() => setIsCurrencyOpen(true)} onPrefetchTrip={prefetchTrip} />
       </div>
 
       {/* Main Content */}

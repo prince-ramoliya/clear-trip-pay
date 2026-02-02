@@ -25,9 +25,14 @@ export function useProfile(userId: string | undefined) {
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
+      if (!data) {
+        setProfile(null);
+        setLoading(false);
+        return;
+      }
       
       // Check if we need to sync the name from OAuth metadata
       const { data: { user } } = await supabase.auth.getUser();
