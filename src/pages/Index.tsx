@@ -280,7 +280,7 @@ export default function Index() {
       {currentTripData && <>
           <InviteDialog open={isInviteOpen} onOpenChange={setIsInviteOpen} inviteCode={currentTripData.trip.invite_code} tripName={currentTripData.trip.name} />
           <AddExpenseDialog open={isMobileAddExpenseOpen} onOpenChange={setIsMobileAddExpenseOpen} members={currentTripData.members} currentUserId={user?.id} memberMode={currentTripData.trip.member_mode} onAddExpense={addExpense} />
-          <MembersDialog open={isMembersOpen} onOpenChange={setIsMembersOpen} members={currentTripData.members} currentUserId={user?.id} tripCreatedBy={currentTripData.trip.created_by} onAddMember={addMember} onRemoveMember={removeMember} onUpdateMemberName={updateMemberName} />
+          <MembersDialog open={isMembersOpen} onOpenChange={setIsMembersOpen} members={currentTripData.members} currentUserId={user?.id} tripCreatedBy={currentTripData.trip.created_by} memberMode={currentTripData.trip.member_mode} inviteCode={currentTripData.trip.invite_code} tripName={currentTripData.trip.name} onAddMember={addMember} onRemoveMember={removeMember} onUpdateMemberName={updateMemberName} />
           {isAdmin ? <EditTripDialog open={isEditTripOpen} onOpenChange={setIsEditTripOpen} trip={currentTripData.trip} onUpdate={updateTrip} onDelete={deleteTrip} /> : <LeaveTripDialog open={isLeaveTripOpen} onOpenChange={setIsLeaveTripOpen} tripName={currentTripData.trip.name} onLeave={handleLeaveTrip} isLoading={isLeavingTrip} />}
           
         </>}
