@@ -568,9 +568,9 @@ export function useTrips(userId: string | undefined) {
     }
   }, [currentTripId, currentTripData, fetchTripDetails, toast]);
 
-  // Helper function to check if a member has unsettled balance
-  const getMemberBalance = useCallback((memberId: string): number => {
-    if (!currentTripData) return 0;
+  // Helper function to check if a member has unsettled balance (considering payments)
+  const getMemberBalance = useCallback(async (memberId: string): Promise<number> => {
+    if (!currentTripData || !currentTripId) return 0;
     
     const members = currentTripData.members.map(m => ({
       id: m.id,
@@ -589,7 +589,13 @@ export function useTrips(userId: string | undefined) {
       createdBy: e.created_by,
     }));
     
-    // Calculate what each person paid and owes
+    // Fetch payments for this trip
+    const { data: payments } = await supabase
+      .from('payments')
+      .select('*')
+      .eq('trip_id', currentTripId);
+    
+    // Calculate what each person paid and owes from expenses
     const balances: Map<string, { paid: number; owes: number }> = new Map();
     members.forEach(member => {
       balances.set(member.id, { paid: 0, owes: 0 });
@@ -610,11 +616,30 @@ export function useTrips(userId: string | undefined) {
       });
     });
     
+    // Apply payments to adjust balances
+    // When A pays B, A's effective "paid" increases and B's "paid" decreases
+    if (payments && payments.length > 0) {
+      payments.forEach(payment => {
+        const fromMember = balances.get(payment.from_member_id);
+        const toMember = balances.get(payment.to_member_id);
+        const amount = Number(payment.amount);
+        
+        if (fromMember) {
+          // Person who paid gets credit (increases their "paid")
+          fromMember.paid += amount;
+        }
+        if (toMember) {
+          // Person who received payment has their "owes" increased (they received money they were owed)
+          toMember.owes += amount;
+        }
+      });
+    }
+    
     const memberBalance = balances.get(memberId);
     if (!memberBalance) return 0;
     
     return Math.round((memberBalance.paid - memberBalance.owes) * 100) / 100;
-  }, [currentTripData]);
+  }, [currentTripData, currentTripId]);
 
   // Remove member with optimistic update - requires settlement first
   const removeMember = useCallback(async (memberId: string) => {
@@ -622,7 +647,7 @@ export function useTrips(userId: string | undefined) {
 
     try {
       // Check if member has unsettled balance (owes money or is owed money)
-      const memberBalance = getMemberBalance(memberId);
+      const memberBalance = await getMemberBalance(memberId);
       if (Math.abs(memberBalance) > 0.01) {
         const memberName = currentTripData.members.find(m => m.id === memberId)?.display_name || 'This member';
         toast({
@@ -920,8 +945,8 @@ export function useTrips(userId: string | undefined) {
         return false;
       }
 
-      // Check if user has unsettled balance
-      const memberBalance = getMemberBalance(membership.id);
+      // Check if user has unsettled balance (including payments)
+      const memberBalance = await getMemberBalance(membership.id);
       if (Math.abs(memberBalance) > 0.01) {
         toast({
           title: "Cannot leave trip",
