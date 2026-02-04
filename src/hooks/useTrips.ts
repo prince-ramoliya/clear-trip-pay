@@ -568,11 +568,74 @@ export function useTrips(userId: string | undefined) {
     }
   }, [currentTripId, currentTripData, fetchTripDetails, toast]);
 
-  // Remove member with optimistic update
+  // Helper function to check if a member has unsettled balance
+  const getMemberBalance = useCallback((memberId: string): number => {
+    if (!currentTripData) return 0;
+    
+    const members = currentTripData.members.map(m => ({
+      id: m.id,
+      name: m.display_name,
+    }));
+    
+    const expenses = currentTripData.expenses.map(e => ({
+      id: e.id,
+      title: e.title,
+      amount: Number(e.amount),
+      paidBy: e.paid_by,
+      participants: e.participants.map(p => p.member_id),
+      category: e.category as any,
+      date: e.expense_date,
+      createdAt: e.created_at,
+      createdBy: e.created_by,
+    }));
+    
+    // Calculate what each person paid and owes
+    const balances: Map<string, { paid: number; owes: number }> = new Map();
+    members.forEach(member => {
+      balances.set(member.id, { paid: 0, owes: 0 });
+    });
+    
+    expenses.forEach(expense => {
+      const payer = balances.get(expense.paidBy);
+      if (payer) {
+        payer.paid += expense.amount;
+      }
+      
+      const sharePerPerson = expense.amount / expense.participants.length;
+      expense.participants.forEach(participantId => {
+        const participant = balances.get(participantId);
+        if (participant) {
+          participant.owes += sharePerPerson;
+        }
+      });
+    });
+    
+    const memberBalance = balances.get(memberId);
+    if (!memberBalance) return 0;
+    
+    return Math.round((memberBalance.paid - memberBalance.owes) * 100) / 100;
+  }, [currentTripData]);
+
+  // Remove member with optimistic update - requires settlement first
   const removeMember = useCallback(async (memberId: string) => {
     if (!currentTripId || !currentTripData) return false;
 
     try {
+      // Check if member has unsettled balance (owes money or is owed money)
+      const memberBalance = getMemberBalance(memberId);
+      if (Math.abs(memberBalance) > 0.01) {
+        const memberName = currentTripData.members.find(m => m.id === memberId)?.display_name || 'This member';
+        toast({
+          title: "Cannot remove member",
+          description: memberBalance < 0 
+            ? `${memberName} owes money. Please settle up first before removing.`
+            : `${memberName} is owed money. Please settle up first before removing.`,
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Check if member has paid for any expenses
       const { data: memberExpenses } = await supabase
         .from('expenses')
         .select('id')
@@ -633,7 +696,7 @@ export function useTrips(userId: string | undefined) {
       });
       return false;
     }
-  }, [currentTripId, currentTripData, fetchTripDetails, toast]);
+  }, [currentTripId, currentTripData, getMemberBalance, fetchTripDetails, toast]);
 
   // Update member name
   const updateMemberName = useCallback(async (memberId: string, newName: string) => {
@@ -835,7 +898,7 @@ export function useTrips(userId: string | undefined) {
     }
   }, [currentTripId, fetchTrips, toast]);
 
-  // Leave trip
+  // Leave trip - requires settlement first
   const leaveTrip = useCallback(async () => {
     if (!currentTripId || !userId) return false;
 
@@ -857,6 +920,19 @@ export function useTrips(userId: string | undefined) {
         return false;
       }
 
+      // Check if user has unsettled balance
+      const memberBalance = getMemberBalance(membership.id);
+      if (Math.abs(memberBalance) > 0.01) {
+        toast({
+          title: "Cannot leave trip",
+          description: memberBalance < 0 
+            ? "You owe money to other members. Please settle up first before leaving."
+            : "Other members owe you money. Please settle up first before leaving.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
       const { data: userExpenses } = await supabase
         .from('expenses')
         .select('id')
@@ -873,13 +949,14 @@ export function useTrips(userId: string | undefined) {
         return false;
       }
 
-      // Optimistic update
+      // Store trip ID before clearing state
       const tripIdToLeave = currentTripId;
-      setTrips(prev => prev.filter(t => t.id !== tripIdToLeave));
-      tripDataCache.delete(tripIdToLeave);
-      setCurrentTripId(null);
-      setCurrentTripData(null);
+      
+      // Get next trip to switch to
+      const remainingTrips = trips.filter(t => t.id !== tripIdToLeave);
+      const nextTripId = remainingTrips.length > 0 ? remainingTrips[0].id : null;
 
+      // Perform the deletion first, then update state
       const { error: removeParticipationError } = await supabase
         .from('expense_participants')
         .delete()
@@ -894,11 +971,31 @@ export function useTrips(userId: string | undefined) {
 
       if (error) throw error;
       
+      // Now update state after successful deletion
+      tripDataCache.delete(tripIdToLeave);
+      setTrips(remainingTrips);
+      setCurrentTripId(nextTripId);
+      
+      if (nextTripId) {
+        // Load the next trip's data
+        const cachedNext = tripDataCache.get(nextTripId);
+        if (cachedNext) {
+          setCurrentTripData(cachedNext);
+        } else {
+          setCurrentTripData(null);
+        }
+      } else {
+        setCurrentTripData(null);
+      }
+      
       toast({
         title: "Left trip",
         description: "You have left the trip successfully.",
         variant: "success",
       });
+
+      // Background refresh to ensure consistency
+      fetchTrips(false);
 
       return true;
     } catch (error: any) {
@@ -911,7 +1008,7 @@ export function useTrips(userId: string | undefined) {
       });
       return false;
     }
-  }, [currentTripId, userId, fetchTrips, toast]);
+  }, [currentTripId, userId, trips, getMemberBalance, fetchTrips, toast]);
 
   return {
     trips,
