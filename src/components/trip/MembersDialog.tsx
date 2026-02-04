@@ -178,8 +178,8 @@ export function MembersDialog({
                     )}
                   </div>
 
-                  {/* Only show edit/delete for manual mode OR for admin in automatic mode */}
-                  {!isAutomatic && isAdmin && !isCreator && (
+                  {/* Admin can always remove non-creator members; edit only in manual mode */}
+                  {isAdmin && !isCreator && !isSelf && (
                     <div className="flex items-center gap-1 shrink-0">
                       {isEditing ? (
                         <>
@@ -204,26 +204,28 @@ export function MembersDialog({
                         </>
                       ) : (
                         <>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-9 w-9"
-                            onClick={() => handleStartEdit(member)}
-                            disabled={isLoading}
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          {!isSelf && (
+                          {/* Edit button only in manual mode */}
+                          {!isAutomatic && (
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-9 w-9 text-destructive hover:text-destructive"
-                              onClick={() => handleRemoveMember(member.id)}
+                              className="h-9 w-9"
+                              onClick={() => handleStartEdit(member)}
                               disabled={isLoading}
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Pencil className="h-4 w-4" />
                             </Button>
                           )}
+                          {/* Remove button always visible for admin */}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-9 w-9 text-destructive hover:text-destructive"
+                            onClick={() => handleRemoveMember(member.id)}
+                            disabled={isLoading}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </>
                       )}
                     </div>
