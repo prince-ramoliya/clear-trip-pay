@@ -46,7 +46,7 @@ export function JoinTripDialog({ open, onOpenChange, onJoinTrip }: JoinTripDialo
             Join a Trip
           </DialogTitle>
           <DialogDescription className="text-base">
-            Enter the invite code shared by your friend to join their trip.
+            Enter the invite code from the link shared by your friend.
           </DialogDescription>
         </DialogHeader>
 

@@ -11,6 +11,7 @@ import { ExpensesView } from "@/components/views/ExpensesView";
 import { SummaryView } from "@/components/views/SummaryView";
 import { SettlementsView } from "@/components/views/SettlementsView";
 import { CreateTripDialog } from "@/components/trip/CreateTripDialog";
+import { TripCreatedShareDialog } from "@/components/trip/TripCreatedShareDialog";
 import { JoinTripDialog } from "@/components/trip/JoinTripDialog";
 import { InviteDialog } from "@/components/trip/InviteDialog";
 import { AddExpenseDialog } from "@/components/trip/AddExpenseDialog";
@@ -74,6 +75,7 @@ export default function Index() {
   const [isLeavingTrip, setIsLeavingTrip] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isMobileAddExpenseOpen, setIsMobileAddExpenseOpen] = useState(false);
+  const [shareDialogData, setShareDialogData] = useState<{ tripName: string; inviteCode: string } | null>(null);
   const isAdmin = currentTripData?.trip.created_by === user?.id;
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
@@ -83,7 +85,7 @@ export default function Index() {
   useEffect(() => {
     if (urlInviteCode && isAuthenticated) {
       joinTripByCode(urlInviteCode);
-      navigate('/');
+      navigate('/dashboard');
     }
   }, [urlInviteCode, isAuthenticated, joinTripByCode, navigate]);
 
@@ -121,8 +123,13 @@ export default function Index() {
     inviteCode?: string;
     memberMode?: 'automatic' | 'manual';
   }, memberNames: string[]) => {
-    await createTrip(data, memberNames);
+    const trip = await createTrip(data, memberNames);
     setCurrentView('expenses');
+    
+    // Show share dialog for automatic trips
+    if (trip && data.memberMode === 'automatic' && data.inviteCode) {
+      setShareDialogData({ tripName: trip.name, inviteCode: data.inviteCode });
+    }
   };
   const handleSignOut = async () => {
     await signOut();
@@ -274,6 +281,14 @@ export default function Index() {
       {/* Dialogs */}
       <CreateTripDialog open={isCreateTripOpen} onOpenChange={setIsCreateTripOpen} onCreate={handleCreateTrip} />
       <JoinTripDialog open={isJoinTripOpen} onOpenChange={setIsJoinTripOpen} onJoinTrip={joinTripByCode} />
+      {shareDialogData && (
+        <TripCreatedShareDialog
+          open={!!shareDialogData}
+          onOpenChange={(open) => { if (!open) setShareDialogData(null); }}
+          tripName={shareDialogData.tripName}
+          inviteCode={shareDialogData.inviteCode}
+        />
+      )}
       <ProfileDialog open={isProfileOpen} onOpenChange={setIsProfileOpen} userId={user?.id} />
       <CurrencyDialog open={isCurrencyOpen} onOpenChange={setIsCurrencyOpen} />
       <FirstLoginNamePrompt userId={user?.id} />

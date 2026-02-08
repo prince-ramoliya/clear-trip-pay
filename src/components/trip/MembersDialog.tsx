@@ -41,8 +41,6 @@ export function MembersDialog({
   const [editingName, setEditingName] = useState("");
   const [loadingMemberId, setLoadingMemberId] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
-  const [copiedCode, setCopiedCode] = useState(false);
-  const [copiedBoth, setCopiedBoth] = useState(false);
 
   const isAdmin = currentUserId === tripCreatedBy;
   const isAutomatic = memberMode === 'automatic';
@@ -82,32 +80,19 @@ export function MembersDialog({
     setLoadingMemberId(null);
   };
 
+  const inviteLink = inviteCode ? `${APP_URL}/join/${inviteCode}` : '';
+
   const copyLink = async () => {
-    await navigator.clipboard.writeText(APP_URL);
+    if (!inviteLink) return;
+    await navigator.clipboard.writeText(inviteLink);
     setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2000);
-  };
-
-  const copyCode = async () => {
-    if (inviteCode) {
-      await navigator.clipboard.writeText(inviteCode);
-      setCopiedCode(true);
-      setTimeout(() => setCopiedCode(false), 2000);
-    }
-  };
-
-  const getFormattedMessage = () => {
-    return `🎒 Join my trip "${tripName}" on ClearTripPay!\n\n📱 App: ${APP_URL}\n🔑 Code: ${inviteCode}`;
-  };
-
-  const copyBoth = async () => {
-    await navigator.clipboard.writeText(getFormattedMessage());
-    setCopiedBoth(true);
-    setTimeout(() => setCopiedBoth(false), 2000);
+    setTimeout(() => setCopiedLink(false), 2500);
   };
 
   const shareOnWhatsApp = () => {
-    const message = encodeURIComponent(getFormattedMessage());
+    const message = encodeURIComponent(
+      `🎒 Join my trip "${tripName}" on TripSplit!\n\n🔗 Click to join: ${inviteLink}`
+    );
     window.open(`https://wa.me/?text=${message}`, "_blank");
   };
 
@@ -238,17 +223,17 @@ export function MembersDialog({
           {/* Sharing Section for Automatic Mode */}
           {isAutomatic && inviteCode && (
             <div className="mt-6 p-4 rounded-lg border bg-accent/50 space-y-4">
-              <p className="text-sm font-medium text-foreground">Share with your team to join:</p>
+              <p className="text-sm font-medium text-foreground">Share invite link with your team:</p>
 
-              {/* App Link */}
+              {/* Invite Link */}
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  App Link
+                  Invite Link
                 </label>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 flex items-center gap-2 bg-background rounded-md px-3 py-2.5 border text-sm">
-                    <Link className="h-4 w-4 text-muted-foreground shrink-0" />
-                    <span className="truncate text-foreground">{APP_URL}</span>
+                  <div className="flex-1 flex items-center gap-2 bg-background rounded-md px-3 py-2.5 border text-sm min-w-0">
+                    <Link className="h-4 w-4 text-primary shrink-0" />
+                    <span className="truncate text-foreground font-medium">{inviteLink}</span>
                   </div>
                   <Button
                     type="button"
@@ -257,46 +242,25 @@ export function MembersDialog({
                     onClick={copyLink}
                     className="h-10 w-10 shrink-0"
                   >
-                    {copiedLink ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
-                  </Button>
-                </div>
-              </div>
-
-              {/* Trip Code */}
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  Trip Code
-                </label>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 bg-background rounded-md px-4 py-2.5 font-mono text-lg font-bold tracking-wider text-center border text-foreground">
-                    {inviteCode}
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={copyCode}
-                    className="h-10 w-10 shrink-0"
-                  >
-                    {copiedCode ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
+                    {copiedLink ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
                   </Button>
                 </div>
               </div>
 
               {/* Quick Share Buttons */}
-              <div className="flex gap-2 pt-2">
+              <div className="flex gap-2 pt-1">
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={copyBoth}
+                  onClick={copyLink}
                   className="flex-1 h-11"
                 >
-                  {copiedBoth ? (
-                    <Check className="h-4 w-4 mr-2 text-success" />
+                  {copiedLink ? (
+                    <Check className="h-4 w-4 mr-2 text-emerald-500" />
                   ) : (
                     <Copy className="h-4 w-4 mr-2" />
                   )}
-                  {copiedBoth ? "Copied!" : "Copy Both"}
+                  {copiedLink ? "Copied!" : "Copy Link"}
                 </Button>
                 <Button
                   type="button"
