@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Plus, Ticket, Users, Calculator, BarChart3, Handshake } from "lucide-react";
+import { Plus, Link, Users, Calculator, BarChart3, Handshake } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface EmptyTripStateProps {
@@ -83,8 +83,8 @@ export function EmptyTripState({ onCreateTrip, onJoinTrip }: EmptyTripStateProps
           onClick={onJoinTrip}
           className="w-full h-16 sm:h-[72px] text-lg sm:text-xl font-bold gap-3 hover:bg-accent transition-all border-2 rounded-2xl"
         >
-          <Ticket className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2} />
-          Join with Invite Code
+          <Link className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2} />
+          Join with Invite Link
         </Button>
       </motion.div>
 

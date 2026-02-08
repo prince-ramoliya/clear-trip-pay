@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, X, Copy, Check, Users, UserPlus, Link, MessageCircle } from "lucide-react";
+import { Plus, X, Users, UserPlus, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
+
 interface CreateTripDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -18,9 +19,9 @@ interface CreateTripDialogProps {
       memberMode?: 'automatic' | 'manual';
     },
     memberNames: string[],
-  ) => Promise<void>;
+  ) => Promise<any>;
 }
-const APP_URL = "https://clear-trip-pay.lovable.app";
+
 export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDialogProps) {
   const [name, setName] = useState("");
   const [destination, setDestination] = useState("");
@@ -30,13 +31,9 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
   const [loading, setLoading] = useState(false);
   const [memberMode, setMemberMode] = useState<"automatic" | "manual">("automatic");
   const [generatedCode, setGeneratedCode] = useState("");
-  const [copiedLink, setCopiedLink] = useState(false);
-  const [copiedCode, setCopiedCode] = useState(false);
-  const [copiedBoth, setCopiedBoth] = useState(false);
 
-  // Generate a 12-character hex invite code (matches backend default format)
+  // Generate a 12-character hex invite code
   const generatePreviewCode = () => {
-    // 6 bytes => 12 hex chars
     const bytes = new Uint8Array(6);
     crypto.getRandomValues(bytes);
     return Array.from(bytes)
@@ -44,49 +41,18 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
       .join("");
   };
 
-  // IMPORTANT: Radix Dialog's onOpenChange won't fire when the parent controls `open`.
-  // So generate the code whenever `open` becomes true.
   useEffect(() => {
     if (open) {
       setGeneratedCode((prev) => prev || generatePreviewCode());
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
-  const copyLink = async () => {
-    await navigator.clipboard.writeText(APP_URL);
-    setCopiedLink(true);
-    setTimeout(() => setCopiedLink(false), 2000);
-  };
-  const copyCode = async () => {
-    if (!generatedCode) setGeneratedCode(generatePreviewCode());
-    await navigator.clipboard.writeText(generatedCode);
-    setCopiedCode(true);
-    setTimeout(() => setCopiedCode(false), 2000);
-  };
 
-  const getFormattedMessage = () => {
-    return `🎒 Join my trip on ClearTripPay!\n\n📱 App: ${APP_URL}\n🔑 Code: ${generatedCode}`;
-  };
-
-  const copyBoth = async () => {
-    if (!generatedCode) setGeneratedCode(generatePreviewCode());
-    await navigator.clipboard.writeText(getFormattedMessage());
-    setCopiedBoth(true);
-    setTimeout(() => setCopiedBoth(false), 2000);
-  };
-
-  const shareOnWhatsApp = () => {
-    if (!generatedCode) setGeneratedCode(generatePreviewCode());
-    const message = encodeURIComponent(getFormattedMessage());
-    window.open(`https://wa.me/?text=${message}`, "_blank");
-  };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !destination || !startDate || !endDate) return;
 
     setLoading(true);
     const memberNames = memberMode === "manual" ? members.filter((m) => m.trim()) : [];
-    // Pass member mode and invite code for automatic mode
     await onCreate(
       {
         name,
@@ -104,7 +70,6 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
     setStartDate("");
     setEndDate("");
     setMembers([""]);
-    setMemberMode("automatic");
     setMemberMode("automatic");
     setGeneratedCode("");
     onOpenChange(false);
@@ -195,82 +160,23 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
               </button>
             </div>
 
-            {/* Automatic Mode - Show Invite Link & Code */}
+            {/* Automatic Mode - Instructions */}
             {memberMode === "automatic" && (
-              <div className="p-4 rounded-lg border bg-accent/50 space-y-4">
-                <p className="text-sm font-medium text-foreground">Share these with your team members to join:</p>
-
-                {/* App Link */}
-                <div className="space-y-2">
-                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                    App Link
-                  </Label>
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 flex items-center gap-2 bg-background rounded-md px-3 py-2.5 border text-sm">
-                      <Link className="h-4 w-4 text-muted-foreground shrink-0" />
-                      <span className="truncate text-foreground">{APP_URL}</span>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={copyLink}
-                      className="h-10 w-10 shrink-0"
-                    >
-                      {copiedLink ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
-                    </Button>
+              <div className="p-4 rounded-lg border bg-accent/50 space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 shrink-0 mt-0.5">
+                    <Info className="h-4 w-4 text-primary" />
+                  </div>
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium text-foreground">How automatic mode works:</p>
+                    <ol className="text-sm text-muted-foreground space-y-1.5 list-decimal list-inside">
+                      <li>Create your trip below</li>
+                      <li>You'll get a shareable invite link</li>
+                      <li>Share it with friends via WhatsApp or copy</li>
+                      <li>They click the link, sign up & join instantly</li>
+                    </ol>
                   </div>
                 </div>
-
-                {/* Trip Code */}
-                <div className="space-y-2">
-                  <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                    Trip Code
-                  </Label>
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 bg-background rounded-md px-4 py-2.5 font-mono text-lg font-bold tracking-wider text-center border text-foreground">
-                      {generatedCode}
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={copyCode}
-                      className="h-10 w-10 shrink-0"
-                    >
-                      {copiedCode ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Quick Share Buttons */}
-                <div className="flex gap-2 pt-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={copyBoth}
-                    className="flex-1 h-11"
-                  >
-                    {copiedBoth ? (
-                      <Check className="h-4 w-4 mr-2 text-success" />
-                    ) : (
-                      <Copy className="h-4 w-4 mr-2" />
-                    )}
-                    {copiedBoth ? "Copied!" : "Copy Both"}
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={shareOnWhatsApp}
-                    className="flex-1 h-11 bg-[#25D366] hover:bg-[#20BD5A] text-white"
-                  >
-                    <MessageCircle className="h-4 w-4 mr-2" />
-                    WhatsApp
-                  </Button>
-                </div>
-
-                <p className="text-xs text-muted-foreground">
-                  Share the app link and trip code with your team members.
-                </p>
               </div>
             )}
 
