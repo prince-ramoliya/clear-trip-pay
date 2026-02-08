@@ -3,6 +3,7 @@ import { DbTripMember, DbExpense, DbExpenseParticipant } from "@/types/database"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -19,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { getCategoryIcon, getCategoryLabel } from "@/lib/calculations";
 import { useCurrency } from "@/contexts/CurrencyContext";
+import { Users } from "lucide-react";
 
 interface EditExpenseDialogProps {
   open: boolean;
@@ -40,26 +42,19 @@ interface EditExpenseDialogProps {
 const categories = ['food', 'stay', 'travel', 'shopping', 'activities', 'other'];
 
 export function EditExpenseDialog({ 
-  open, 
-  onOpenChange, 
-  expense, 
-  members,
-  currentUserId,
-  memberMode,
-  onUpdateExpense 
+  open, onOpenChange, expense, members, currentUserId, memberMode, onUpdateExpense 
 }: EditExpenseDialogProps) {
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [paidBy, setPaidBy] = useState('');
   const [category, setCategory] = useState('food');
   const [date, setDate] = useState('');
+  const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
+  const [splitAll, setSplitAll] = useState(true);
   const [loading, setLoading] = useState(false);
   const { currency } = useCurrency();
 
-  // Check if this is an "automatic" trip
   const isAutomaticTrip = memberMode === 'automatic';
-  
-  // Find current user's member record
   const currentUserMember = members.find(m => m.user_id === currentUserId);
 
   useEffect(() => {
@@ -69,30 +64,55 @@ export function EditExpenseDialog({
       setPaidBy(expense.paid_by);
       setCategory(expense.category);
       setDate(expense.expense_date);
+      
+      const participantIds = expense.participants.map(p => p.member_id);
+      const allMemberIds = members.map(m => m.id);
+      const isAll = allMemberIds.length === participantIds.length && 
+        allMemberIds.every(id => participantIds.includes(id));
+      
+      setSplitAll(isAll);
+      setSelectedParticipants(participantIds);
     }
-  }, [expense, open]);
+  }, [expense, open, members]);
+
+  const toggleParticipant = (memberId: string) => {
+    setSelectedParticipants(prev =>
+      prev.includes(memberId)
+        ? prev.filter(id => id !== memberId)
+        : [...prev, memberId]
+    );
+  };
+
+  const handleSplitAllToggle = (checked: boolean) => {
+    setSplitAll(checked);
+    if (checked) {
+      setSelectedParticipants(members.map(m => m.id));
+    }
+  };
+
+  const getEffectiveParticipants = () => {
+    if (splitAll) return members.map(m => m.id);
+    return selectedParticipants;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // For automatic trips, use current user as paidBy
     const effectivePaidBy = isAutomaticTrip && currentUserMember ? currentUserMember.id : paidBy;
+    const participants = getEffectiveParticipants();
     
-    if (!title || !amount || !effectivePaidBy) return;
+    if (!title || !amount || !effectivePaidBy || participants.length === 0) return;
 
-    // Validate amount is a positive number within bounds
     const parsedAmount = parseFloat(amount);
     if (isNaN(parsedAmount) || !isFinite(parsedAmount) || parsedAmount <= 0 || parsedAmount >= 999999999) {
       return;
     }
 
     setLoading(true);
-    // Always split between all members
     const success = await onUpdateExpense(expense.id, {
       title,
       amount: parsedAmount,
       paidBy: effectivePaidBy,
-      participants: members.map(m => m.id),
+      participants,
       category,
       date,
     });
@@ -103,64 +123,40 @@ export function EditExpenseDialog({
     }
   };
 
+  const effectiveParticipants = getEffectiveParticipants();
+  const perPerson = amount && effectiveParticipants.length > 0
+    ? parseFloat(amount) / effectiveParticipants.length
+    : 0;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md max-w-[calc(100vw-20px)] max-h-[calc(100vh-40px)] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-lg sm:text-xl">Edit Expense</DialogTitle>
-          <DialogDescription className="text-base">
-            Update the expense details.
-          </DialogDescription>
+          <DialogDescription className="text-base">Update the expense details.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-4">
           <div className="space-y-2">
             <Label htmlFor="edit-title" className="text-base">Description</Label>
-            <Input
-              id="edit-title"
-              placeholder="e.g., Dinner at restaurant"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              className="h-10 text-base"
-            />
+            <Input id="edit-title" placeholder="e.g., Dinner at restaurant" value={title} onChange={(e) => setTitle(e.target.value)} required className="h-10 text-base" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="edit-amount" className="text-base">Amount ({currency.symbol})</Label>
-              <Input
-                id="edit-amount"
-                type="number"
-                placeholder="0.00"
-                min="0"
-                step="0.01"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                required
-                className="h-10 text-base"
-              />
+              <Input id="edit-amount" type="number" placeholder="0.00" min="0" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required className="h-10 text-base" />
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="edit-date" className="text-base">Date</Label>
-              <Input
-                id="edit-date"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
-                className="h-10 text-base"
-              />
+              <Input id="edit-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} required className="h-10 text-base" />
             </div>
           </div>
 
           <div className="space-y-2">
             <Label className="text-base">Category</Label>
             <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger className="h-10 text-base">
-                <SelectValue />
-              </SelectTrigger>
+              <SelectTrigger className="h-10 text-base"><SelectValue /></SelectTrigger>
               <SelectContent className="bg-popover">
                 {categories.map(cat => (
                   <SelectItem key={cat} value={cat} className="text-base py-2">
@@ -182,31 +178,53 @@ export function EditExpenseDialog({
               </div>
             ) : (
               <Select value={paidBy} onValueChange={setPaidBy}>
-                <SelectTrigger className="h-10 text-base">
-                  <SelectValue placeholder="Select who paid" />
-                </SelectTrigger>
+                <SelectTrigger className="h-10 text-base"><SelectValue placeholder="Select who paid" /></SelectTrigger>
                 <SelectContent className="bg-popover">
                   {members.map(member => (
-                    <SelectItem key={member.id} value={member.id} className="text-base py-2">
-                      {member.display_name}
-                    </SelectItem>
+                    <SelectItem key={member.id} value={member.id} className="text-base py-2">{member.display_name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             )}
           </div>
 
+          {/* Split Between Section */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="text-base flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Split between
+              </Label>
+              <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
+                <Checkbox checked={splitAll} onCheckedChange={(checked) => handleSplitAllToggle(!!checked)} />
+                All members
+              </label>
+            </div>
+
+            {!splitAll && (
+              <div className="rounded-lg border bg-muted/30 p-3 space-y-1 max-h-40 overflow-y-auto">
+                {members.map(member => (
+                  <label key={member.id} className="flex items-center gap-3 py-2 px-2 rounded-md hover:bg-muted/50 cursor-pointer transition-colors">
+                    <Checkbox checked={selectedParticipants.includes(member.id)} onCheckedChange={() => toggleParticipant(member.id)} />
+                    <span className="text-base text-foreground truncate">{member.display_name}</span>
+                  </label>
+                ))}
+                {selectedParticipants.length === 0 && (
+                  <p className="text-sm text-destructive px-2 py-1">Select at least one member</p>
+                )}
+              </div>
+            )}
+
+            {amount && effectiveParticipants.length > 0 && (
+              <div className="text-sm text-muted-foreground bg-muted/40 rounded-md px-3 py-2">
+                {currency.symbol}{perPerson.toFixed(2)} per person · {effectiveParticipants.length} member{effectiveParticipants.length !== 1 ? 's' : ''}
+              </div>
+            )}
+          </div>
+
           <div className="flex gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              className="flex-1 h-10 text-base"
-              onClick={() => onOpenChange(false)}
-              disabled={loading}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" className="flex-1 h-10 text-base" disabled={loading}>
+            <Button type="button" variant="outline" className="flex-1 h-10 text-base" onClick={() => onOpenChange(false)} disabled={loading}>Cancel</Button>
+            <Button type="submit" className="flex-1 h-10 text-base" disabled={loading || (!splitAll && selectedParticipants.length === 0)}>
               {loading ? 'Saving...' : 'Save Changes'}
             </Button>
           </div>
