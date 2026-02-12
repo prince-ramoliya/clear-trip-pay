@@ -199,143 +199,246 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* ══════ 2. HERO — immersive animated ══════ */}
-      <section className="relative min-h-[100dvh] flex flex-col justify-center overflow-hidden px-4 sm:px-6">
-        {/* ── Animated background layer ── */}
-        <div className="absolute inset-0 -z-10 overflow-hidden">
-          {/* Gradient mesh */}
-          <div className="absolute inset-0" style={{
-            background: `
-              radial-gradient(ellipse 80% 60% at 10% 20%, hsl(var(--primary) / 0.08) 0%, transparent 60%),
-              radial-gradient(ellipse 60% 80% at 90% 80%, hsl(var(--primary) / 0.06) 0%, transparent 60%),
-              radial-gradient(ellipse 50% 50% at 50% 50%, hsl(var(--primary) / 0.03) 0%, transparent 70%)
-            `
-          }} />
-
-          {/* Floating orbs */}
-          <FloatingOrb size={280} x="-5%" y="-8%" color="hsl(var(--primary) / 0.12)" duration={18} />
-          <FloatingOrb size={200} x="75%" y="10%" color="hsl(var(--primary) / 0.09)" duration={22} delayStart={3} />
-          <FloatingOrb size={160} x="60%" y="65%" color="hsl(var(--success) / 0.08)" duration={20} delayStart={6} />
-          <FloatingOrb size={120} x="10%" y="70%" color="hsl(var(--warning) / 0.07)" duration={16} delayStart={2} />
-          <FloatingOrb size={100} x="40%" y="15%" color="hsl(var(--primary) / 0.06)" duration={24} delayStart={8} />
-
-          {/* Morphing blobs */}
-          <MorphBlob className="w-[400px] h-[400px] -top-[100px] -right-[100px] opacity-30" color="hsl(var(--primary) / 0.1)" duration={15} />
-          <MorphBlob className="w-[300px] h-[300px] -bottom-[80px] -left-[60px] opacity-25" color="hsl(var(--primary) / 0.08)" duration={18} />
-          <MorphBlob className="w-[200px] h-[200px] top-[40%] right-[10%] opacity-20" color="hsl(var(--success) / 0.07)" duration={12} />
-
-          {/* Animated grid lines */}
+      {/* ══════ 2. HERO — cinematic immersive ══════ */}
+      <section className="relative min-h-[100dvh] flex flex-col justify-center overflow-hidden">
+        {/* ── Background: aurora waves + noise ── */}
+        <div className="absolute inset-0 -z-10 overflow-hidden bg-background">
+          {/* Aurora gradient waves */}
           <motion.div
-            className="absolute inset-0 opacity-[0.03]"
-            style={{ backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`, backgroundSize: "60px 60px" }}
-            animate={{ backgroundPosition: ["0px 0px", "60px 60px"] }}
-            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+            className="absolute -top-[40%] -left-[20%] w-[140%] h-[80%] rounded-[50%] opacity-60 blur-[120px]"
+            style={{ background: "linear-gradient(135deg, hsl(var(--primary) / 0.18), hsl(var(--success) / 0.12), hsl(var(--primary) / 0.08))" }}
+            animate={{ rotate: [0, 8, -5, 0], scale: [1, 1.05, 0.97, 1], x: [0, 30, -20, 0] }}
+            transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute -bottom-[30%] -right-[15%] w-[120%] h-[70%] rounded-[50%] opacity-50 blur-[100px]"
+            style={{ background: "linear-gradient(225deg, hsl(var(--primary) / 0.15), hsl(var(--warning) / 0.08), transparent)" }}
+            animate={{ rotate: [0, -6, 4, 0], scale: [1, 0.96, 1.04, 1], y: [0, -20, 15, 0] }}
+            transition={{ duration: 30, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+          />
+          <motion.div
+            className="absolute top-[30%] left-[50%] -translate-x-1/2 w-[60%] h-[40%] rounded-[50%] opacity-30 blur-[80px]"
+            style={{ background: "radial-gradient(circle, hsl(var(--primary) / 0.12), transparent 70%)" }}
+            animate={{ scale: [0.9, 1.15, 0.9], opacity: [0.2, 0.4, 0.2] }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
           />
 
-          {/* Floating particles */}
+          {/* Dot matrix pattern */}
+          <div className="absolute inset-0 opacity-[0.025]" style={{ backgroundImage: "radial-gradient(hsl(var(--foreground)) 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
+
+          {/* Orbital rings */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] sm:w-[700px] sm:h-[700px]">
+            <motion.div
+              className="absolute inset-0 rounded-full border border-primary/[0.06]"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+            >
+              <div className="absolute -top-1 left-1/2 w-2 h-2 rounded-full bg-primary/20" />
+            </motion.div>
+            <motion.div
+              className="absolute inset-[15%] rounded-full border border-primary/[0.04]"
+              animate={{ rotate: -360 }}
+              transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
+            >
+              <div className="absolute -bottom-1 right-[20%] w-1.5 h-1.5 rounded-full bg-success/25" />
+            </motion.div>
+            <motion.div
+              className="absolute inset-[30%] rounded-full border border-primary/[0.03]"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
+            >
+              <div className="absolute top-[10%] -left-1 w-1.5 h-1.5 rounded-full bg-warning/20" />
+            </motion.div>
+          </div>
+
+          {/* Floating currency symbols */}
           {[
-            { x: "15%", y: "25%", d: 0 }, { x: "80%", y: "30%", d: 1.5 },
-            { x: "45%", y: "60%", d: 3 }, { x: "70%", y: "75%", d: 4.5 },
-            { x: "25%", y: "80%", d: 2 }, { x: "55%", y: "20%", d: 5 },
-            { x: "90%", y: "55%", d: 1 }, { x: "35%", y: "45%", d: 6 },
-            { x: "8%", y: "50%", d: 3.5 }, { x: "65%", y: "40%", d: 7 },
-          ].map((p, i) => <Particle key={i} x={p.x} y={p.y} delay={p.d} />)}
+            { char: "₹", x: "12%", y: "20%", dur: 14, size: "text-2xl sm:text-4xl" },
+            { char: "$", x: "82%", y: "25%", dur: 18, size: "text-xl sm:text-3xl" },
+            { char: "€", x: "75%", y: "70%", dur: 16, size: "text-lg sm:text-2xl" },
+            { char: "£", x: "8%", y: "72%", dur: 20, size: "text-xl sm:text-3xl" },
+            { char: "¥", x: "88%", y: "50%", dur: 15, size: "text-lg sm:text-2xl" },
+          ].map((c, i) => (
+            <motion.span
+              key={i}
+              className={`absolute ${c.size} font-black pointer-events-none select-none`}
+              style={{ left: c.x, top: c.y, color: "hsl(var(--primary) / 0.06)" }}
+              animate={{ y: [-20, 20, -20], rotate: [-10, 10, -10], opacity: [0.04, 0.1, 0.04] }}
+              transition={{ duration: c.dur, repeat: Infinity, ease: "easeInOut", delay: i * 1.5 }}
+            >
+              {c.char}
+            </motion.span>
+          ))}
 
-          {/* Floating geometric shapes */}
-          <motion.div
-            className="absolute top-[18%] right-[8%] w-16 h-16 sm:w-24 sm:h-24 border-2 border-primary/10 rounded-2xl"
-            animate={{ y: [-20, 20, -20], rotate: [0, 90, 180, 270, 360] }}
-            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div
-            className="absolute bottom-[22%] left-[6%] w-12 h-12 sm:w-20 sm:h-20 border-2 border-primary/8 rounded-full"
-            animate={{ y: [15, -15, 15], scale: [1, 1.2, 1] }}
-            transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div
-            className="absolute top-[50%] left-[18%] w-8 h-8 sm:w-14 sm:h-14 bg-primary/5 border border-primary/10"
-            animate={{ rotate: [45, 135, 225, 315, 405], y: [-10, 10, -10] }}
-            transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div
-            className="absolute top-[30%] right-[25%] w-6 h-6 sm:w-10 sm:h-10 rounded-full bg-success/8 border border-success/10"
-            animate={{ x: [-15, 15, -15], y: [10, -10, 10], opacity: [0.3, 0.8, 0.3] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div
-            className="absolute bottom-[35%] right-[15%] w-10 h-10 sm:w-16 sm:h-16 rounded-xl bg-warning/5 border border-warning/8"
-            animate={{ rotate: [0, -45, 0, 45, 0], scale: [0.9, 1.1, 0.9] }}
-            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-          />
+          {/* Floating emojis */}
+          {[
+            { emoji: "✈️", x: "20%", y: "35%", dur: 22 },
+            { emoji: "🏖️", x: "78%", y: "40%", dur: 19 },
+            { emoji: "🗺️", x: "65%", y: "18%", dur: 24 },
+            { emoji: "🧳", x: "30%", y: "75%", dur: 17 },
+          ].map((e, i) => (
+            <motion.span
+              key={i}
+              className="absolute text-xl sm:text-2xl pointer-events-none select-none opacity-[0.07]"
+              style={{ left: e.x, top: e.y }}
+              animate={{ y: [-15, 15, -15], x: [-8, 8, -8], rotate: [-15, 15, -15] }}
+              transition={{ duration: e.dur, repeat: Infinity, ease: "easeInOut", delay: i * 2 }}
+            >
+              {e.emoji}
+            </motion.span>
+          ))}
 
-          {/* Animated rings */}
+          {/* Glowing accent lines */}
           <motion.div
-            className="absolute top-[15%] left-[45%] w-32 h-32 sm:w-48 sm:h-48 rounded-full border border-primary/5"
-            animate={{ scale: [1, 1.5, 1], opacity: [0.1, 0.3, 0.1] }}
+            className="absolute top-[25%] left-0 w-full h-px"
+            style={{ background: "linear-gradient(90deg, transparent, hsl(var(--primary) / 0.08), transparent)" }}
+            animate={{ opacity: [0, 0.6, 0], x: ["-100%", "0%", "100%"] }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           />
           <motion.div
-            className="absolute bottom-[15%] right-[30%] w-24 h-24 sm:w-36 sm:h-36 rounded-full border border-primary/5"
-            animate={{ scale: [1.3, 1, 1.3], opacity: [0.15, 0.05, 0.15] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="absolute bottom-[30%] left-0 w-full h-px"
+            style={{ background: "linear-gradient(90deg, transparent, hsl(var(--success) / 0.06), transparent)" }}
+            animate={{ opacity: [0, 0.5, 0], x: ["100%", "0%", "-100%"] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 4 }}
           />
         </div>
 
-        <motion.div style={{ y: heroParallax, opacity: heroOpacity }} className="max-w-5xl mx-auto w-full pt-14">
+        {/* Hero content */}
+        <div className="relative z-10 max-w-5xl mx-auto w-full px-4 sm:px-6 pt-20 sm:pt-14">
           <div className="flex flex-col items-center text-center">
             {/* Badge */}
-            <motion.div initial={{ opacity: 0, y: 16, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ delay: 0.2 }} className="mb-5 sm:mb-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/80 border border-border/80 shadow-lg backdrop-blur-sm">
+            <motion.div initial={{ opacity: 0, y: 20, scale: 0.85 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ delay: 0.1, duration: 0.6, ease: [0.16, 1, 0.3, 1] }} className="mb-5 sm:mb-7">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/70 border border-border/60 shadow-xl backdrop-blur-md">
                 <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" /><span className="relative inline-flex rounded-full h-2 w-2 bg-success" /></span>
-                <span className="text-[11px] sm:text-sm font-semibold text-foreground">100% Free · No Ads · Open for Everyone</span>
+                <span className="text-[11px] sm:text-sm font-semibold text-foreground tracking-wide">100% Free · No Ads · Open for Everyone</span>
               </div>
             </motion.div>
 
-            {/* Headline */}
-            <h1 className="text-[2.4rem] leading-[1.05] sm:text-5xl md:text-6xl lg:text-7xl font-black text-foreground tracking-tight mb-4 sm:mb-6 max-w-4xl">
-              <WordReveal text="Split Expenses," delay={0.3} />
+            {/* Headline with character stagger */}
+            <h1 className="text-[2.6rem] leading-[1.02] sm:text-5xl md:text-6xl lg:text-[4.5rem] font-black text-foreground tracking-tight mb-4 sm:mb-6 max-w-4xl">
+              <WordReveal text="Split Expenses," delay={0.25} />
               <br />
-              <span className="relative inline-block">
-                <WordReveal text="Not Friendships." delay={0.65} className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent" />
-                <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 1.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }} className="absolute -bottom-0.5 sm:-bottom-1.5 left-0 right-0 h-1 sm:h-1.5 bg-primary/25 rounded-full origin-left" />
+              <span className="relative inline-block mt-1 sm:mt-2">
+                <WordReveal text="Not Friendships." delay={0.6} className="bg-gradient-to-r from-primary via-primary/90 to-primary/60 bg-clip-text text-transparent" />
+                <motion.div 
+                  initial={{ scaleX: 0 }} 
+                  animate={{ scaleX: 1 }} 
+                  transition={{ delay: 1.3, duration: 0.7, ease: [0.16, 1, 0.3, 1] }} 
+                  className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-1 sm:h-1.5 rounded-full origin-left overflow-hidden"
+                >
+                  <div className="w-full h-full bg-gradient-to-r from-primary/40 via-primary/20 to-transparent" />
+                </motion.div>
               </span>
             </h1>
 
-            {/* Sub */}
-            <motion.p initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }} className="text-sm sm:text-lg text-muted-foreground max-w-md sm:max-w-lg leading-relaxed mb-6 sm:mb-8">
-              Track, split & settle group travel expenses effortlessly. You make the memories — we handle the math.
+            {/* Subtitle */}
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ delay: 1.1, duration: 0.6 }} 
+              className="text-sm sm:text-lg md:text-xl text-muted-foreground max-w-sm sm:max-w-lg leading-relaxed mb-7 sm:mb-9"
+            >
+              Track, split & settle group travel expenses effortlessly. 
+              <span className="hidden sm:inline"> You make the memories — we handle the math.</span>
+              <span className="sm:hidden"> We handle the math.</span>
             </motion.p>
 
-            {/* CTA */}
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }} className="flex flex-col sm:flex-row gap-2.5 w-full sm:w-auto mb-8 sm:mb-10">
-              <Button size="lg" asChild className="w-full sm:w-auto text-sm sm:text-base px-7 py-5 sm:py-6 shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/30 transition-all rounded-full font-bold">
-                <Link to="/auth?tab=signup">Start Splitting Free <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" /></Link>
+            {/* CTA buttons */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.3 }} className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto mb-10 sm:mb-12">
+              <Button size="lg" asChild className="w-full sm:w-auto text-sm sm:text-base px-8 py-5 sm:py-6 shadow-2xl shadow-primary/30 hover:shadow-primary/40 transition-all duration-300 rounded-full font-bold group">
+                <Link to="/auth?tab=signup">
+                  Start Splitting Free 
+                  <motion.span className="ml-2 inline-block" animate={{ x: [0, 4, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}>
+                    <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
+                  </motion.span>
+                </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="w-full sm:w-auto text-sm sm:text-base px-7 py-5 sm:py-6 rounded-full font-semibold border-2 backdrop-blur-sm">
+              <Button size="lg" variant="outline" asChild className="w-full sm:w-auto text-sm sm:text-base px-8 py-5 sm:py-6 rounded-full font-semibold border-2 backdrop-blur-sm hover:bg-accent/50 transition-all duration-300">
                 <a href="#how-it-works">See How It Works</a>
               </Button>
             </motion.div>
 
-            {/* Stats */}
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.5 }} className="w-full max-w-md sm:max-w-xl">
-              <div className="flex items-center justify-center gap-4 sm:gap-8 py-4 px-3 rounded-2xl bg-card/60 border border-border/50 backdrop-blur-md shadow-lg">
-                {[
-                  { val: <Counter target={10000} suffix="+" />, label: "Trips Created" },
-                  { val: <Counter target={50000} suffix="+" />, label: "Settlements" },
-                  { val: "4.9★", label: "User Rating" },
-                ].map((s, i) => (
-                  <div key={i} className="text-center flex-1">
-                    <div className="text-lg sm:text-2xl font-black text-foreground">{s.val}</div>
-                    <div className="text-[10px] sm:text-xs text-muted-foreground font-medium">{s.label}</div>
-                  </div>
-                ))}
+            {/* Floating mini app preview cards */}
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ delay: 1.6, duration: 0.8 }} 
+              className="relative w-full max-w-lg sm:max-w-2xl"
+            >
+              {/* Glass card — app mock */}
+              <div className="relative rounded-2xl sm:rounded-3xl border border-border/60 bg-card/50 backdrop-blur-xl shadow-2xl overflow-hidden p-4 sm:p-6">
+                {/* Card inner glow */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-transparent to-success/[0.02] pointer-events-none" />
+                
+                <div className="relative grid grid-cols-3 gap-2 sm:gap-3 mb-3 sm:mb-4">
+                  {/* Mini stat cards */}
+                  {[
+                    { label: "Total Spent", value: "₹45,200", icon: "💰", color: "from-primary/10 to-primary/5" },
+                    { label: "Members", value: "4", icon: "👥", color: "from-success/10 to-success/5" },
+                    { label: "Settlements", value: "2 left", icon: "🤝", color: "from-warning/10 to-warning/5" },
+                  ].map((card, i) => (
+                    <motion.div
+                      key={i}
+                      className={`rounded-xl border border-border/50 bg-gradient-to-br ${card.color} p-2.5 sm:p-3`}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 1.9 + i * 0.15 }}
+                    >
+                      <div className="text-base sm:text-lg mb-0.5">{card.icon}</div>
+                      <div className="text-xs sm:text-sm font-bold text-foreground">{card.value}</div>
+                      <div className="text-[9px] sm:text-[10px] text-muted-foreground font-medium">{card.label}</div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Mini expense rows */}
+                <div className="space-y-1.5 sm:space-y-2">
+                  {[
+                    { title: "Dinner at Beach Shack", amount: "₹2,400", by: "Priya", cat: "🍕" },
+                    { title: "Taxi to Airport", amount: "₹1,800", by: "Rahul", cat: "🚕" },
+                    { title: "Hotel Stay — 2 nights", amount: "₹8,500", by: "Amit", cat: "🏨" },
+                  ].map((exp, i) => (
+                    <motion.div
+                      key={i}
+                      className="flex items-center gap-2.5 sm:gap-3 rounded-lg sm:rounded-xl bg-background/60 border border-border/30 p-2 sm:p-2.5"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 2.3 + i * 0.12 }}
+                    >
+                      <div className="text-sm sm:text-base">{exp.cat}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[11px] sm:text-xs font-semibold text-foreground truncate">{exp.title}</div>
+                        <div className="text-[9px] sm:text-[10px] text-muted-foreground">Paid by {exp.by}</div>
+                      </div>
+                      <div className="text-[11px] sm:text-xs font-bold text-foreground">{exp.amount}</div>
+                    </motion.div>
+                  ))}
+                </div>
               </div>
+
+              {/* Decorative floating badges around the card */}
+              <motion.div
+                className="absolute -top-3 -right-2 sm:-top-4 sm:-right-4 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-success text-success-foreground text-[9px] sm:text-[10px] font-bold shadow-lg"
+                animate={{ y: [-3, 3, -3], rotate: [-2, 2, -2] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              >
+                Real-time sync ⚡
+              </motion.div>
+              <motion.div
+                className="absolute -bottom-2 -left-2 sm:-bottom-3 sm:-left-3 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-primary text-primary-foreground text-[9px] sm:text-[10px] font-bold shadow-lg"
+                animate={{ y: [3, -3, 3], rotate: [2, -2, 2] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              >
+                Smart splits ✨
+              </motion.div>
             </motion.div>
           </div>
-        </motion.div>
+        </div>
 
-        <motion.div className="absolute bottom-4 left-1/2 -translate-x-1/2" animate={{ y: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}>
-          <ArrowDown className="h-4 w-4 text-muted-foreground/40" />
+        {/* Scroll indicator */}
+        <motion.div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1" animate={{ y: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}>
+          <span className="text-[9px] text-muted-foreground/50 font-medium tracking-widest uppercase">Scroll</span>
+          <ArrowDown className="h-3.5 w-3.5 text-muted-foreground/30" />
         </motion.div>
       </section>
 
