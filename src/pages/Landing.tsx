@@ -7,11 +7,11 @@ import {
   ArrowRight, Sparkles, CreditCard, PieChart, ArrowDown,
   Zap, MessageCircle, Globe, Share2, UserPlus, Smartphone,
   Clock, TrendingUp, Eye, Split, BadgeCheck, HandCoins,
-  X as XIcon, QrCode, History, ChevronDown,
-} from "lucide-react";
+  X as XIcon, QrCode, History, ChevronDown } from
+"lucide-react";
 
 /* ─── Animated counter ─── */
-function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
+function Counter({ target, suffix = "" }: {target: number;suffix?: string;}) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true });
   const [count, setCount] = useState(0);
@@ -22,8 +22,8 @@ function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
     const inc = target / (dur / 16);
     const t = setInterval(() => {
       start += inc;
-      if (start >= target) { setCount(target); clearInterval(t); }
-      else setCount(Math.floor(start));
+      if (start >= target) {setCount(target);clearInterval(t);} else
+      setCount(Math.floor(start));
     }, 16);
     return () => clearInterval(t);
   }, [inView, target]);
@@ -31,31 +31,31 @@ function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
 }
 
 /* ─── Reveal ─── */
-function Reveal({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+function Reveal({ children, className = "", delay = 0 }: {children: React.ReactNode;className?: string;delay?: number;}) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-60px" });
   return (
     <motion.div ref={ref} initial={{ opacity: 0, y: 36 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6, delay, ease: [0.16, 1, 0.3, 1] }} className={className}>
       {children}
-    </motion.div>
-  );
+    </motion.div>);
+
 }
 
 /* ─── Word reveal ─── */
-function WordReveal({ text, className = "", delay = 0 }: { text: string; className?: string; delay?: number }) {
+function WordReveal({ text, className = "", delay = 0 }: {text: string;className?: string;delay?: number;}) {
   return (
     <span className={className}>
-      {text.split(" ").map((word, i) => (
-        <motion.span key={i} initial={{ opacity: 0, y: 24, filter: "blur(6px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.45, delay: delay + i * 0.07, ease: [0.16, 1, 0.3, 1] }} className="inline-block mr-[0.28em]">
+      {text.split(" ").map((word, i) =>
+      <motion.span key={i} initial={{ opacity: 0, y: 24, filter: "blur(6px)" }} animate={{ opacity: 1, y: 0, filter: "blur(0px)" }} transition={{ duration: 0.45, delay: delay + i * 0.07, ease: [0.16, 1, 0.3, 1] }} className="inline-block mr-[0.28em]">
           {word}
         </motion.span>
-      ))}
-    </span>
-  );
+      )}
+    </span>);
+
 }
 
 /* ─── Floating Orb ─── */
-function FloatingOrb({ size, x, y, color, duration, delayStart = 0 }: { size: number; x: string; y: string; color: string; duration: number; delayStart?: number }) {
+function FloatingOrb({ size, x, y, color, duration, delayStart = 0 }: {size: number;x: string;y: string;color: string;duration: number;delayStart?: number;}) {
   return (
     <motion.div
       className="absolute rounded-full blur-3xl pointer-events-none"
@@ -64,103 +64,103 @@ function FloatingOrb({ size, x, y, color, duration, delayStart = 0 }: { size: nu
         x: [0, 30, -20, 15, 0],
         y: [0, -25, 15, -10, 0],
         scale: [1, 1.15, 0.9, 1.1, 1],
-        opacity: [0.4, 0.7, 0.5, 0.65, 0.4],
+        opacity: [0.4, 0.7, 0.5, 0.65, 0.4]
       }}
-      transition={{ duration, repeat: Infinity, ease: "easeInOut", delay: delayStart }}
-    />
-  );
+      transition={{ duration, repeat: Infinity, ease: "easeInOut", delay: delayStart }} />);
+
+
 }
 
 /* ─── Morphing blob ─── */
-function MorphBlob({ className, color, duration }: { className: string; color: string; duration: number }) {
+function MorphBlob({ className, color, duration }: {className: string;color: string;duration: number;}) {
   return (
     <motion.div
       className={`absolute pointer-events-none ${className}`}
       style={{ background: color }}
       animate={{
         borderRadius: [
-          "40% 60% 70% 30% / 40% 50% 60% 50%",
-          "70% 30% 50% 50% / 30% 30% 70% 70%",
-          "50% 60% 30% 60% / 60% 40% 60% 40%",
-          "40% 60% 70% 30% / 40% 50% 60% 50%",
-        ],
-        scale: [1, 1.08, 0.95, 1],
+        "40% 60% 70% 30% / 40% 50% 60% 50%",
+        "70% 30% 50% 50% / 30% 30% 70% 70%",
+        "50% 60% 30% 60% / 60% 40% 60% 40%",
+        "40% 60% 70% 30% / 40% 50% 60% 50%"],
+
+        scale: [1, 1.08, 0.95, 1]
       }}
-      transition={{ duration, repeat: Infinity, ease: "easeInOut" }}
-    />
-  );
+      transition={{ duration, repeat: Infinity, ease: "easeInOut" }} />);
+
+
 }
 
 /* ─── Particle ─── */
-function Particle({ delay, x, y }: { delay: number; x: string; y: string }) {
+function Particle({ delay, x, y }: {delay: number;x: string;y: string;}) {
   return (
     <motion.div
       className="absolute w-1 h-1 rounded-full pointer-events-none"
       style={{ left: x, top: y, background: "hsl(var(--primary) / 0.4)" }}
       animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0], y: [0, -40, -80] }}
-      transition={{ duration: 3, repeat: Infinity, delay, ease: "easeOut" }}
-    />
-  );
+      transition={{ duration: 3, repeat: Infinity, delay, ease: "easeOut" }} />);
+
+
 }
 
 /* ═══ DATA ═══ */
 const problems = [
-  "Awkward 'you owe me' conversations after every meal",
-  "Messy spreadsheets that nobody updates properly",
-  "Unfair splits causing resentment between friends",
-  "Lost receipts and forgotten who paid what",
-  "Hours wasted calculating who owes whom",
-];
+"Awkward 'you owe me' conversations after every meal",
+"Messy spreadsheets that nobody updates properly",
+"Unfair splits causing resentment between friends",
+"Lost receipts and forgotten who paid what",
+"Hours wasted calculating who owes whom"];
+
 
 const solutions = [
-  "Auto-calculated fair splits — zero manual math",
-  "Real-time expense tracking everyone can see",
-  "Smart settlement with minimum transactions",
-  "WhatsApp sharing for instant group updates",
-  "Works for guests too — no account needed",
-];
+"Auto-calculated fair splits — zero manual math",
+"Real-time expense tracking everyone can see",
+"Smart settlement with minimum transactions",
+"WhatsApp sharing for instant group updates",
+"Works for guests too — no account needed"];
+
 
 const whyReasons = [
-  { icon: Clock, title: "Save Hours", desc: "Stop calculating manually. Our algorithm does it in seconds.", accent: "bg-primary/10 text-primary" },
-  { icon: HandCoins, title: "Fair Splits", desc: "Choose who's in each expense. Only pay your actual share.", accent: "bg-success/10 text-success" },
-  { icon: Eye, title: "Full Transparency", desc: "Everyone sees every expense. No hidden costs or surprises.", accent: "bg-warning/10 text-warning" },
-  { icon: Users, title: "No Friction", desc: "Invite via link. Friends join without creating an account.", accent: "bg-primary/10 text-primary" },
-  { icon: Shield, title: "Private & Secure", desc: "Your financial data stays protected with role-based access.", accent: "bg-destructive/10 text-destructive" },
-  { icon: Smartphone, title: "Mobile First", desc: "Designed for phones. Track expenses on the go, anytime.", accent: "bg-success/10 text-success" },
-];
+{ icon: Clock, title: "Save Hours", desc: "Stop calculating manually. Our algorithm does it in seconds.", accent: "bg-primary/10 text-primary" },
+{ icon: HandCoins, title: "Fair Splits", desc: "Choose who's in each expense. Only pay your actual share.", accent: "bg-success/10 text-success" },
+{ icon: Eye, title: "Full Transparency", desc: "Everyone sees every expense. No hidden costs or surprises.", accent: "bg-warning/10 text-warning" },
+{ icon: Users, title: "No Friction", desc: "Invite via link. Friends join without creating an account.", accent: "bg-primary/10 text-primary" },
+{ icon: Shield, title: "Private & Secure", desc: "Your financial data stays protected with role-based access.", accent: "bg-destructive/10 text-destructive" },
+{ icon: Smartphone, title: "Mobile First", desc: "Designed for phones. Track expenses on the go, anytime.", accent: "bg-success/10 text-success" }];
+
 
 const features = [
-  { icon: Plane, title: "Trip Management", desc: "Create trips with dates, destinations & invite companions instantly." },
-  { icon: Receipt, title: "Smart Expenses", desc: "6 categories: Food, Stay, Travel, Shopping, Activities, Other." },
-  { icon: Calculator, title: "Settlement Engine", desc: "Minimum-transactions algorithm settles complex debts in seconds." },
-  { icon: Users, title: "Flexible Members", desc: "Add registered users or guests — everyone participates seamlessly." },
-  { icon: QrCode, title: "Invite Links", desc: "Share a unique link. One click to join any trip instantly." },
-  { icon: CreditCard, title: "Payment Tracking", desc: "Record settlements with real-time balance updates." },
-  { icon: PieChart, title: "Visual Analytics", desc: "Category breakdowns with progress bars at a glance." },
-  { icon: History, title: "Payment History", desc: "Full audit trail of every settlement and transaction." },
-  { icon: Globe, title: "Real-Time Sync", desc: "Instant updates across all devices — no refresh needed." },
-];
+{ icon: Plane, title: "Trip Management", desc: "Create trips with dates, destinations & invite companions instantly." },
+{ icon: Receipt, title: "Smart Expenses", desc: "6 categories: Food, Stay, Travel, Shopping, Activities, Other." },
+{ icon: Calculator, title: "Settlement Engine", desc: "Minimum-transactions algorithm settles complex debts in seconds." },
+{ icon: Users, title: "Flexible Members", desc: "Add registered users or guests — everyone participates seamlessly." },
+{ icon: QrCode, title: "Invite Links", desc: "Share a unique link. One click to join any trip instantly." },
+{ icon: CreditCard, title: "Payment Tracking", desc: "Record settlements with real-time balance updates." },
+{ icon: PieChart, title: "Visual Analytics", desc: "Category breakdowns with progress bars at a glance." },
+{ icon: History, title: "Payment History", desc: "Full audit trail of every settlement and transaction." },
+{ icon: Globe, title: "Real-Time Sync", desc: "Instant updates across all devices — no refresh needed." }];
+
 
 const steps = [
-  { num: "01", title: "Create a Trip", desc: "Set destination, dates & member mode in 30 seconds.", emoji: "✈️" },
-  { num: "02", title: "Add Expenses", desc: "Log amounts, pick a category, select who's splitting.", emoji: "📝" },
-  { num: "03", title: "See Balances", desc: "Real-time view of who owes whom — always accurate.", emoji: "📊" },
-  { num: "04", title: "Settle & Share", desc: "One-tap settlement. Share summary on WhatsApp.", emoji: "🤝" },
-];
+{ num: "01", title: "Create a Trip", desc: "Set destination, dates & member mode in 30 seconds.", emoji: "✈️" },
+{ num: "02", title: "Add Expenses", desc: "Log amounts, pick a category, select who's splitting.", emoji: "📝" },
+{ num: "03", title: "See Balances", desc: "Real-time view of who owes whom — always accurate.", emoji: "📊" },
+{ num: "04", title: "Settle & Share", desc: "One-tap settlement. Share summary on WhatsApp.", emoji: "🤝" }];
+
 
 const testimonials = [
-  { quote: "TripSplit eliminated every awkward money moment on our Europe trip. It just works.", author: "Priya M.", role: "Adventure Traveler", avatar: "🌍" },
-  { quote: "The settlement algorithm is brilliant. Complex group expenses resolved in seconds.", author: "Rahul K.", role: "Group Organizer", avatar: "✈️" },
-  { quote: "WhatsApp sharing is genius. Friends who don't have the app can still participate.", author: "Sneha P.", role: "Weekend Explorer", avatar: "🏖️" },
-];
+{ quote: "TripSplit eliminated every awkward money moment on our Europe trip. It just works.", author: "Priya M.", role: "Adventure Traveler", avatar: "🌍" },
+{ quote: "The settlement algorithm is brilliant. Complex group expenses resolved in seconds.", author: "Rahul K.", role: "Group Organizer", avatar: "✈️" },
+{ quote: "WhatsApp sharing is genius. Friends who don't have the app can still participate.", author: "Sneha P.", role: "Weekend Explorer", avatar: "🏖️" }];
+
 
 const faqs = [
-  { q: "Is TripSplit really free?", a: "Yes, 100% free forever. No hidden charges, no premium plans, no ads." },
-  { q: "Do all members need an account?", a: "No! Trip creators can add guest members who don't need to sign up. They can still be part of expense tracking." },
-  { q: "How does the settlement work?", a: "Our algorithm calculates the minimum number of transactions needed to settle all debts. One person pays one other person — no chain of payments." },
-  { q: "Can I share expenses on WhatsApp?", a: "Absolutely! You can share trip summaries, settlement details, and invite links directly via WhatsApp with one tap." },
-  { q: "Is my financial data secure?", a: "Yes. We use role-based access control. Only trip members can see trip data, and creators have admin control." },
-];
+{ q: "Is TripSplit really free?", a: "Yes, 100% free forever. No hidden charges, no premium plans, no ads." },
+{ q: "Do all members need an account?", a: "No! Trip creators can add guest members who don't need to sign up. They can still be part of expense tracking." },
+{ q: "How does the settlement work?", a: "Our algorithm calculates the minimum number of transactions needed to settle all debts. One person pays one other person — no chain of payments." },
+{ q: "Can I share expenses on WhatsApp?", a: "Absolutely! You can share trip summaries, settlement details, and invite links directly via WhatsApp with one tap." },
+{ q: "Is my financial data secure?", a: "Yes. We use role-based access control. Only trip members can see trip data, and creators have admin control." }];
+
 
 /* ═══ COMPONENT ═══ */
 export default function Landing() {
@@ -208,20 +208,20 @@ export default function Landing() {
             className="absolute -top-[40%] -left-[20%] w-[140%] h-[80%] rounded-[50%] opacity-60 blur-[120px]"
             style={{ background: "linear-gradient(135deg, hsl(var(--primary) / 0.18), hsl(var(--success) / 0.12), hsl(var(--primary) / 0.08))" }}
             animate={{ rotate: [0, 8, -5, 0], scale: [1, 1.05, 0.97, 1], x: [0, 30, -20, 0] }}
-            transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-          />
+            transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }} />
+
           <motion.div
             className="absolute -bottom-[30%] -right-[15%] w-[120%] h-[70%] rounded-[50%] opacity-50 blur-[100px]"
             style={{ background: "linear-gradient(225deg, hsl(var(--primary) / 0.15), hsl(var(--warning) / 0.08), transparent)" }}
             animate={{ rotate: [0, -6, 4, 0], scale: [1, 0.96, 1.04, 1], y: [0, -20, 15, 0] }}
-            transition={{ duration: 30, repeat: Infinity, ease: "easeInOut", delay: 3 }}
-          />
+            transition={{ duration: 30, repeat: Infinity, ease: "easeInOut", delay: 3 }} />
+
           <motion.div
             className="absolute top-[30%] left-[50%] -translate-x-1/2 w-[60%] h-[40%] rounded-[50%] opacity-30 blur-[80px]"
             style={{ background: "radial-gradient(circle, hsl(var(--primary) / 0.12), transparent 70%)" }}
             animate={{ scale: [0.9, 1.15, 0.9], opacity: [0.2, 0.4, 0.2] }}
-            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-          />
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }} />
+
 
           {/* Dot matrix pattern */}
           <div className="absolute inset-0 opacity-[0.025]" style={{ backgroundImage: "radial-gradient(hsl(var(--foreground)) 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
@@ -231,76 +231,76 @@ export default function Landing() {
             <motion.div
               className="absolute inset-0 rounded-full border border-primary/[0.06]"
               animate={{ rotate: 360 }}
-              transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-            >
+              transition={{ duration: 60, repeat: Infinity, ease: "linear" }}>
+
               <div className="absolute -top-1 left-1/2 w-2 h-2 rounded-full bg-primary/20" />
             </motion.div>
             <motion.div
               className="absolute inset-[15%] rounded-full border border-primary/[0.04]"
               animate={{ rotate: -360 }}
-              transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
-            >
+              transition={{ duration: 45, repeat: Infinity, ease: "linear" }}>
+
               <div className="absolute -bottom-1 right-[20%] w-1.5 h-1.5 rounded-full bg-success/25" />
             </motion.div>
             <motion.div
               className="absolute inset-[30%] rounded-full border border-primary/[0.03]"
               animate={{ rotate: 360 }}
-              transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
-            >
+              transition={{ duration: 35, repeat: Infinity, ease: "linear" }}>
+
               <div className="absolute top-[10%] -left-1 w-1.5 h-1.5 rounded-full bg-warning/20" />
             </motion.div>
           </div>
 
           {/* Floating currency symbols */}
           {[
-            { char: "₹", x: "12%", y: "20%", dur: 14, size: "text-2xl sm:text-4xl" },
-            { char: "$", x: "82%", y: "25%", dur: 18, size: "text-xl sm:text-3xl" },
-            { char: "€", x: "75%", y: "70%", dur: 16, size: "text-lg sm:text-2xl" },
-            { char: "£", x: "8%", y: "72%", dur: 20, size: "text-xl sm:text-3xl" },
-            { char: "¥", x: "88%", y: "50%", dur: 15, size: "text-lg sm:text-2xl" },
-          ].map((c, i) => (
-            <motion.span
-              key={i}
-              className={`absolute ${c.size} font-black pointer-events-none select-none`}
-              style={{ left: c.x, top: c.y, color: "hsl(var(--primary) / 0.06)" }}
-              animate={{ y: [-20, 20, -20], rotate: [-10, 10, -10], opacity: [0.04, 0.1, 0.04] }}
-              transition={{ duration: c.dur, repeat: Infinity, ease: "easeInOut", delay: i * 1.5 }}
-            >
+          { char: "₹", x: "12%", y: "20%", dur: 14, size: "text-2xl sm:text-4xl" },
+          { char: "$", x: "82%", y: "25%", dur: 18, size: "text-xl sm:text-3xl" },
+          { char: "€", x: "75%", y: "70%", dur: 16, size: "text-lg sm:text-2xl" },
+          { char: "£", x: "8%", y: "72%", dur: 20, size: "text-xl sm:text-3xl" },
+          { char: "¥", x: "88%", y: "50%", dur: 15, size: "text-lg sm:text-2xl" }].
+          map((c, i) =>
+          <motion.span
+            key={i}
+            className={`absolute ${c.size} font-black pointer-events-none select-none`}
+            style={{ left: c.x, top: c.y, color: "hsl(var(--primary) / 0.06)" }}
+            animate={{ y: [-20, 20, -20], rotate: [-10, 10, -10], opacity: [0.04, 0.1, 0.04] }}
+            transition={{ duration: c.dur, repeat: Infinity, ease: "easeInOut", delay: i * 1.5 }}>
+
               {c.char}
             </motion.span>
-          ))}
+          )}
 
           {/* Floating emojis */}
           {[
-            { emoji: "✈️", x: "20%", y: "35%", dur: 22 },
-            { emoji: "🏖️", x: "78%", y: "40%", dur: 19 },
-            { emoji: "🗺️", x: "65%", y: "18%", dur: 24 },
-            { emoji: "🧳", x: "30%", y: "75%", dur: 17 },
-          ].map((e, i) => (
-            <motion.span
-              key={i}
-              className="absolute text-xl sm:text-2xl pointer-events-none select-none opacity-[0.07]"
-              style={{ left: e.x, top: e.y }}
-              animate={{ y: [-15, 15, -15], x: [-8, 8, -8], rotate: [-15, 15, -15] }}
-              transition={{ duration: e.dur, repeat: Infinity, ease: "easeInOut", delay: i * 2 }}
-            >
+          { emoji: "✈️", x: "20%", y: "35%", dur: 22 },
+          { emoji: "🏖️", x: "78%", y: "40%", dur: 19 },
+          { emoji: "🗺️", x: "65%", y: "18%", dur: 24 },
+          { emoji: "🧳", x: "30%", y: "75%", dur: 17 }].
+          map((e, i) =>
+          <motion.span
+            key={i}
+            className="absolute text-xl sm:text-2xl pointer-events-none select-none opacity-[0.07]"
+            style={{ left: e.x, top: e.y }}
+            animate={{ y: [-15, 15, -15], x: [-8, 8, -8], rotate: [-15, 15, -15] }}
+            transition={{ duration: e.dur, repeat: Infinity, ease: "easeInOut", delay: i * 2 }}>
+
               {e.emoji}
             </motion.span>
-          ))}
+          )}
 
           {/* Glowing accent lines */}
           <motion.div
             className="absolute top-[25%] left-0 w-full h-px"
             style={{ background: "linear-gradient(90deg, transparent, hsl(var(--primary) / 0.08), transparent)" }}
             animate={{ opacity: [0, 0.6, 0], x: ["-100%", "0%", "100%"] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          />
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }} />
+
           <motion.div
             className="absolute bottom-[30%] left-0 w-full h-px"
             style={{ background: "linear-gradient(90deg, transparent, hsl(var(--success) / 0.06), transparent)" }}
             animate={{ opacity: [0, 0.5, 0], x: ["100%", "0%", "-100%"] }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 4 }}
-          />
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 4 }} />
+
         </div>
 
         {/* Hero content */}
@@ -320,24 +320,24 @@ export default function Landing() {
               <br />
               <span className="relative inline-block mt-1 sm:mt-2">
                 <WordReveal text="Not Friendships." delay={0.6} className="bg-gradient-to-r from-primary via-primary/90 to-primary/60 bg-clip-text text-transparent" />
-                <motion.div 
-                  initial={{ scaleX: 0 }} 
-                  animate={{ scaleX: 1 }} 
-                  transition={{ delay: 1.3, duration: 0.7, ease: [0.16, 1, 0.3, 1] }} 
-                  className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-1 sm:h-1.5 rounded-full origin-left overflow-hidden"
-                >
+                <motion.div
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: 1.3, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                  className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-1 sm:h-1.5 rounded-full origin-left overflow-hidden">
+
                   <div className="w-full h-full bg-gradient-to-r from-primary/40 via-primary/20 to-transparent" />
                 </motion.div>
               </span>
             </h1>
 
             {/* Subtitle */}
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              transition={{ delay: 1.1, duration: 0.6 }} 
-              className="text-sm sm:text-lg md:text-xl text-muted-foreground max-w-sm sm:max-w-lg leading-relaxed mb-7 sm:mb-9"
-            >
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.1, duration: 0.6 }}
+              className="text-sm sm:text-lg md:text-xl text-muted-foreground max-w-sm sm:max-w-lg leading-relaxed mb-7 sm:mb-9">
+
               Track, split & settle group travel expenses effortlessly. 
               <span className="hidden sm:inline"> You make the memories — we handle the math.</span>
               <span className="sm:hidden"> We handle the math.</span>
@@ -359,12 +359,12 @@ export default function Landing() {
             </motion.div>
 
             {/* Floating mini app preview cards */}
-            <motion.div 
-              initial={{ opacity: 0, y: 30 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              transition={{ delay: 1.6, duration: 0.8 }} 
-              className="relative w-full max-w-lg sm:max-w-2xl"
-            >
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.6, duration: 0.8 }}
+              className="relative w-full max-w-lg sm:max-w-2xl">
+
               {/* Glass card — app mock */}
               <div className="relative rounded-2xl sm:rounded-3xl border border-border/60 bg-card/50 backdrop-blur-xl shadow-2xl overflow-hidden p-4 sm:p-6">
                 {/* Card inner glow */}
@@ -373,38 +373,38 @@ export default function Landing() {
                 <div className="relative grid grid-cols-3 gap-2 sm:gap-3 mb-3 sm:mb-4">
                   {/* Mini stat cards */}
                   {[
-                    { label: "Total Spent", value: "₹45,200", icon: "💰", color: "from-primary/10 to-primary/5" },
-                    { label: "Members", value: "4", icon: "👥", color: "from-success/10 to-success/5" },
-                    { label: "Settlements", value: "2 left", icon: "🤝", color: "from-warning/10 to-warning/5" },
-                  ].map((card, i) => (
-                    <motion.div
-                      key={i}
-                      className={`rounded-xl border border-border/50 bg-gradient-to-br ${card.color} p-2.5 sm:p-3`}
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 1.9 + i * 0.15 }}
-                    >
+                  { label: "Total Spent", value: "₹45,200", icon: "💰", color: "from-primary/10 to-primary/5" },
+                  { label: "Members", value: "4", icon: "👥", color: "from-success/10 to-success/5" },
+                  { label: "Settlements", value: "2 left", icon: "🤝", color: "from-warning/10 to-warning/5" }].
+                  map((card, i) =>
+                  <motion.div
+                    key={i}
+                    className={`rounded-xl border border-border/50 bg-gradient-to-br ${card.color} p-2.5 sm:p-3`}
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.9 + i * 0.15 }}>
+
                       <div className="text-base sm:text-lg mb-0.5">{card.icon}</div>
                       <div className="text-xs sm:text-sm font-bold text-foreground">{card.value}</div>
                       <div className="text-[9px] sm:text-[10px] text-muted-foreground font-medium">{card.label}</div>
                     </motion.div>
-                  ))}
+                  )}
                 </div>
 
                 {/* Mini expense rows */}
                 <div className="space-y-1.5 sm:space-y-2">
                   {[
-                    { title: "Dinner at Beach Shack", amount: "₹2,400", by: "Priya", cat: "🍕" },
-                    { title: "Taxi to Airport", amount: "₹1,800", by: "Rahul", cat: "🚕" },
-                    { title: "Hotel Stay — 2 nights", amount: "₹8,500", by: "Amit", cat: "🏨" },
-                  ].map((exp, i) => (
-                    <motion.div
-                      key={i}
-                      className="flex items-center gap-2.5 sm:gap-3 rounded-lg sm:rounded-xl bg-background/60 border border-border/30 p-2 sm:p-2.5"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 2.3 + i * 0.12 }}
-                    >
+                  { title: "Dinner at Beach Shack", amount: "₹2,400", by: "Priya", cat: "🍕" },
+                  { title: "Taxi to Airport", amount: "₹1,800", by: "Rahul", cat: "🚕" },
+                  { title: "Hotel Stay — 2 nights", amount: "₹8,500", by: "Amit", cat: "🏨" }].
+                  map((exp, i) =>
+                  <motion.div
+                    key={i}
+                    className="flex items-center gap-2.5 sm:gap-3 rounded-lg sm:rounded-xl bg-background/60 border border-border/30 p-2 sm:p-2.5"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 2.3 + i * 0.12 }}>
+
                       <div className="text-sm sm:text-base">{exp.cat}</div>
                       <div className="flex-1 min-w-0">
                         <div className="text-[11px] sm:text-xs font-semibold text-foreground truncate">{exp.title}</div>
@@ -412,7 +412,7 @@ export default function Landing() {
                       </div>
                       <div className="text-[11px] sm:text-xs font-bold text-foreground">{exp.amount}</div>
                     </motion.div>
-                  ))}
+                  )}
                 </div>
               </div>
 
@@ -420,15 +420,15 @@ export default function Landing() {
               <motion.div
                 className="absolute -top-3 -right-2 sm:-top-4 sm:-right-4 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-success text-success-foreground text-[9px] sm:text-[10px] font-bold shadow-lg"
                 animate={{ y: [-3, 3, -3], rotate: [-2, 2, -2] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              >
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
+
                 Real-time sync ⚡
               </motion.div>
               <motion.div
                 className="absolute -bottom-2 -left-2 sm:-bottom-3 sm:-left-3 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-primary text-primary-foreground text-[9px] sm:text-[10px] font-bold shadow-lg"
                 animate={{ y: [3, -3, 3], rotate: [2, -2, 2] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              >
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}>
+
                 Smart splits ✨
               </motion.div>
             </motion.div>
@@ -457,14 +457,14 @@ export default function Landing() {
             </div>
           </Reveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            {problems.map((p, i) => (
-              <Reveal key={i} delay={i * 0.05}>
+            {problems.map((p, i) =>
+            <Reveal key={i} delay={i * 0.05}>
                 <div className="flex items-start gap-3 rounded-xl border border-destructive/15 bg-destructive/5 p-4">
                   <XIcon className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
                   <span className="text-sm text-foreground">{p}</span>
                 </div>
               </Reveal>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -484,14 +484,14 @@ export default function Landing() {
             </div>
           </Reveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            {solutions.map((s, i) => (
-              <Reveal key={i} delay={i * 0.05}>
+            {solutions.map((s, i) =>
+            <Reveal key={i} delay={i * 0.05}>
                 <div className="flex items-start gap-3 rounded-xl border border-success/15 bg-success/5 p-4">
                   <Check className="h-4 w-4 text-success shrink-0 mt-0.5" />
                   <span className="text-sm text-foreground">{s}</span>
                 </div>
               </Reveal>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -511,8 +511,8 @@ export default function Landing() {
             </div>
           </Reveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {whyReasons.map((r, i) => (
-              <Reveal key={i} delay={i * 0.05}>
+            {whyReasons.map((r, i) =>
+            <Reveal key={i} delay={i * 0.05}>
                 <div className="group h-full rounded-2xl border border-border bg-card p-4 sm:p-5 hover:border-primary/20 hover:shadow-lg transition-all duration-400">
                   <div className={`h-10 w-10 rounded-xl ${r.accent} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}>
                     <r.icon className="h-5 w-5" />
@@ -521,7 +521,7 @@ export default function Landing() {
                   <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{r.desc}</p>
                 </div>
               </Reveal>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -542,8 +542,8 @@ export default function Landing() {
           </Reveal>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {steps.map((s, i) => (
-              <Reveal key={i} delay={i * 0.08}>
+            {steps.map((s, i) =>
+            <Reveal key={i} delay={i * 0.08}>
                 <div className="relative rounded-2xl border border-border bg-card p-4 sm:p-5 text-center hover:shadow-lg hover:border-primary/20 transition-all duration-300">
                   <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 h-5 px-2.5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center shadow-md ring-2 ring-background">
                     {s.num}
@@ -553,7 +553,7 @@ export default function Landing() {
                   <p className="text-xs sm:text-sm text-muted-foreground">{s.desc}</p>
                 </div>
               </Reveal>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -573,8 +573,8 @@ export default function Landing() {
             </div>
           </Reveal>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {features.map((f, i) => (
-              <Reveal key={i} delay={i * 0.04}>
+            {features.map((f, i) =>
+            <Reveal key={i} delay={i * 0.04}>
                 <div className="group flex items-start gap-3.5 rounded-xl border border-border bg-card p-4 hover:border-primary/20 hover:shadow-lg transition-all duration-400">
                   <div className="h-10 w-10 shrink-0 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <f.icon className="h-5 w-5" />
@@ -585,7 +585,7 @@ export default function Landing() {
                   </div>
                 </div>
               </Reveal>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -609,16 +609,16 @@ export default function Landing() {
                   </p>
                   <ul className="space-y-2">
                     {[
-                      "Complete expense breakdown by category",
-                      "Clear 'who pays whom' settlement list",
-                      "Invite friends via WhatsApp link",
-                      "No app download needed to view",
-                    ].map((item, i) => (
-                      <li key={i} className="flex items-center gap-2.5 text-sm text-foreground">
+                    "Complete expense breakdown by category",
+                    "Clear 'who pays whom' settlement list",
+                    "Invite friends via WhatsApp link",
+                    "No app download needed to view"].
+                    map((item, i) =>
+                    <li key={i} className="flex items-center gap-2.5 text-sm text-foreground">
                         <Check className="h-4 w-4 text-success shrink-0" />
                         {item}
                       </li>
-                    ))}
+                    )}
                   </ul>
                 </div>
                 <div className="p-6 sm:p-8 md:p-10 flex items-center justify-center bg-gradient-to-br from-success/5 to-success/10">
@@ -665,8 +665,8 @@ export default function Landing() {
             </div>
           </Reveal>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {testimonials.map((t, i) => (
-              <Reveal key={i} delay={i * 0.08}>
+            {testimonials.map((t, i) =>
+            <Reveal key={i} delay={i * 0.08}>
                 <div className="h-full rounded-2xl border border-border bg-card p-5 flex flex-col">
                   <div className="flex gap-0.5 mb-3 text-warning text-sm">★★★★★</div>
                   <p className="text-foreground leading-relaxed text-sm flex-1 mb-4">"{t.quote}"</p>
@@ -679,7 +679,7 @@ export default function Landing() {
                   </div>
                 </div>
               </Reveal>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -695,29 +695,29 @@ export default function Landing() {
             </div>
           </Reveal>
           <div className="space-y-2">
-            {faqs.map((faq, i) => (
-              <Reveal key={i} delay={i * 0.05}>
+            {faqs.map((faq, i) =>
+            <Reveal key={i} delay={i * 0.05}>
                 <div className="rounded-xl border border-border bg-card overflow-hidden">
                   <button
-                    onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                    className="w-full flex items-center justify-between p-4 text-left"
-                  >
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                  className="w-full flex items-center justify-between p-4 text-left">
+
                     <span className="text-sm sm:text-base font-bold text-foreground pr-4">{faq.q}</span>
                     <ChevronDown className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform duration-300 ${openFaq === i ? "rotate-180" : ""}`} />
                   </button>
                   <motion.div
-                    initial={false}
-                    animate={{ height: openFaq === i ? "auto" : 0, opacity: openFaq === i ? 1 : 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="overflow-hidden"
-                  >
+                  initial={false}
+                  animate={{ height: openFaq === i ? "auto" : 0, opacity: openFaq === i ? 1 : 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="overflow-hidden">
+
                     <div className="px-4 pb-4 text-sm text-muted-foreground leading-relaxed">
                       {faq.a}
                     </div>
                   </motion.div>
                 </div>
               </Reveal>
-            ))}
+            )}
           </div>
         </div>
       </section>
@@ -742,7 +742,7 @@ export default function Landing() {
                     <Link to="/auth?tab=signup">Create Free Account <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" /></Link>
                   </Button>
                   <Button size="lg" variant="outline" asChild className="w-full sm:w-auto text-sm sm:text-base px-7 py-5 sm:py-6 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 rounded-full">
-                    <Link to="/auth?tab=login">Sign In</Link>
+                    <Link to="/auth?tab=login" className="text-primary-foreground">Sign In</Link>
                   </Button>
                 </div>
               </div>
@@ -775,6 +775,6 @@ export default function Landing() {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>);
+
 }
