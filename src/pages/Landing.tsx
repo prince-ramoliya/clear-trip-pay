@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
   Plane, Users, Receipt, Calculator, Shield, Check,
@@ -51,6 +51,55 @@ function WordReveal({ text, className = "", delay = 0 }: { text: string; classNa
         </motion.span>
       ))}
     </span>
+  );
+}
+
+/* ─── Floating Orb ─── */
+function FloatingOrb({ size, x, y, color, duration, delayStart = 0 }: { size: number; x: string; y: string; color: string; duration: number; delayStart?: number }) {
+  return (
+    <motion.div
+      className="absolute rounded-full blur-3xl pointer-events-none"
+      style={{ width: size, height: size, left: x, top: y, background: color }}
+      animate={{
+        x: [0, 30, -20, 15, 0],
+        y: [0, -25, 15, -10, 0],
+        scale: [1, 1.15, 0.9, 1.1, 1],
+        opacity: [0.4, 0.7, 0.5, 0.65, 0.4],
+      }}
+      transition={{ duration, repeat: Infinity, ease: "easeInOut", delay: delayStart }}
+    />
+  );
+}
+
+/* ─── Morphing blob ─── */
+function MorphBlob({ className, color, duration }: { className: string; color: string; duration: number }) {
+  return (
+    <motion.div
+      className={`absolute pointer-events-none ${className}`}
+      style={{ background: color }}
+      animate={{
+        borderRadius: [
+          "40% 60% 70% 30% / 40% 50% 60% 50%",
+          "70% 30% 50% 50% / 30% 30% 70% 70%",
+          "50% 60% 30% 60% / 60% 40% 60% 40%",
+          "40% 60% 70% 30% / 40% 50% 60% 50%",
+        ],
+        scale: [1, 1.08, 0.95, 1],
+      }}
+      transition={{ duration, repeat: Infinity, ease: "easeInOut" }}
+    />
+  );
+}
+
+/* ─── Particle ─── */
+function Particle({ delay, x, y }: { delay: number; x: string; y: string }) {
+  return (
+    <motion.div
+      className="absolute w-1 h-1 rounded-full pointer-events-none"
+      style={{ left: x, top: y, background: "hsl(var(--primary) / 0.4)" }}
+      animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0], y: [0, -40, -80] }}
+      transition={{ duration: 3, repeat: Infinity, delay, ease: "easeOut" }}
+    />
   );
 }
 
@@ -128,9 +177,9 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden">
+    <div className="min-h-screen bg-background overflow-x-hidden font-sans">
 
-      {/* ══════ 1. NAVBAR — always visible buttons ══════ */}
+      {/* ══════ 1. NAVBAR ══════ */}
       <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${isScrolled ? "bg-background/80 backdrop-blur-2xl border-b border-border/50 shadow-sm" : "bg-transparent"}`}>
         <div className="max-w-6xl mx-auto px-3 sm:px-6 flex items-center justify-between h-14">
           <Link to="/" className="flex items-center gap-2">
@@ -139,7 +188,6 @@ export default function Landing() {
             </div>
             <span className="text-base sm:text-lg font-bold text-foreground tracking-tight">TripSplit</span>
           </Link>
-          {/* Always visible — mobile & desktop */}
           <div className="flex items-center gap-1.5 sm:gap-2">
             <Button variant="ghost" size="sm" asChild className="font-medium text-xs sm:text-sm h-8 sm:h-9 px-2.5 sm:px-4">
               <Link to="/auth?tab=login">Sign In</Link>
@@ -151,30 +199,100 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* ══════ 2. HERO ══════ */}
+      {/* ══════ 2. HERO — immersive animated ══════ */}
       <section className="relative min-h-[100dvh] flex flex-col justify-center overflow-hidden px-4 sm:px-6">
-        {/* Background */}
-        <div className="absolute inset-0 -z-10">
-          <motion.div animate={{ scale: [1, 1.12, 1], rotate: [0, 6, 0] }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="absolute -top-[18%] -right-[12%] w-[65vw] h-[65vw] max-w-[650px] max-h-[650px] rounded-full" style={{ background: "radial-gradient(circle, hsl(var(--primary) / 0.12) 0%, transparent 70%)" }} />
-          <motion.div animate={{ scale: [1, 1.08, 1] }} transition={{ duration: 25, repeat: Infinity, ease: "linear" }} className="absolute -bottom-[18%] -left-[12%] w-[55vw] h-[55vw] max-w-[550px] max-h-[550px] rounded-full" style={{ background: "radial-gradient(circle, hsl(var(--primary) / 0.08) 0%, transparent 70%)" }} />
-          <motion.div animate={{ y: [-15, 15, -15], rotate: [0, 45, 0] }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }} className="absolute top-[20%] right-[7%] w-14 h-14 sm:w-20 sm:h-20 rounded-2xl border-2 border-primary/10 bg-primary/5" />
-          <motion.div animate={{ y: [12, -12, 12], rotate: [45, 0, 45] }} transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }} className="absolute bottom-[24%] left-[5%] w-10 h-10 sm:w-16 sm:h-16 rounded-full border-2 border-primary/8 bg-primary/3" />
-          <motion.div animate={{ y: [8, -16, 8], x: [-8, 8, -8] }} transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }} className="absolute top-[42%] left-[14%] w-7 h-7 sm:w-12 sm:h-12 rounded-lg border border-primary/10 bg-primary/5 rotate-12" />
-          <div className="absolute inset-0 opacity-[0.02]" style={{ backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`, backgroundSize: "50px 50px" }} />
+        {/* ── Animated background layer ── */}
+        <div className="absolute inset-0 -z-10 overflow-hidden">
+          {/* Gradient mesh */}
+          <div className="absolute inset-0" style={{
+            background: `
+              radial-gradient(ellipse 80% 60% at 10% 20%, hsl(var(--primary) / 0.08) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 80% at 90% 80%, hsl(var(--primary) / 0.06) 0%, transparent 60%),
+              radial-gradient(ellipse 50% 50% at 50% 50%, hsl(var(--primary) / 0.03) 0%, transparent 70%)
+            `
+          }} />
+
+          {/* Floating orbs */}
+          <FloatingOrb size={280} x="-5%" y="-8%" color="hsl(var(--primary) / 0.12)" duration={18} />
+          <FloatingOrb size={200} x="75%" y="10%" color="hsl(var(--primary) / 0.09)" duration={22} delayStart={3} />
+          <FloatingOrb size={160} x="60%" y="65%" color="hsl(var(--success) / 0.08)" duration={20} delayStart={6} />
+          <FloatingOrb size={120} x="10%" y="70%" color="hsl(var(--warning) / 0.07)" duration={16} delayStart={2} />
+          <FloatingOrb size={100} x="40%" y="15%" color="hsl(var(--primary) / 0.06)" duration={24} delayStart={8} />
+
+          {/* Morphing blobs */}
+          <MorphBlob className="w-[400px] h-[400px] -top-[100px] -right-[100px] opacity-30" color="hsl(var(--primary) / 0.1)" duration={15} />
+          <MorphBlob className="w-[300px] h-[300px] -bottom-[80px] -left-[60px] opacity-25" color="hsl(var(--primary) / 0.08)" duration={18} />
+          <MorphBlob className="w-[200px] h-[200px] top-[40%] right-[10%] opacity-20" color="hsl(var(--success) / 0.07)" duration={12} />
+
+          {/* Animated grid lines */}
+          <motion.div
+            className="absolute inset-0 opacity-[0.03]"
+            style={{ backgroundImage: `linear-gradient(hsl(var(--foreground)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--foreground)) 1px, transparent 1px)`, backgroundSize: "60px 60px" }}
+            animate={{ backgroundPosition: ["0px 0px", "60px 60px"] }}
+            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          />
+
+          {/* Floating particles */}
+          {[
+            { x: "15%", y: "25%", d: 0 }, { x: "80%", y: "30%", d: 1.5 },
+            { x: "45%", y: "60%", d: 3 }, { x: "70%", y: "75%", d: 4.5 },
+            { x: "25%", y: "80%", d: 2 }, { x: "55%", y: "20%", d: 5 },
+            { x: "90%", y: "55%", d: 1 }, { x: "35%", y: "45%", d: 6 },
+            { x: "8%", y: "50%", d: 3.5 }, { x: "65%", y: "40%", d: 7 },
+          ].map((p, i) => <Particle key={i} x={p.x} y={p.y} delay={p.d} />)}
+
+          {/* Floating geometric shapes */}
+          <motion.div
+            className="absolute top-[18%] right-[8%] w-16 h-16 sm:w-24 sm:h-24 border-2 border-primary/10 rounded-2xl"
+            animate={{ y: [-20, 20, -20], rotate: [0, 90, 180, 270, 360] }}
+            transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute bottom-[22%] left-[6%] w-12 h-12 sm:w-20 sm:h-20 border-2 border-primary/8 rounded-full"
+            animate={{ y: [15, -15, 15], scale: [1, 1.2, 1] }}
+            transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute top-[50%] left-[18%] w-8 h-8 sm:w-14 sm:h-14 bg-primary/5 border border-primary/10"
+            animate={{ rotate: [45, 135, 225, 315, 405], y: [-10, 10, -10] }}
+            transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute top-[30%] right-[25%] w-6 h-6 sm:w-10 sm:h-10 rounded-full bg-success/8 border border-success/10"
+            animate={{ x: [-15, 15, -15], y: [10, -10, 10], opacity: [0.3, 0.8, 0.3] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute bottom-[35%] right-[15%] w-10 h-10 sm:w-16 sm:h-16 rounded-xl bg-warning/5 border border-warning/8"
+            animate={{ rotate: [0, -45, 0, 45, 0], scale: [0.9, 1.1, 0.9] }}
+            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+          />
+
+          {/* Animated rings */}
+          <motion.div
+            className="absolute top-[15%] left-[45%] w-32 h-32 sm:w-48 sm:h-48 rounded-full border border-primary/5"
+            animate={{ scale: [1, 1.5, 1], opacity: [0.1, 0.3, 0.1] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div
+            className="absolute bottom-[15%] right-[30%] w-24 h-24 sm:w-36 sm:h-36 rounded-full border border-primary/5"
+            animate={{ scale: [1.3, 1, 1.3], opacity: [0.15, 0.05, 0.15] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          />
         </div>
 
         <motion.div style={{ y: heroParallax, opacity: heroOpacity }} className="max-w-5xl mx-auto w-full pt-14">
           <div className="flex flex-col items-center text-center">
             {/* Badge */}
             <motion.div initial={{ opacity: 0, y: 16, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ delay: 0.2 }} className="mb-5 sm:mb-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-card border border-border shadow-sm">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/80 border border-border/80 shadow-lg backdrop-blur-sm">
                 <span className="relative flex h-2 w-2"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75" /><span className="relative inline-flex rounded-full h-2 w-2 bg-success" /></span>
                 <span className="text-[11px] sm:text-sm font-semibold text-foreground">100% Free · No Ads · Open for Everyone</span>
               </div>
             </motion.div>
 
             {/* Headline */}
-            <h1 className="text-[2.2rem] leading-[1.08] sm:text-5xl md:text-6xl lg:text-7xl font-black text-foreground tracking-tight mb-4 sm:mb-6 max-w-4xl">
+            <h1 className="text-[2.4rem] leading-[1.05] sm:text-5xl md:text-6xl lg:text-7xl font-black text-foreground tracking-tight mb-4 sm:mb-6 max-w-4xl">
               <WordReveal text="Split Expenses," delay={0.3} />
               <br />
               <span className="relative inline-block">
@@ -193,18 +311,18 @@ export default function Landing() {
               <Button size="lg" asChild className="w-full sm:w-auto text-sm sm:text-base px-7 py-5 sm:py-6 shadow-xl shadow-primary/25 hover:shadow-2xl hover:shadow-primary/30 transition-all rounded-full font-bold">
                 <Link to="/auth?tab=signup">Start Splitting Free <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" /></Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="w-full sm:w-auto text-sm sm:text-base px-7 py-5 sm:py-6 rounded-full font-semibold border-2">
+              <Button size="lg" variant="outline" asChild className="w-full sm:w-auto text-sm sm:text-base px-7 py-5 sm:py-6 rounded-full font-semibold border-2 backdrop-blur-sm">
                 <a href="#how-it-works">See How It Works</a>
               </Button>
             </motion.div>
 
             {/* Stats */}
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="w-full max-w-md sm:max-w-xl">
-              <div className="flex items-center justify-center gap-4 sm:gap-8 py-4 px-3 rounded-2xl bg-card/50 border border-border/50 backdrop-blur-sm">
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 1.5 }} className="w-full max-w-md sm:max-w-xl">
+              <div className="flex items-center justify-center gap-4 sm:gap-8 py-4 px-3 rounded-2xl bg-card/60 border border-border/50 backdrop-blur-md shadow-lg">
                 {[
-                  { val: <Counter target={10000} suffix="+" />, label: "Trips" },
+                  { val: <Counter target={10000} suffix="+" />, label: "Trips Created" },
                   { val: <Counter target={50000} suffix="+" />, label: "Settlements" },
-                  { val: "4.9★", label: "Rating" },
+                  { val: "4.9★", label: "User Rating" },
                 ].map((s, i) => (
                   <div key={i} className="text-center flex-1">
                     <div className="text-lg sm:text-2xl font-black text-foreground">{s.val}</div>
@@ -235,7 +353,7 @@ export default function Landing() {
               </h2>
             </div>
           </Reveal>
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {problems.map((p, i) => (
               <Reveal key={i} delay={i * 0.05}>
                 <div className="flex items-start gap-3 rounded-xl border border-destructive/15 bg-destructive/5 p-4">
@@ -262,7 +380,7 @@ export default function Landing() {
               </h2>
             </div>
           </Reveal>
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {solutions.map((s, i) => (
               <Reveal key={i} delay={i * 0.05}>
                 <div className="flex items-start gap-3 rounded-xl border border-success/15 bg-success/5 p-4">
@@ -289,7 +407,7 @@ export default function Landing() {
               </h2>
             </div>
           </Reveal>
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {whyReasons.map((r, i) => (
               <Reveal key={i} delay={i * 0.05}>
                 <div className="group h-full rounded-2xl border border-border bg-card p-4 sm:p-5 hover:border-primary/20 hover:shadow-lg transition-all duration-400">
@@ -320,7 +438,7 @@ export default function Landing() {
             </div>
           </Reveal>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {steps.map((s, i) => (
               <Reveal key={i} delay={i * 0.08}>
                 <div className="relative rounded-2xl border border-border bg-card p-4 sm:p-5 text-center hover:shadow-lg hover:border-primary/20 transition-all duration-300">
@@ -375,7 +493,6 @@ export default function Landing() {
           <Reveal>
             <div className="rounded-2xl sm:rounded-3xl border border-border bg-card overflow-hidden">
               <div className="grid md:grid-cols-2 items-center">
-                {/* Left - Content */}
                 <div className="p-6 sm:p-8 md:p-10">
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-success/10 border border-success/20 mb-4">
                     <MessageCircle className="h-3.5 w-3.5 text-success" />
@@ -401,10 +518,8 @@ export default function Landing() {
                     ))}
                   </ul>
                 </div>
-                {/* Right - Visual */}
                 <div className="p-6 sm:p-8 md:p-10 flex items-center justify-center bg-gradient-to-br from-success/5 to-success/10">
                   <div className="w-full max-w-[260px] space-y-3">
-                    {/* Mock WhatsApp message */}
                     <div className="rounded-2xl bg-card border border-border p-4 shadow-lg">
                       <div className="flex items-center gap-2 mb-3">
                         <div className="h-8 w-8 rounded-full bg-success/20 flex items-center justify-center">
