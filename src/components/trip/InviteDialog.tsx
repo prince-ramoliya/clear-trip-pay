@@ -21,6 +21,7 @@ interface InviteDialogProps {
 
 export function InviteDialog({ open, onOpenChange, inviteCode, tripName }: InviteDialogProps) {
   const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
   const { toast } = useToast();
 
   const inviteLink = `${APP_URL}/join/${inviteCode}`;
@@ -43,9 +44,27 @@ export function InviteDialog({ open, onOpenChange, inviteCode, tripName }: Invit
     }
   };
 
+  const copyInviteCode = async () => {
+    try {
+      await navigator.clipboard.writeText(inviteCode);
+      setCopiedCode(true);
+      toast({
+        title: "Code Copied!",
+        description: "Share this code with your friends.",
+      });
+      setTimeout(() => setCopiedCode(false), 2500);
+    } catch {
+      toast({
+        title: "Failed to copy",
+        description: "Please copy manually.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const shareOnWhatsApp = () => {
     const message = encodeURIComponent(
-      `🎒 Join my trip "${tripName}" on TripSplit!\n\n🔗 Click to join: ${inviteLink}`
+      `🎒 Join my trip "${tripName}" on TripSplit!\n\n🔗 Click to join: ${inviteLink}\n\n📋 Or use code: ${inviteCode}`
     );
     window.open(`https://wa.me/?text=${message}`, "_blank");
   };
@@ -59,7 +78,7 @@ export function InviteDialog({ open, onOpenChange, inviteCode, tripName }: Invit
             Invite Friends
           </DialogTitle>
           <DialogDescription className="text-sm sm:text-base">
-            Share this link so friends can join "{tripName}".
+            Share the link or code so friends can join "{tripName}".
           </DialogDescription>
         </DialogHeader>
 
@@ -69,25 +88,34 @@ export function InviteDialog({ open, onOpenChange, inviteCode, tripName }: Invit
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               Invite Code
             </label>
-            <div className="flex items-center justify-center bg-muted/50 rounded-lg px-4 py-3 border">
-              <span className="text-xl font-mono tracking-[0.3em] text-foreground font-bold select-all">
-                {inviteCode}
-              </span>
+            <div className="flex items-center gap-2">
+              <div className="flex-1 flex items-center justify-center bg-muted/50 rounded-lg px-3 py-3 border">
+                <span className="text-lg font-mono tracking-[0.25em] text-foreground font-bold select-all break-all">
+                  {inviteCode}
+                </span>
+              </div>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-10 w-10 shrink-0 rounded-lg"
+                onClick={copyInviteCode}
+              >
+                {copiedCode ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+              </Button>
             </div>
-            <p className="text-xs text-muted-foreground text-center">
-              Friends can join using this code in the "Join Trip" dialog
-            </p>
           </div>
 
           {/* Invite Link */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Or share via link
+              Invite Link
             </label>
             <div className="flex items-center gap-2">
-              <div className="flex-1 flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2.5 border min-w-0 overflow-hidden">
+              <div className="flex-1 flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2.5 border min-w-0">
                 <Link className="h-4 w-4 text-primary shrink-0" />
-                <span className="truncate text-sm text-foreground font-medium">{inviteLink}</span>
+                <span className="text-sm text-foreground font-medium truncate break-all">
+                  {inviteLink}
+                </span>
               </div>
               <Button
                 variant="outline"
@@ -101,11 +129,11 @@ export function InviteDialog({ open, onOpenChange, inviteCode, tripName }: Invit
           </div>
 
           {/* Share Buttons */}
-          <div className="flex flex-col sm:flex-row gap-2.5">
+          <div className="flex flex-col gap-2.5">
             <Button
               variant="outline"
               onClick={copyInviteLink}
-              className="flex-1 h-11 text-base font-semibold rounded-xl"
+              className="w-full h-11 text-base font-semibold rounded-xl"
             >
               {copiedLink ? (
                 <Check className="h-5 w-5 mr-2 text-emerald-500" />
@@ -116,16 +144,16 @@ export function InviteDialog({ open, onOpenChange, inviteCode, tripName }: Invit
             </Button>
             <Button
               onClick={shareOnWhatsApp}
-              className="flex-1 h-11 text-base font-semibold rounded-xl bg-[#25D366] hover:bg-[#20BD5A] text-white"
+              className="w-full h-11 text-base font-semibold rounded-xl bg-[#25D366] hover:bg-[#20BD5A] text-white"
             >
               <MessageCircle className="h-5 w-5 mr-2" />
-              WhatsApp
+              Share on WhatsApp
             </Button>
           </div>
 
-          <div className="rounded-lg bg-muted/50 p-3 sm:p-4">
+          <div className="rounded-lg bg-muted/50 p-3">
             <h4 className="font-medium text-sm mb-1.5">How to join:</h4>
-            <ol className="text-xs sm:text-sm text-muted-foreground space-y-1 list-decimal list-inside">
+            <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
               <li>Share the link or invite code with friends</li>
               <li>They click the link or enter the code manually</li>
               <li>They enter their display name and join</li>

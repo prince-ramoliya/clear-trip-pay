@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, X, Users, UserPlus, Info } from "lucide-react";
+import { Plus, X, Users, UserPlus, Info, ChevronDown, ChevronUp, CalendarDays } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CreateTripDialogProps {
@@ -27,12 +27,12 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
   const [destination, setDestination] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [showDates, setShowDates] = useState(false);
   const [members, setMembers] = useState<string[]>([""]);
   const [loading, setLoading] = useState(false);
   const [memberMode, setMemberMode] = useState<"automatic" | "manual">("automatic");
   const [generatedCode, setGeneratedCode] = useState("");
 
-  // Generate a 12-character hex invite code
   const generatePreviewCode = () => {
     const bytes = new Uint8Array(6);
     crypto.getRandomValues(bytes);
@@ -49,7 +49,9 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !destination || !startDate || !endDate) return;
+    if (!name || !destination) return;
+
+    const today = new Date().toISOString().split('T')[0];
 
     setLoading(true);
     const memberNames = memberMode === "manual" ? members.filter((m) => m.trim()) : [];
@@ -57,8 +59,8 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
       {
         name,
         destination,
-        startDate,
-        endDate,
+        startDate: startDate || today,
+        endDate: endDate || today,
         inviteCode: memberMode === "automatic" ? generatedCode : undefined,
         memberMode: memberMode,
       },
@@ -69,11 +71,13 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
     setDestination("");
     setStartDate("");
     setEndDate("");
+    setShowDates(false);
     setMembers([""]);
     setMemberMode("automatic");
     setGeneratedCode("");
     onOpenChange(false);
   };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md max-w-[calc(100vw-20px)] max-h-[calc(100vh-40px)] overflow-y-auto">
@@ -104,28 +108,41 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
             />
           </div>
 
-          {/* Trip Dates - Required */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label className="text-base font-semibold">Start Date</Label>
-              <Input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                required
-                className="h-10 text-base"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label className="text-base font-semibold">End Date</Label>
-              <Input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                required
-                className="h-10 text-base"
-              />
-            </div>
+          {/* Optional Dates - Collapsible */}
+          <div className="space-y-2">
+            <button
+              type="button"
+              onClick={() => setShowDates(!showDates)}
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full"
+            >
+              <CalendarDays className="h-4 w-4" />
+              <span>Add trip dates</span>
+              <span className="text-xs text-muted-foreground/60">(optional)</span>
+              {showDates ? <ChevronUp className="h-4 w-4 ml-auto" /> : <ChevronDown className="h-4 w-4 ml-auto" />}
+            </button>
+            
+            {showDates && (
+              <div className="grid grid-cols-2 gap-4 pt-1">
+                <div className="space-y-1.5">
+                  <Label className="text-sm text-muted-foreground">Start Date</Label>
+                  <Input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="h-10 text-base"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-sm text-muted-foreground">End Date</Label>
+                  <Input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="h-10 text-base"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Team Member Mode Toggle */}
@@ -160,7 +177,6 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
               </button>
             </div>
 
-            {/* Automatic Mode - Instructions */}
             {memberMode === "automatic" && (
               <div className="p-4 rounded-lg border bg-accent/50 space-y-3">
                 <div className="flex items-start gap-3">
@@ -180,7 +196,6 @@ export function CreateTripDialog({ open, onOpenChange, onCreate }: CreateTripDia
               </div>
             )}
 
-            {/* Manual Mode - Add Member Names */}
             {memberMode === "manual" && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
