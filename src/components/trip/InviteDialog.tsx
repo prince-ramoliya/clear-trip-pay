@@ -64,10 +64,25 @@ export function InviteDialog({ open, onOpenChange, inviteCode, tripName }: Invit
         </DialogHeader>
 
         <div className="space-y-4 mt-3">
+          {/* Invite Code */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              Invite Code
+            </label>
+            <div className="flex items-center justify-center bg-muted/50 rounded-lg px-4 py-3 border">
+              <span className="text-xl font-mono tracking-[0.3em] text-foreground font-bold select-all">
+                {inviteCode}
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground text-center">
+              Friends can join using this code in the "Join Trip" dialog
+            </p>
+          </div>
+
           {/* Invite Link */}
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Invite Link
+              Or share via link
             </label>
             <div className="flex items-center gap-2">
               <div className="flex-1 flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2.5 border min-w-0 overflow-hidden">
@@ -85,7 +100,7 @@ export function InviteDialog({ open, onOpenChange, inviteCode, tripName }: Invit
             </div>
           </div>
 
-          {/* Share Buttons - Stack on mobile */}
+          {/* Share Buttons */}
           <div className="flex flex-col sm:flex-row gap-2.5">
             <Button
               variant="outline"
@@ -109,11 +124,11 @@ export function InviteDialog({ open, onOpenChange, inviteCode, tripName }: Invit
           </div>
 
           <div className="rounded-lg bg-muted/50 p-3 sm:p-4">
-            <h4 className="font-medium text-sm mb-1.5">How it works:</h4>
+            <h4 className="font-medium text-sm mb-1.5">How to join:</h4>
             <ol className="text-xs sm:text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-              <li>Share the invite link with your friends</li>
-              <li>They click the link and sign up or log in</li>
-              <li>They join the trip automatically</li>
+              <li>Share the link or invite code with friends</li>
+              <li>They click the link or enter the code manually</li>
+              <li>They enter their display name and join</li>
               <li>All data syncs in real-time!</li>
             </ol>
           </div>

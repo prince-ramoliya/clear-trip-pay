@@ -8,6 +8,7 @@ const corsHeaders = {
 
 type JoinTripRequest = {
   inviteCode?: string;
+  displayName?: string;
 };
 
 // In-memory rate limiting store (resets on function cold start)
@@ -108,7 +109,7 @@ Deno.serve(async (req) => {
 
     console.log("Processing join request");
 
-    const { inviteCode }: JoinTripRequest = await req.json().catch(() => ({}));
+    const { inviteCode, displayName }: JoinTripRequest = await req.json().catch(() => ({}));
 
     const normalized = (inviteCode ?? "").trim().toLowerCase();
 
@@ -180,20 +181,23 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Get display name using admin client
-    const { data: profile } = await adminClient
-      .from("profiles")
-      .select("display_name")
-      .eq("id", userId)
-      .maybeSingle();
-
-    const displayName = profile?.display_name ?? "New Member";
+    // Use provided display name, fall back to profile name
+    let memberName = displayName?.trim();
+    if (!memberName) {
+      const { data: profile } = await adminClient
+        .from("profiles")
+        .select("display_name")
+        .eq("id", userId)
+        .maybeSingle();
+      memberName = profile?.display_name ?? "New Member";
+    }
+    
     console.log("Adding new member to trip");
 
     const { error: insertError } = await adminClient.from("trip_members").insert({
       trip_id: trip.id,
       user_id: userId,
-      display_name: displayName,
+      display_name: memberName,
       is_registered: true,
     });
 
