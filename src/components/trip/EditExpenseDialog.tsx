@@ -3,7 +3,6 @@ import { DbTripMember, DbExpense, DbExpenseParticipant } from "@/types/database"
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -20,7 +19,6 @@ import {
 } from "@/components/ui/select";
 import { getCategoryIcon, getCategoryLabel } from "@/lib/calculations";
 import { useCurrency } from "@/contexts/CurrencyContext";
-import { Users } from "lucide-react";
 
 interface EditExpenseDialogProps {
   open: boolean;
@@ -49,8 +47,6 @@ export function EditExpenseDialog({
   const [paidBy, setPaidBy] = useState('');
   const [category, setCategory] = useState('food');
   const [date, setDate] = useState('');
-  const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
-  const [splitAll, setSplitAll] = useState(true);
   const [loading, setLoading] = useState(false);
   const { currency } = useCurrency();
 
@@ -64,43 +60,19 @@ export function EditExpenseDialog({
       setPaidBy(expense.paid_by);
       setCategory(expense.category);
       setDate(expense.expense_date);
-      
-      const participantIds = expense.participants.map(p => p.member_id);
-      const allMemberIds = members.map(m => m.id);
-      const isAll = allMemberIds.length === participantIds.length && 
-        allMemberIds.every(id => participantIds.includes(id));
-      
-      setSplitAll(isAll);
-      setSelectedParticipants(participantIds);
     }
-  }, [expense, open, members]);
+  }, [expense, open]);
 
-  const toggleParticipant = (memberId: string) => {
-    setSelectedParticipants(prev =>
-      prev.includes(memberId)
-        ? prev.filter(id => id !== memberId)
-        : [...prev, memberId]
-    );
-  };
-
-  const handleSplitAllToggle = (checked: boolean) => {
-    setSplitAll(checked);
-    if (checked) {
-      setSelectedParticipants(members.map(m => m.id));
-    }
-  };
-
-  const getEffectiveParticipants = () => {
-    if (splitAll) return members.map(m => m.id);
-    return selectedParticipants;
-  };
+  const allParticipants = members.map(m => m.id);
+  const perPerson = amount && allParticipants.length > 0
+    ? parseFloat(amount) / allParticipants.length
+    : 0;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const effectivePaidBy = isAutomaticTrip && currentUserMember ? currentUserMember.id : paidBy;
-    const participants = getEffectiveParticipants();
     
-    if (!title || !amount || !effectivePaidBy || participants.length === 0) return;
+    if (!title || !amount || !effectivePaidBy || allParticipants.length === 0) return;
 
     const parsedAmount = parseFloat(amount);
     if (isNaN(parsedAmount) || !isFinite(parsedAmount) || parsedAmount <= 0 || parsedAmount >= 999999999) {
@@ -112,7 +84,7 @@ export function EditExpenseDialog({
       title,
       amount: parsedAmount,
       paidBy: effectivePaidBy,
-      participants,
+      participants: allParticipants,
       category,
       date,
     });
@@ -122,11 +94,6 @@ export function EditExpenseDialog({
       onOpenChange(false);
     }
   };
-
-  const effectiveParticipants = getEffectiveParticipants();
-  const perPerson = amount && effectiveParticipants.length > 0
-    ? parseFloat(amount) / effectiveParticipants.length
-    : 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -188,43 +155,16 @@ export function EditExpenseDialog({
             )}
           </div>
 
-          {/* Split Between Section */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-base flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                Split between
-              </Label>
-              <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
-                <Checkbox checked={splitAll} onCheckedChange={(checked) => handleSplitAllToggle(!!checked)} />
-                All members
-              </label>
+          {/* Per-person preview */}
+          {amount && allParticipants.length > 0 && (
+            <div className="text-sm text-muted-foreground bg-muted/40 rounded-md px-3 py-2">
+              {currency.symbol}{perPerson.toFixed(2)} per person · {allParticipants.length} member{allParticipants.length !== 1 ? 's' : ''}
             </div>
-
-            {!splitAll && (
-              <div className="rounded-lg border bg-muted/30 p-3 space-y-1 max-h-40 overflow-y-auto">
-                {members.map(member => (
-                  <label key={member.id} className="flex items-center gap-3 py-2 px-2 rounded-md hover:bg-muted/50 cursor-pointer transition-colors">
-                    <Checkbox checked={selectedParticipants.includes(member.id)} onCheckedChange={() => toggleParticipant(member.id)} />
-                    <span className="text-base text-foreground truncate">{member.display_name}</span>
-                  </label>
-                ))}
-                {selectedParticipants.length === 0 && (
-                  <p className="text-sm text-destructive px-2 py-1">Select at least one member</p>
-                )}
-              </div>
-            )}
-
-            {amount && effectiveParticipants.length > 0 && (
-              <div className="text-sm text-muted-foreground bg-muted/40 rounded-md px-3 py-2">
-                {currency.symbol}{perPerson.toFixed(2)} per person · {effectiveParticipants.length} member{effectiveParticipants.length !== 1 ? 's' : ''}
-              </div>
-            )}
-          </div>
+          )}
 
           <div className="flex gap-3 pt-4">
             <Button type="button" variant="outline" className="flex-1 h-10 text-base" onClick={() => onOpenChange(false)} disabled={loading}>Cancel</Button>
-            <Button type="submit" className="flex-1 h-10 text-base" disabled={loading || (!splitAll && selectedParticipants.length === 0)}>
+            <Button type="submit" className="flex-1 h-10 text-base" disabled={loading}>
               {loading ? 'Saving...' : 'Save Changes'}
             </Button>
           </div>

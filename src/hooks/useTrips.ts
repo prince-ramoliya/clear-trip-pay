@@ -454,7 +454,7 @@ export function useTrips(userId: string | undefined) {
   }, [fetchTripDetails, toast]);
 
   // Join trip via invite code
-  const joinTripByCode = useCallback(async (inviteCode: string) => {
+  const joinTripByCode = useCallback(async (inviteCode: string, displayName?: string) => {
     if (!userId) return null;
 
     try {
@@ -462,7 +462,7 @@ export function useTrips(userId: string | undefined) {
       if (!normalizedCode) return null;
 
       const { data, error } = await supabase.functions.invoke("join-trip-by-code", {
-        body: { inviteCode: normalizedCode },
+        body: { inviteCode: normalizedCode, displayName: displayName?.trim() },
       });
 
       if (error) throw error;
