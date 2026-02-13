@@ -30,12 +30,14 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  const redirectTo = searchParams.get('redirect');
+  
   // Redirect if already authenticated - must be in useEffect
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard');
+      navigate(redirectTo || '/dashboard');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, redirectTo]);
 
   const validateField = (field: string, value: string, schema: z.ZodString) => {
     try {

@@ -238,12 +238,12 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           destination: string
-          end_date: string
+          end_date?: string
           id?: string
           invite_code?: string | null
           member_mode?: string
           name: string
-          start_date: string
+          start_date?: string
           updated_at?: string
         }
         Update: {

@@ -24,7 +24,8 @@ import { FirstLoginNamePrompt } from "@/components/trip/FirstLoginNamePrompt";
 import { EmptyTripState } from "@/components/trip/EmptyTripState";
 
 import { Button } from "@/components/ui/button";
-import { Menu, X, UserPlus, Loader2, Users } from "lucide-react";
+import { Menu, X, UserPlus, Loader2, Users, Plane } from "lucide-react";
+
 export default function Index() {
   const navigate = useNavigate();
   const {
@@ -76,18 +77,27 @@ export default function Index() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isMobileAddExpenseOpen, setIsMobileAddExpenseOpen] = useState(false);
   const [shareDialogData, setShareDialogData] = useState<{ tripName: string; inviteCode: string } | null>(null);
+  const [isJoiningViaLink, setIsJoiningViaLink] = useState(false);
   const isAdmin = currentTripData?.trip.created_by === user?.id;
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      navigate('/');
+      if (urlInviteCode) {
+        // Redirect to auth with return URL so they come back after login
+        navigate(`/auth?redirect=/join/${urlInviteCode}`);
+      } else {
+        navigate('/');
+      }
     }
-  }, [authLoading, isAuthenticated, navigate]);
+  }, [authLoading, isAuthenticated, navigate, urlInviteCode]);
   useEffect(() => {
-    if (urlInviteCode && isAuthenticated) {
-      joinTripByCode(urlInviteCode);
-      navigate('/dashboard');
+    if (urlInviteCode && isAuthenticated && !isJoiningViaLink) {
+      setIsJoiningViaLink(true);
+      joinTripByCode(urlInviteCode).finally(() => {
+        setIsJoiningViaLink(false);
+        navigate('/dashboard');
+      });
     }
-  }, [urlInviteCode, isAuthenticated, joinTripByCode, navigate]);
+  }, [urlInviteCode, isAuthenticated, joinTripByCode, navigate, isJoiningViaLink]);
 
   // Show welcome message on first load after login
   useEffect(() => {
@@ -113,6 +123,20 @@ export default function Index() {
     return <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>;
+  }
+  if (isJoiningViaLink) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/25">
+          <Plane className="h-8 w-8 text-primary-foreground" />
+        </div>
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="text-center space-y-1">
+          <p className="text-lg font-semibold text-foreground">Joining trip...</p>
+          <p className="text-sm text-muted-foreground">Please wait while we add you to the trip</p>
+        </div>
+      </div>
+    );
   }
   if (!isAuthenticated) return null;
   const handleCreateTrip = async (data: {
