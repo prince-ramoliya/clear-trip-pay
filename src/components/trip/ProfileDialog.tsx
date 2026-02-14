@@ -13,9 +13,16 @@ interface ProfileDialogProps {
 }
 
 export function ProfileDialog({ open, onOpenChange, userId }: ProfileDialogProps) {
-  const { profile, updateDisplayName } = useProfile(userId);
+  const { profile, loading, updateDisplayName, refreshProfile } = useProfile(userId);
   const [newName, setNewName] = useState('');
   const [savingName, setSavingName] = useState(false);
+
+  // Refresh profile when dialog opens and sync input
+  useEffect(() => {
+    if (open) {
+      refreshProfile();
+    }
+  }, [open, refreshProfile]);
 
   useEffect(() => {
     if (open && profile?.display_name) {
@@ -26,9 +33,11 @@ export function ProfileDialog({ open, onOpenChange, userId }: ProfileDialogProps
   const handleSaveName = async () => {
     if (!newName.trim()) return;
     setSavingName(true);
-    await updateDisplayName(newName);
+    const success = await updateDisplayName(newName);
     setSavingName(false);
-    onOpenChange(false);
+    if (success) {
+      onOpenChange(false);
+    }
   };
 
   // Check if the display name looks like an email prefix (auto-generated)
@@ -87,6 +96,7 @@ export function ProfileDialog({ open, onOpenChange, userId }: ProfileDialogProps
               onChange={(e) => setNewName(e.target.value)}
               placeholder="Enter your name"
               className="h-10 text-base"
+              disabled={loading}
             />
             <p className="text-xs text-muted-foreground">
               This name will be visible to other members in your trips.
@@ -106,7 +116,7 @@ export function ProfileDialog({ open, onOpenChange, userId }: ProfileDialogProps
               type="button" 
               className="flex-1 h-10 text-base font-semibold" 
               onClick={handleSaveName}
-              disabled={savingName || !newName.trim()}
+              disabled={savingName || !newName.trim() || loading}
             >
               {savingName ? 'Saving...' : 'Save'}
             </Button>

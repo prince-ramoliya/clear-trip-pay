@@ -14,25 +14,23 @@ import { Ticket, Loader2 } from "lucide-react";
 interface JoinTripDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onJoinTrip: (inviteCode: string, displayName?: string) => Promise<any>;
+  onJoinTrip: (inviteCode: string) => Promise<any>;
 }
 
 export function JoinTripDialog({ open, onOpenChange, onJoinTrip }: JoinTripDialogProps) {
   const [inviteCode, setInviteCode] = useState('');
-  const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inviteCode.trim() || !displayName.trim()) return;
+    if (!inviteCode.trim()) return;
 
     setLoading(true);
-    const result = await onJoinTrip(inviteCode.trim(), displayName.trim());
+    const result = await onJoinTrip(inviteCode.trim());
     setLoading(false);
 
     if (result) {
       setInviteCode('');
-      setDisplayName('');
       onOpenChange(false);
     }
   };
@@ -48,27 +46,11 @@ export function JoinTripDialog({ open, onOpenChange, onJoinTrip }: JoinTripDialo
             Join a Trip
           </DialogTitle>
           <DialogDescription className="text-base">
-            Enter the invite code and your display name to join.
+            Enter the invite code to join an existing trip.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-4">
-          <div className="space-y-2">
-            <Label htmlFor="display-name" className="text-base">Your Display Name</Label>
-            <Input
-              id="display-name"
-              placeholder="e.g., John"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              className="h-12 text-base"
-              required
-              autoFocus
-            />
-            <p className="text-sm text-muted-foreground">
-              This name will be visible to all trip members.
-            </p>
-          </div>
-
           <div className="space-y-2">
             <Label htmlFor="invite-code" className="text-base">Invite Code</Label>
             <Input
@@ -79,6 +61,7 @@ export function JoinTripDialog({ open, onOpenChange, onJoinTrip }: JoinTripDialo
               className="text-center text-lg font-mono tracking-widest lowercase h-14"
               maxLength={12}
               required
+              autoFocus
             />
             <p className="text-sm text-muted-foreground text-center">
               The code is case-insensitive
@@ -95,7 +78,7 @@ export function JoinTripDialog({ open, onOpenChange, onJoinTrip }: JoinTripDialo
             >
               Cancel
             </Button>
-            <Button type="submit" className="flex-1 h-10 text-base" disabled={loading || !inviteCode.trim() || !displayName.trim()}>
+            <Button type="submit" className="flex-1 h-10 text-base" disabled={loading || !inviteCode.trim()}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-5 w-5 animate-spin" />

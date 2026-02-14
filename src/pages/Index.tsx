@@ -304,7 +304,7 @@ export default function Index() {
 
       {/* Dialogs */}
       <CreateTripDialog open={isCreateTripOpen} onOpenChange={setIsCreateTripOpen} onCreate={handleCreateTrip} />
-      <JoinTripDialog open={isJoinTripOpen} onOpenChange={setIsJoinTripOpen} onJoinTrip={joinTripByCode} />
+      <JoinTripDialog open={isJoinTripOpen} onOpenChange={setIsJoinTripOpen} onJoinTrip={(code) => joinTripByCode(code)} />
       {shareDialogData && (
         <TripCreatedShareDialog
           open={!!shareDialogData}
