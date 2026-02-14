@@ -89,8 +89,8 @@ export function InviteDialog({ open, onOpenChange, inviteCode, tripName }: Invit
               Invite Code
             </label>
             <div className="flex items-center gap-2">
-              <div className="flex-1 flex items-center justify-center bg-muted/50 rounded-lg px-3 py-3 border">
-                <span className="text-lg font-mono tracking-[0.25em] text-foreground font-bold select-all break-all">
+              <div className="flex-1 flex items-center justify-center bg-muted/50 rounded-lg px-3 py-3 border overflow-hidden min-w-0">
+                <span className="text-base sm:text-lg font-mono tracking-[0.2em] text-foreground font-bold select-all truncate">
                   {inviteCode}
                 </span>
               </div>
@@ -111,9 +111,9 @@ export function InviteDialog({ open, onOpenChange, inviteCode, tripName }: Invit
               Invite Link
             </label>
             <div className="flex items-center gap-2">
-              <div className="flex-1 flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2.5 border min-w-0">
+              <div className="flex-1 flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2.5 border overflow-hidden min-w-0">
                 <Link className="h-4 w-4 text-primary shrink-0" />
-                <span className="text-sm text-foreground font-medium truncate break-all">
+                <span className="text-xs sm:text-sm text-foreground font-medium truncate">
                   {inviteLink}
                 </span>
               </div>
@@ -156,7 +156,7 @@ export function InviteDialog({ open, onOpenChange, inviteCode, tripName }: Invit
             <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
               <li>Share the link or invite code with friends</li>
               <li>They click the link or enter the code manually</li>
-              <li>They enter their display name and join</li>
+              <li>They'll be added automatically after signing in</li>
               <li>All data syncs in real-time!</li>
             </ol>
           </div>
