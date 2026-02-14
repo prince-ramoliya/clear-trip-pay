@@ -928,6 +928,9 @@ export function useTrips(userId: string | undefined) {
     if (!currentTripId || !userId) return false;
 
     try {
+      // Force refresh trip data to avoid stale balance checks
+      await fetchTripDetails(true);
+
       const { data: membership, error: findError } = await supabase
         .from('trip_members')
         .select('id')
@@ -945,7 +948,7 @@ export function useTrips(userId: string | undefined) {
         return false;
       }
 
-      // Check if user has unsettled balance (including payments)
+      // Check if user has unsettled balance (including payments) using fresh data
       const memberBalance = await getMemberBalance(membership.id);
       if (Math.abs(memberBalance) > 0.01) {
         toast({
@@ -958,22 +961,6 @@ export function useTrips(userId: string | undefined) {
         return false;
       }
 
-      const { data: userExpenses } = await supabase
-        .from('expenses')
-        .select('id')
-        .eq('trip_id', currentTripId)
-        .eq('paid_by', membership.id)
-        .limit(1);
-
-      if (userExpenses && userExpenses.length > 0) {
-        toast({
-          title: "Cannot leave trip",
-          description: "You have paid for expenses. Reassign or delete those expenses first.",
-          variant: "destructive",
-        });
-        return false;
-      }
-
       // Store trip ID before clearing state
       const tripIdToLeave = currentTripId;
       
@@ -981,13 +968,29 @@ export function useTrips(userId: string | undefined) {
       const remainingTrips = trips.filter(t => t.id !== tripIdToLeave);
       const nextTripId = remainingTrips.length > 0 ? remainingTrips[0].id : null;
 
-      // Perform the deletion first, then update state
+      // Remove user from expense participants first
       const { error: removeParticipationError } = await supabase
         .from('expense_participants')
         .delete()
         .eq('member_id', membership.id);
 
       if (removeParticipationError) throw removeParticipationError;
+
+      // Reassign any expenses paid by the user to null or delete them
+      const { data: userExpenses } = await supabase
+        .from('expenses')
+        .select('id')
+        .eq('trip_id', currentTripId)
+        .eq('paid_by', membership.id);
+
+      if (userExpenses && userExpenses.length > 0) {
+        // Delete expenses paid by this user since balance is 0
+        const { error: deleteExpError } = await supabase
+          .from('expenses')
+          .delete()
+          .in('id', userExpenses.map(e => e.id));
+        if (deleteExpError) throw deleteExpError;
+      }
 
       const { error } = await supabase
         .from('trip_members')
@@ -1002,7 +1005,6 @@ export function useTrips(userId: string | undefined) {
       setCurrentTripId(nextTripId);
       
       if (nextTripId) {
-        // Load the next trip's data
         const cachedNext = tripDataCache.get(nextTripId);
         if (cachedNext) {
           setCurrentTripData(cachedNext);
@@ -1033,7 +1035,7 @@ export function useTrips(userId: string | undefined) {
       });
       return false;
     }
-  }, [currentTripId, userId, trips, getMemberBalance, fetchTrips, toast]);
+  }, [currentTripId, userId, trips, getMemberBalance, fetchTripDetails, fetchTrips, toast]);
 
   return {
     trips,

@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Check, Copy, Link, MessageCircle, PartyPopper } from "lucide-react";
+import { Check, Copy, MessageCircle, PartyPopper, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
 const APP_URL = "https://clear-trip-pay.lovable.app";
@@ -20,11 +20,12 @@ export function TripCreatedShareDialog({
   inviteCode,
 }: TripCreatedShareDialogProps) {
   const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
 
   const inviteLink = `${APP_URL}/join/${inviteCode}`;
 
   const getFormattedMessage = () => {
-    return `🎒 Join my trip "${tripName}" on TripSplit!\n\n🔗 Click to join: ${inviteLink}`;
+    return `🎒 Join my trip "${tripName}" on TripSplit!\n\n🔗 Click to join: ${inviteLink}\n\n📋 Or use code: ${inviteCode}`;
   };
 
   const copyLink = async () => {
@@ -37,6 +38,16 @@ export function TripCreatedShareDialog({
     }
   };
 
+  const copyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(inviteCode);
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2500);
+    } catch {
+      // fallback
+    }
+  };
+
   const shareOnWhatsApp = () => {
     const message = encodeURIComponent(getFormattedMessage());
     window.open(`https://wa.me/?text=${message}`, "_blank");
@@ -44,84 +55,117 @@ export function TripCreatedShareDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-w-[calc(100vw-20px)] max-h-[calc(100vh-40px)] overflow-y-auto p-4 sm:p-6">
-        <DialogHeader className="text-center sm:text-center pb-2">
+      <DialogContent className="sm:max-w-[400px] max-w-[calc(100vw-20px)] max-h-[calc(100vh-40px)] overflow-y-auto p-0 gap-0 border-0">
+        {/* Celebration Header */}
+        <div className="relative overflow-hidden rounded-t-lg bg-gradient-to-br from-primary/15 via-primary/5 to-transparent px-5 pt-8 pb-6 text-center">
+          <div className="absolute top-0 left-0 w-24 h-24 bg-primary/5 rounded-full -translate-y-1/2 -translate-x-1/2" />
+          <div className="absolute bottom-0 right-0 w-32 h-32 bg-primary/5 rounded-full translate-y-1/2 translate-x-1/2" />
+          
           <motion.div
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", duration: 0.5 }}
-            className="mx-auto mb-3"
+            initial={{ scale: 0, rotate: -20 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", duration: 0.6, bounce: 0.5 }}
+            className="mx-auto mb-4"
           >
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+            <div className="relative inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/15">
               <PartyPopper className="h-8 w-8 text-primary" />
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.3, type: "spring" }}
+                className="absolute -top-1 -right-1"
+              >
+                <Sparkles className="h-4 w-4 text-primary" />
+              </motion.div>
             </div>
           </motion.div>
-          <DialogTitle className="text-xl sm:text-2xl font-bold">
-            Trip Created! 🎉
-          </DialogTitle>
-          <DialogDescription className="text-base">
-            Share this link with your friends so they can join <span className="font-semibold text-foreground">"{tripName}"</span>
-          </DialogDescription>
-        </DialogHeader>
 
-        <div className="space-y-4 mt-2">
-          {/* Invite Link */}
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Invite Link
+          <DialogHeader className="space-y-1">
+            <DialogTitle className="text-xl sm:text-2xl font-bold text-foreground">
+              Trip Created! 🎉
+            </DialogTitle>
+            <p className="text-sm text-muted-foreground">
+              Share with friends to join <span className="font-semibold text-foreground">"{tripName}"</span>
+            </p>
+          </DialogHeader>
+        </div>
+
+        <div className="px-5 pb-5 space-y-4">
+          {/* Invite Code */}
+          <div className="space-y-2 pt-1">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Invite Code
             </label>
-            <div className="flex items-center gap-2">
-              <div className="flex-1 flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-3 border text-sm min-w-0">
-                <Link className="h-4 w-4 text-primary shrink-0" />
-                <span className="truncate text-foreground font-medium">{inviteLink}</span>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={copyLink}
-                className="h-12 w-12 shrink-0 rounded-lg"
-              >
-                {copiedLink ? (
-                  <Check className="h-5 w-5 text-emerald-500" />
+            <button
+              onClick={copyCode}
+              className="w-full flex items-center justify-between gap-3 bg-muted/60 hover:bg-muted rounded-xl px-4 py-3.5 border border-border/50 transition-colors group"
+            >
+              <span className="text-lg font-mono tracking-[0.25em] font-bold text-foreground truncate">
+                {inviteCode}
+              </span>
+              <div className="shrink-0">
+                {copiedCode ? (
+                  <Check className="h-4 w-4 text-emerald-500" />
                 ) : (
-                  <Copy className="h-5 w-5" />
+                  <Copy className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
                 )}
-              </Button>
-            </div>
+              </div>
+            </button>
           </div>
 
-          {/* Share Buttons */}
-          <div className="flex flex-col gap-2.5 pt-1">
+          {/* Invite Link */}
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Invite Link
+            </label>
+            <button
+              onClick={copyLink}
+              className="w-full flex items-center justify-between gap-3 bg-muted/60 hover:bg-muted rounded-xl px-4 py-3 border border-border/50 transition-colors group"
+            >
+              <span className="text-xs text-muted-foreground font-medium truncate min-w-0">
+                {inviteLink}
+              </span>
+              <div className="shrink-0">
+                {copiedLink ? (
+                  <Check className="h-4 w-4 text-emerald-500" />
+                ) : (
+                  <Copy className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+                )}
+              </div>
+            </button>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="space-y-2.5 pt-1">
             <Button
               type="button"
               variant="outline"
               onClick={copyLink}
-              className="flex-1 h-12 text-base font-semibold rounded-xl"
+              className="w-full h-11 text-base font-semibold rounded-xl"
             >
               {copiedLink ? (
-                <Check className="h-5 w-5 mr-2 text-emerald-500" />
+                <Check className="h-4 w-4 mr-2 text-emerald-500" />
               ) : (
-                <Copy className="h-5 w-5 mr-2" />
+                <Copy className="h-4 w-4 mr-2" />
               )}
               {copiedLink ? "Copied!" : "Copy Link"}
             </Button>
             <Button
               type="button"
               onClick={shareOnWhatsApp}
-              className="flex-1 h-12 text-base font-semibold rounded-xl bg-[#25D366] hover:bg-[#20BD5A] text-white"
+              className="w-full h-11 text-base font-semibold rounded-xl bg-[#25D366] hover:bg-[#20BD5A] text-white"
             >
-              <MessageCircle className="h-5 w-5 mr-2" />
-              WhatsApp
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Share on WhatsApp
             </Button>
           </div>
 
-          {/* Done Button */}
+          {/* Done */}
           <Button
             type="button"
             variant="ghost"
             onClick={() => onOpenChange(false)}
-            className="w-full h-11 text-muted-foreground hover:text-foreground"
+            className="w-full h-10 text-sm text-muted-foreground hover:text-foreground"
           >
             Done
           </Button>
