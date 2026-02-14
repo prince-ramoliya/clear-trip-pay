@@ -44,7 +44,7 @@ export function TripCreatedShareDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-w-[calc(100vw-20px)]">
+      <DialogContent className="sm:max-w-md max-w-[calc(100vw-20px)] max-h-[calc(100vh-40px)] overflow-y-auto p-4 sm:p-6">
         <DialogHeader className="text-center sm:text-center pb-2">
           <motion.div
             initial={{ scale: 0.5, opacity: 0 }}
@@ -92,7 +92,7 @@ export function TripCreatedShareDialog({
           </div>
 
           {/* Share Buttons */}
-          <div className="flex gap-3 pt-1">
+          <div className="flex flex-col gap-2.5 pt-1">
             <Button
               type="button"
               variant="outline"
