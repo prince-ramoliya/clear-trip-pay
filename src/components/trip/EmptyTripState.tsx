@@ -84,7 +84,7 @@ export function EmptyTripState({ onCreateTrip, onJoinTrip }: EmptyTripStateProps
           className="w-full h-16 sm:h-[72px] text-lg sm:text-xl font-bold gap-3 hover:bg-accent transition-all border-2 rounded-2xl"
         >
           <Link className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={2} />
-          Join with Invite Link
+          Join with Invite Code
         </Button>
       </motion.div>
 
