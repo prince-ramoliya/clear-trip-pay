@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform, useInView, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { Cover } from "@/components/ui/cover";
 import {
   Plane, Users, Receipt, Calculator, Shield, Check,
   ArrowRight, Sparkles, CreditCard, PieChart, ArrowDown,
@@ -315,19 +316,17 @@ export default function Landing() {
             </motion.div>
 
             {/* Headline with character stagger */}
-            <h1 className="text-[2.6rem] leading-[1.02] sm:text-5xl md:text-6xl lg:text-[4.5rem] font-black text-foreground tracking-tight mb-4 sm:mb-6 max-w-4xl">
+            <h1 className="text-[2.6rem] leading-[1.08] sm:text-5xl md:text-6xl lg:text-[4.5rem] font-black text-foreground tracking-tight mb-4 sm:mb-6 max-w-4xl">
               <WordReveal text="Split Expenses," delay={0.25} />
               <br />
               <span className="relative inline-block mt-1 sm:mt-2">
-                <WordReveal text="Not Friendships." delay={0.6} className="bg-gradient-to-r from-primary via-primary/90 to-primary/60 bg-clip-text text-transparent" />
-                <motion.div
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ delay: 1.3, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                  className="absolute -bottom-1 sm:-bottom-2 left-0 right-0 h-1 sm:h-1.5 rounded-full origin-left overflow-hidden">
-
-                  <div className="w-full h-full bg-gradient-to-r from-primary/40 via-primary/20 to-transparent" />
-                </motion.div>
+                <WordReveal text="Not" delay={0.6} className="bg-gradient-to-r from-primary via-primary/90 to-primary/60 bg-clip-text text-transparent" />
+                {" "}
+                <Cover>
+                  <span className="bg-gradient-to-r from-primary via-primary/90 to-primary/60 bg-clip-text text-transparent">
+                    Friendships.
+                  </span>
+                </Cover>
               </span>
             </h1>
 
