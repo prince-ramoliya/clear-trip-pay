@@ -25,7 +25,7 @@ export function TripCreatedShareDialog({
   const inviteLink = `${APP_URL}/join/${inviteCode}`;
 
   const getFormattedMessage = () => {
-    return `🎒 Join my trip "${tripName}" on TripSplit!\n\n🔗 Click to join: ${inviteLink}\n\n📋 Or use code: ${inviteCode}`;
+    return `🎒 Join my trip "${tripName}" on Cleartrippay!\n\n🔗 Click to join: ${inviteLink}\n\n📋 Or use code: ${inviteCode}`;
   };
 
   const copyLink = async () => {

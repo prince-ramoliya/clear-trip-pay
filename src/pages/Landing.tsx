@@ -206,13 +206,13 @@ const steps = [
 
 
 const testimonials = [
-{ quote: "TripSplit eliminated every awkward money moment on our Europe trip. It just works.", author: "Priya M.", role: "Adventure Traveler", avatar: "🌍" },
+{ quote: "Cleartrippay eliminated every awkward money moment on our Europe trip. It just works.", author: "Priya M.", role: "Adventure Traveler", avatar: "🌍" },
 { quote: "The settlement algorithm is brilliant. Complex group expenses resolved in seconds.", author: "Rahul K.", role: "Group Organizer", avatar: "✈️" },
 { quote: "WhatsApp sharing is genius. Friends who don't have the app can still participate.", author: "Sneha P.", role: "Weekend Explorer", avatar: "🏖️" }];
 
 
 const faqs = [
-{ q: "Is TripSplit really free?", a: "Yes, 100% free forever. No hidden charges, no premium plans, no ads." },
+{ q: "Is Cleartrippay really free?", a: "Yes, 100% free forever. No hidden charges, no premium plans, no ads." },
 { q: "Do all members need an account?", a: "No! Trip creators can add guest members who don't need to sign up. They can still be part of expense tracking." },
 { q: "How does the settlement work?", a: "Our algorithm calculates the minimum number of transactions needed to settle all debts. One person pays one other person — no chain of payments." },
 { q: "Can I share expenses on WhatsApp?", a: "Absolutely! You can share trip summaries, settlement details, and invite links directly via WhatsApp with one tap." },
@@ -243,7 +243,7 @@ export default function Landing() {
             <div className="h-8 w-8 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/20">
               <Plane className="h-4 w-4" />
             </div>
-            <span className="text-base sm:text-lg font-bold text-foreground tracking-tight">TripSplit</span>
+            <span className="text-base sm:text-lg font-bold text-foreground tracking-tight">Cleartrippay</span>
           </Link>
           <div className="flex items-center gap-1.5 sm:gap-2">
             <Button variant="ghost" size="sm" asChild className="font-medium text-xs sm:text-sm h-8 sm:h-9 px-2.5 sm:px-4">
@@ -448,7 +448,7 @@ export default function Landing() {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.6, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="relative w-full max-w-lg sm:max-w-2xl"
+              className="relative w-full max-w-lg sm:max-w-2xl p-4 sm:p-6"
             >
               {/* Glow behind card */}
               <div className="absolute inset-0 -z-10 rounded-3xl blur-3xl opacity-20" style={{ background: "radial-gradient(circle at 50% 50%, hsl(var(--primary) / 0.3), transparent 70%)" }} />
@@ -609,7 +609,7 @@ export default function Landing() {
                 <span className="text-[11px] sm:text-xs font-bold text-success uppercase tracking-wider">The Solution</span>
               </div>
               <h2 className="text-xl sm:text-3xl md:text-4xl font-black text-foreground">
-                TripSplit handles it all — automatically
+                Cleartrippay handles it all — automatically
               </h2>
             </div>
           </Reveal>
@@ -633,7 +633,7 @@ export default function Landing() {
             <div className="text-center mb-8 sm:mb-10">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-3">
                 <Sparkles className="h-3.5 w-3.5 text-primary" />
-                <span className="text-[11px] sm:text-xs font-bold text-primary uppercase tracking-wider">Why TripSplit</span>
+                <span className="text-[11px] sm:text-xs font-bold text-primary uppercase tracking-wider">Why Cleartrippay</span>
               </div>
               <h2 className="text-xl sm:text-3xl md:text-4xl font-black text-foreground">
                 Why should you use this app?
@@ -871,8 +871,8 @@ export default function Landing() {
                   <Button size="lg" variant="secondary" asChild className="w-full sm:w-auto text-sm sm:text-base px-7 py-5 sm:py-6 bg-white text-primary hover:bg-white/90 shadow-xl font-bold rounded-full">
                     <Link to="/auth?tab=signup">Create Free Account <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" /></Link>
                   </Button>
-                  <Button size="lg" variant="outline" asChild className="w-full sm:w-auto text-sm sm:text-base px-7 py-5 sm:py-6 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 rounded-full">
-                    <Link to="/auth?tab=login" className="text-primary-foreground">Sign In</Link>
+                  <Button size="lg" variant="outline" asChild className="w-full sm:w-auto text-sm sm:text-base px-7 py-5 sm:py-6 border-white/40 text-white hover:bg-white/10 rounded-full">
+                    <Link to="/auth?tab=login">Sign In</Link>
                   </Button>
                 </div>
               </div>
@@ -889,10 +889,10 @@ export default function Landing() {
               <div className="h-7 w-7 rounded-lg bg-primary text-primary-foreground flex items-center justify-center">
                 <Plane className="h-3.5 w-3.5" />
               </div>
-              <span className="text-base font-bold text-foreground">TripSplit</span>
+              <span className="text-base font-bold text-foreground">Cleartrippay</span>
             </div>
             <p className="text-muted-foreground text-center text-xs">
-              © {new Date().getFullYear()} TripSplit. Developed by Prince Ramoliya ❤️ for travelers everywhere.
+              © {new Date().getFullYear()} Cleartrippay. Developed by Prince Ramoliya ❤️ for travelers everywhere.
             </p>
             <div className="flex items-center gap-1.5">
               <Button variant="ghost" size="sm" asChild className="text-xs h-8">

@@ -225,7 +225,7 @@ export default function Index() {
           {currentTripData ? <div className="min-w-0 flex-1">
               <h1 className="font-bold text-foreground truncate text-lg">{currentTripData.trip.name}</h1>
               
-            </div> : <span className="font-bold text-foreground text-lg">TripSplit</span>}
+            </div> : <span className="font-bold text-foreground text-lg">Cleartrippay</span>}
         </div>
         <div className="flex items-center gap-1 shrink-0">
           {currentTripData && <>
@@ -244,7 +244,7 @@ export default function Index() {
           <div className="absolute inset-0 bg-black/50" onClick={() => setIsMobileSidebarOpen(false)} />
           <div className="absolute inset-y-0 left-0 w-[300px] max-w-[85vw] bg-sidebar shadow-xl animate-in slide-in-from-left duration-300">
             <div className="flex items-center justify-between px-5 py-4 border-b border-sidebar-border">
-              <span className="text-lg font-bold text-sidebar-foreground">TripSplit</span>
+              <span className="text-lg font-bold text-sidebar-foreground">Cleartrippay</span>
               <Button variant="ghost" size="icon" onClick={() => setIsMobileSidebarOpen(false)} className="text-sidebar-foreground h-10 w-10">
                 <X className="h-5 w-5" />
               </Button>

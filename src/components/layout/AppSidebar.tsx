@@ -156,7 +156,7 @@ export function AppSidebar({
         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sidebar-primary shrink-0">
           <Wallet className="h-5 w-5 text-sidebar-primary-foreground" />
         </div>
-        <span className="text-lg font-bold text-sidebar-foreground">TripSplit</span>
+        <span className="text-lg font-bold text-sidebar-foreground">Cleartrippay</span>
       </div>
 
       <div className="flex-1 overflow-y-auto py-4">
