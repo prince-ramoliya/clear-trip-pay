@@ -872,7 +872,7 @@ export default function Landing() {
                     <Link to="/auth?tab=signup">Create Free Account <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" /></Link>
                   </Button>
                   <Button size="lg" variant="outline" asChild className="w-full sm:w-auto text-sm sm:text-base px-7 py-5 sm:py-6 border-white/40 text-white hover:bg-white/10 rounded-full">
-                    <Link to="/auth?tab=login" className="bg-primary-foreground text-primary font-sans text-sm font-bold">Sign In</Link>
+                    <Link to="/auth?tab=login" className="bg-primary-foreground font-sans text-sm font-bold text-primary">Sign In</Link>
                   </Button>
                 </div>
               </div>
