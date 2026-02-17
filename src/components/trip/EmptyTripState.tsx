@@ -55,7 +55,7 @@ export function EmptyTripState({ onCreateTrip, onJoinTrip }: EmptyTripStateProps
         </motion.div>
 
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-2 sm:mb-3">
-          Welcome to <span className="text-primary">TripSplit</span>
+          Welcome to <span className="text-primary">Cleartrippay</span>
         </h1>
         <p className="text-base sm:text-lg text-muted-foreground max-w-sm sm:max-w-md mx-auto">
           Split travel expenses with friends — no spreadsheets, no drama.

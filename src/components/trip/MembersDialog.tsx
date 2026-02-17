@@ -91,7 +91,7 @@ export function MembersDialog({
 
   const shareOnWhatsApp = () => {
     const message = encodeURIComponent(
-      `🎒 Join my trip "${tripName}" on TripSplit!\n\n🔗 Click to join: ${inviteLink}`
+      `🎒 Join my trip "${tripName}" on Cleartrippay!\n\n🔗 Click to join: ${inviteLink}`
     );
     window.open(`https://wa.me/?text=${message}`, "_blank");
   };

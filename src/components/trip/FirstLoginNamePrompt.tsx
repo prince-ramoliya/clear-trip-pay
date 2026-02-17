@@ -54,7 +54,7 @@ export function FirstLoginNamePrompt({ userId }: FirstLoginNamePromptProps) {
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
               <Sparkles className="h-5 w-5 text-primary" />
             </div>
-            Welcome to TripSplit!
+            Welcome to Cleartrippay!
           </DialogTitle>
           <DialogDescription className="text-base">
             Let's set up your display name so your friends can recognize you.

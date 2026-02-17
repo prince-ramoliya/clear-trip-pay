@@ -114,7 +114,7 @@ export default function Auth() {
     } else {
       toast({
         title: "Account created!",
-        description: "Welcome to TripSplit! You're now logged in.",
+        description: "Welcome to Cleartrippay! You're now logged in.",
       });
       navigate('/dashboard');
     }
@@ -142,7 +142,7 @@ export default function Auth() {
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary shadow-lg shadow-primary/25">
             <Plane className="h-7 w-7 text-primary-foreground" />
           </div>
-          <span className="text-3xl font-bold text-foreground">TripSplit</span>
+          <span className="text-3xl font-bold text-foreground">Cleartrippay</span>
         </div>
 
         <Card className="border-0 shadow-xl shadow-black/5 bg-card/80 backdrop-blur-sm">

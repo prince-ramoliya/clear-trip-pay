@@ -57,7 +57,7 @@ export function WhatsAppShareButton({ trip, className }: WhatsAppShareButtonProp
     }
     
     lines.push('');
-    lines.push('_Sent via TripSplit_');
+    lines.push('_Sent via Cleartrippay_');
     
     return lines.join('\n');
   };

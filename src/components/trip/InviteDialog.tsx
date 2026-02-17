@@ -50,7 +50,7 @@ export function InviteDialog({ open, onOpenChange, inviteCode, tripName }: Invit
 
   const shareOnWhatsApp = () => {
     const message = encodeURIComponent(
-      `🎒 Join my trip "${tripName}" on TripSplit!\n\n🔗 Click to join: ${inviteLink}\n\n📋 Or use code: ${inviteCode}`
+      `🎒 Join my trip "${tripName}" on Cleartrippay!\n\n🔗 Click to join: ${inviteLink}\n\n📋 Or use code: ${inviteCode}`
     );
     window.open(`https://wa.me/?text=${message}`, "_blank");
   };
