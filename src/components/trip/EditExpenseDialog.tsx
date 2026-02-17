@@ -37,7 +37,7 @@ interface EditExpenseDialogProps {
   }) => Promise<boolean>;
 }
 
-const categories = ['food', 'stay', 'travel', 'shopping', 'activities', 'other'];
+const categories = ['food', 'stay', 'travel', 'essentials', 'activities', 'tickets', 'medical', 'other'];
 
 export function EditExpenseDialog({ 
   open, onOpenChange, expense, members, currentUserId, memberMode, onUpdateExpense 

@@ -103,8 +103,10 @@ export function getCategoryIcon(category: string): string {
     food: '🍽️',
     stay: '🏨',
     travel: '🚗',
-    shopping: '🛍️',
+    essentials: '🧴',
     activities: '🎯',
+    tickets: '🎟️',
+    medical: '💊',
     other: '📝',
   };
   return icons[category] || '📝';
@@ -115,8 +117,10 @@ export function getCategoryLabel(category: string): string {
     food: 'Food & Drinks',
     stay: 'Accommodation',
     travel: 'Transport',
-    shopping: 'Shopping',
+    essentials: 'Trip Essentials',
     activities: 'Activities',
+    tickets: 'Tickets & Entry',
+    medical: 'Medical & Safety',
     other: 'Other',
   };
   return labels[category] || 'Other';

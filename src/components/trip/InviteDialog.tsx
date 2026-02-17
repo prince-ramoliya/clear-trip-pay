@@ -57,7 +57,7 @@ export function InviteDialog({ open, onOpenChange, inviteCode, tripName }: Invit
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px] max-w-[calc(100vw-20px)] max-h-[calc(100vh-40px)] overflow-y-auto p-0 gap-0 border-0">
+      <DialogContent className="sm:max-w-[400px] max-w-[calc(100vw-32px)] max-h-[calc(100vh-40px)] overflow-y-auto overflow-x-hidden p-0 gap-0 border-0">
         {/* Header with gradient */}
         <div className="relative overflow-hidden rounded-t-lg bg-gradient-to-br from-primary/10 via-primary/5 to-transparent px-5 pt-6 pb-5">
           <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2" />
@@ -93,7 +93,7 @@ export function InviteDialog({ open, onOpenChange, inviteCode, tripName }: Invit
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 shrink-0">
                   <QrCode className="h-4 w-4 text-primary" />
                 </div>
-                <span className="text-lg font-mono tracking-[0.25em] font-bold text-foreground truncate">
+                <span className="text-base font-mono tracking-[0.15em] font-bold text-foreground truncate break-all">
                   {inviteCode}
                 </span>
               </div>
@@ -116,7 +116,7 @@ export function InviteDialog({ open, onOpenChange, inviteCode, tripName }: Invit
               onClick={copyInviteLink}
               className="w-full flex items-center justify-between gap-3 bg-muted/60 hover:bg-muted rounded-xl px-4 py-3 border border-border/50 transition-colors group"
             >
-              <span className="text-xs text-muted-foreground font-medium truncate min-w-0">
+              <span className="text-xs text-muted-foreground font-medium truncate min-w-0 break-all">
                 {inviteLink}
               </span>
               <div className="shrink-0">
