@@ -36,7 +36,7 @@ interface AddExpenseDialogProps {
   }) => Promise<any>;
 }
 
-const categories = ['food', 'stay', 'travel', 'shopping', 'activities', 'other'];
+const categories = ['food', 'stay', 'travel', 'essentials', 'activities', 'tickets', 'medical', 'other'];
 
 export function AddExpenseDialog({ open, onOpenChange, members, currentUserId, memberMode, onAddExpense }: AddExpenseDialogProps) {
   const [title, setTitle] = useState('');
