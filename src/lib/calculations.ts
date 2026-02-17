@@ -101,7 +101,7 @@ export function getTotalExpenses(expenses: Expense[]): number {
 export function getCategoryIcon(category: string): string {
   const icons: Record<string, string> = {
     food: '🍽️',
-    stay: '🏨',
+    stay: '🏡',
     travel: '🚗',
     essentials: '🧴',
     activities: '🎯',
@@ -115,7 +115,7 @@ export function getCategoryIcon(category: string): string {
 export function getCategoryLabel(category: string): string {
   const labels: Record<string, string> = {
     food: 'Food & Drinks',
-    stay: 'Accommodation',
+    stay: 'Hotel & Stays',
     travel: 'Transport',
     essentials: 'Trip Essentials',
     activities: 'Activities',
